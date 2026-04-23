@@ -6,6 +6,17 @@ set -e
 echo "🚀 Iniciando configuración a prueba de balas de HabitOS..."
 echo "----------------------------------------------------"
 
+# 0. Detectar Sistema Operativo
+OS="$(uname -s)"
+case "${OS}" in
+    Linux*)     MACHINE=Linux;;
+    Darwin*)    MACHINE=Mac;;
+    CYGWIN*|MINGW*|MSYS*) MACHINE=Windows;;
+    *)          MACHINE="UNKNOWN"
+esac
+
+echo "💻 Sistema Operativo detectado: $MACHINE"
+
 # 1. Validar que Docker esté instalado y corriendo (VITAL para evitar el 'en mi máquina sí funciona')
 if ! command -v docker &> /dev/null; then
     echo "❌ Error: Docker no está instalado."
@@ -22,9 +33,18 @@ fi
 # 2. Validar que Bun esté instalado
 if ! command -v bun &> /dev/null; then
     echo "⚠️ Bun no está instalado. Intentando instalarlo automáticamente..."
-    curl -fsSL https://bun.sh/install | bash
+    
+    if [ "$MACHINE" == "Windows" ]; then
+        echo "🪟 Instalando Bun para Windows..."
+        powershell -c "irm bun.sh/install.ps1 | iex"
+    else
+        echo "🍏/🐧 Instalando Bun para Mac/Linux..."
+        curl -fsSL https://bun.sh/install | bash
+    fi
+    
     # Cargar bun al path actual para poder usarlo inmediatamente
     export PATH="$HOME/.bun/bin:$PATH"
+    
     if ! command -v bun &> /dev/null; then
         echo "❌ Error: No se pudo instalar Bun automáticamente. Reinicia tu terminal e intenta de nuevo."
         exit 1
