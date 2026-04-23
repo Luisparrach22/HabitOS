@@ -1,0 +1,23 @@
+{
+  "name": "habitos-backend",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --hot src/index.ts",
+    "db:push": "bunx prisma db push",
+    "db:studio": "bunx prisma studio"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.8.0",
+    "express": "^5.0.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "prisma": "^7.8.0",
+    "@types/node": "latest",
+    "@types/express": "latest",
+    "@types/cors": "latest",
+    "typescript": "latest"
+  }
+}
