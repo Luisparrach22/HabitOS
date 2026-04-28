@@ -3,19 +3,19 @@ import { StyleSheet, ActivityIndicator } from 'react-native';
 
 import { Text, View } from '@/components/Themed';
 
+import { api } from '@/services/api';
+
 export default function TabOneScreen() {
   const [backendMessage, setBackendMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('http://localhost:4000/')
-      .then((response) => response.json())
+    api.getHello()
       .then((data) => {
         setBackendMessage(data.message);
         setLoading(false);
       })
-      .catch((error) => {
-        console.error('Error conectando al backend:', error);
+      .catch(() => {
         setBackendMessage('Error al conectar con el Backend ❌');
         setLoading(false);
       });

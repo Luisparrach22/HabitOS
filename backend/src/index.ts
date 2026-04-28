@@ -8,17 +8,14 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 4000;
 
+import routes from './routes';
+
 // Middleware
 app.use(cors());
 app.use(express.json());
 
-// Ruta de prueba (Hello World)
-app.get('/', (req, res) => {
-  res.json({
-    status: 'success',
-    message: 'Hello World! El backend de HabitOS está funcionando correctamente 🚀'
-  });
-});
+// Rutas
+app.use('/', routes);
 
 // Iniciar servidor
 app.listen(PORT, () => {

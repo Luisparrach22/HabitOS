@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "moduleResolution": "node",
+    "jsx": "react-native"
+  },
+  "exclude": [
+    "node_modules",
+    "frontend",
+    "backend"
+  ]
+}
