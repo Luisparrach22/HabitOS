@@ -8,13 +8,13 @@
     "db:studio": "bunx prisma studio"
   },
   "dependencies": {
-    "@prisma/client": "^7.8.0",
-    "express": "^5.0.0",
+    "@prisma/client": "^6.2.1",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.0"
+    "dotenv": "^16.4.0",
+    "express": "^5.0.0"
   },
   "devDependencies": {
-    "prisma": "^7.8.0",
+    "prisma": "^6.2.1",
     "@types/node": "latest",
     "@types/express": "latest",
     "@types/cors": "latest",

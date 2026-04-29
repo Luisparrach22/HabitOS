@@ -1,23 +1,15 @@
 import express from 'express';
 import cors from 'cors';
-import dotenv from 'dotenv';
-
-// Cargar variables de entorno
-dotenv.config();
+import habitRoutes from './routes/habit.routes.js';
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const port = process.env.PORT || 3000;
 
-import routes from './routes';
-
-// Middleware
 app.use(cors());
 app.use(express.json());
 
-// Rutas
-app.use('/', routes);
+app.use('/api', habitRoutes);
 
-// Iniciar servidor
-app.listen(PORT, () => {
-  console.log(`✅ Servidor backend corriendo en el puerto ${PORT}`);
+app.listen(port, () => {
+  console.log(`Backend server is running on port ${port}`);
 });

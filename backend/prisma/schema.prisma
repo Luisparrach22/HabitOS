@@ -1,12 +1,84 @@
+// Configuración del generador y la fuente de datos
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- MODELOS DE DATOS ---
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String    
+  avatarUrl     String?
+  
+  // Gamificación
+  totalXp       Int       @default(0)
+  level         Int       @default(1)
+  
+  // Relaciones
+  habits        Habit[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 }
 
 model Habit {
-  id    Int    @id @default(autoincrement())
-  name  String
+  id            String    @id @default(uuid())
+  userId        String
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  name          String
+  description   String?
+  trigger       String?   // "Si [evento]..."
+  
+  // Configuración
+  frequency     Frequency @default(DAILY)
+  color         String?   // Para tu paleta: #018ABE, etc.
+  icon          String?
+  
+  // Estado de racha y escudos
+  currentStreak Int       @default(0)
+  maxStreak     Int       @default(0)
+  shields       Int       @default(0) 
+  
+  // Relaciones
+  logs          HabitLog[]
+  shieldLogs    ShieldUsage[]
+  
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+}
+
+model HabitLog {
+  id            String    @id @default(uuid())
+  habitId       String
+  habit         Habit     @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  
+  completedAt   DateTime  @default(now())
+  value         Int       @default(1)
+  notes         String?
+  
+  @@index([habitId, completedAt])
+}
+
+model ShieldUsage {
+  id            String    @id @default(uuid())
+  habitId       String
+  habit         Habit     @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  
+  usedAt        DateTime  @default(now())
+  reason        String?
+}
+
+enum Frequency {
+  DAILY
+  WEEKLY
+  CUSTOM
 }
