@@ -9,15 +9,21 @@
   },
   "dependencies": {
     "@prisma/client": "^6.2.1",
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.5",
     "dotenv": "^16.4.0",
-    "express": "^5.0.0"
+    "express": "^5.0.0",
+    "jsonwebtoken": "^9.0.3",
+    "node-cron": "^4.2.1"
   },
   "devDependencies": {
-    "prisma": "^6.2.1",
-    "@types/node": "latest",
-    "@types/express": "latest",
+    "@types/bcryptjs": "^3.0.0",
     "@types/cors": "latest",
+    "@types/express": "latest",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "latest",
+    "@types/node-cron": "^3.0.11",
+    "prisma": "^6.2.1",
     "typescript": "latest"
   }
 }

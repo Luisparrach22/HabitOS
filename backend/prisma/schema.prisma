@@ -21,6 +21,9 @@ model User {
   totalXp       Int       @default(0)
   level         Int       @default(1)
   
+  // Timezone del usuario (IANA, e.g. "Europe/Madrid")
+  timezone      String    @default("UTC")
+  
   // Relaciones
   habits        Habit[]
   createdAt     DateTime  @default(now())
