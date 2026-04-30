@@ -8,11 +8,14 @@ import {
   Platform,
   ScrollView,
   Alert,
+  View,
+  Text,
 } from 'react-native';
-import { Text, View } from '@/components/Themed';
 import { useAuth } from '@/context/AuthContext';
 import { router } from 'expo-router';
 import * as Localization from 'expo-localization';
+import { colors, radius, shadows, typography, spacing } from '@/constants/theme';
+import ActionButton from '@/components/ActionButton';
 
 export default function LoginScreen() {
   const { login, signup } = useAuth();
@@ -72,7 +75,7 @@ export default function LoginScreen() {
               <TextInput
                 style={styles.input}
                 placeholder="Tu nombre"
-                placeholderTextColor="#97BFD5"
+                placeholderTextColor={colors.textLight}
                 value={name}
                 onChangeText={setName}
                 autoCapitalize="words"
@@ -85,7 +88,7 @@ export default function LoginScreen() {
             <TextInput
               style={styles.input}
               placeholder="tu@email.com"
-              placeholderTextColor="#97BFD5"
+              placeholderTextColor={colors.textLight}
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -99,30 +102,19 @@ export default function LoginScreen() {
             <TextInput
               style={styles.input}
               placeholder="Mínimo 6 caracteres"
-              placeholderTextColor="#97BFD5"
+              placeholderTextColor={colors.textLight}
               value={password}
               onChangeText={setPassword}
               secureTextEntry
             />
           </View>
 
-          <Pressable
-            style={({ pressed }) => [
-              styles.button,
-              pressed && styles.buttonPressed,
-              loading && styles.buttonDisabled,
-            ]}
+          <ActionButton
+            title={isSignup ? 'Crear cuenta' : 'Iniciar sesión'}
             onPress={handleSubmit}
             disabled={loading}
-          >
-            {loading ? (
-              <ActivityIndicator color="#FFF" />
-            ) : (
-              <Text style={styles.buttonText}>
-                {isSignup ? 'Crear cuenta' : 'Iniciar sesión'}
-              </Text>
-            )}
-          </Pressable>
+            style={styles.button}
+          />
 
           <Pressable
             style={styles.toggleButton}
@@ -143,86 +135,61 @@ export default function LoginScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#D6E8EE',
+    backgroundColor: colors.background,
   },
   scrollContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 40,
+    paddingHorizontal: spacing['2xl'],
+    paddingVertical: spacing['4xl'],
   },
   headerContainer: {
     alignItems: 'center',
-    marginBottom: 40,
-    backgroundColor: 'transparent',
+    marginBottom: spacing['4xl'],
   },
   logo: {
-    fontSize: 42,
-    fontWeight: '800',
-    color: '#001B48',
+    ...typography.largeTitle,
+    color: colors.textDark,
     letterSpacing: 2,
   },
   subtitle: {
-    fontSize: 18,
-    color: '#02457A',
-    marginTop: 8,
-    fontWeight: '500',
+    ...typography.title3,
+    color: colors.textSecondary,
+    marginTop: spacing.sm,
   },
   formContainer: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 24,
-    padding: 24,
-    shadowColor: '#001B48',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 24,
-    elevation: 4,
+    backgroundColor: colors.card,
+    borderRadius: radius['2xl'],
+    padding: spacing['2xl'],
+    ...shadows.cardHeavy,
   },
   inputWrapper: {
-    marginBottom: 16,
-    backgroundColor: 'transparent',
+    marginBottom: spacing.lg,
   },
   label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#02457A',
+    ...typography.subhead,
+    color: colors.textSecondary,
     marginBottom: 6,
   },
   input: {
-    backgroundColor: '#EFF7FA',
-    borderRadius: 12,
+    backgroundColor: colors.cardMuted,
+    borderRadius: radius.md,
     padding: 14,
-    fontSize: 16,
-    color: '#001B48',
+    ...typography.body,
+    color: colors.textDark,
     borderWidth: 1,
-    borderColor: '#D6E8EE',
+    borderColor: colors.border,
   },
   button: {
-    backgroundColor: '#018ABE',
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  buttonPressed: {
-    backgroundColor: '#02457A',
-    transform: [{ scale: 0.98 }],
-  },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  buttonText: {
-    color: '#FFF',
-    fontSize: 17,
-    fontWeight: '700',
+    marginTop: spacing.sm,
+    width: '100%',
   },
   toggleButton: {
-    marginTop: 16,
+    marginTop: spacing.lg,
     alignItems: 'center',
   },
   toggleText: {
-    color: '#018ABE',
-    fontSize: 14,
-    fontWeight: '500',
+    ...typography.subhead,
+    color: colors.primary,
   },
 });

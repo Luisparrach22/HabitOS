@@ -64,8 +64,8 @@ export default function RootLayout() {
 }
 
 /**
- * Protector de rutas: redirige a /login si no hay sesión,
- * y a /(tabs) si ya está autenticado y está en /login.
+ * Protector de rutas: redirige a /onboarding si no hay sesión,
+ * y a /(tabs) si ya está autenticado y está en pantallas públicas.
  */
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
@@ -76,13 +76,13 @@ function RootLayoutNav() {
   useEffect(() => {
     if (isLoading) return;
 
-    const inAuthGroup = segments[0] === 'login';
+    const inAuthGroup = segments[0] === 'login' || segments[0] === 'onboarding';
 
     if (!isAuthenticated && !inAuthGroup) {
-      // No autenticado y no está en login → redirigir a login
-      router.replace('/login');
+      // No autenticado y no está en rutas públicas → redirigir a onboarding
+      router.replace('/onboarding');
     } else if (isAuthenticated && inAuthGroup) {
-      // Autenticado pero está en login → redirigir a tabs
+      // Autenticado pero está en rutas públicas → redirigir a tabs
       router.replace('/(tabs)');
     }
   }, [isAuthenticated, isLoading, segments]);
@@ -90,6 +90,7 @@ function RootLayoutNav() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
+        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal' }} />

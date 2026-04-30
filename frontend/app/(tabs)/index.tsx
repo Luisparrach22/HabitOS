@@ -1,318 +1,296 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
+  View,
+  Text,
   StyleSheet,
-  ActivityIndicator,
-  FlatList,
+  ScrollView,
   Pressable,
+  ActivityIndicator,
+  StatusBar,
   Alert,
 } from 'react-native';
-import { Text, View } from '@/components/Themed';
-import { useHabits, useCheckinHabit, type Habit } from '@/hooks/useHabits';
+import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { colors, radius, shadows, typography, spacing } from '@/constants/theme';
 import { useAuth } from '@/context/AuthContext';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useHabits, useCheckinHabit, type Habit } from '@/hooks/useHabits';
+import HabitCard from '@/components/HabitCard';
+import ProgressBar from '@/components/ProgressBar';
+
+// ─── Icon mapping (emoji fallback, replace with Lucide when installed) ─
+
+const HABIT_ICONS: Record<string, string> = {
+  water: '💧',
+  book: '📖',
+  sleep: '🌙',
+  exercise: '🏃',
+  meditate: '🧘',
+  default: '⭐',
+};
+
+function getHabitIcon(icon: string | null): string {
+  if (!icon) return HABIT_ICONS.default;
+  return HABIT_ICONS[icon.toLowerCase()] || HABIT_ICONS.default;
+}
+
+function getTimeLabel(frequency: string, trigger: string | null): string {
+  if (trigger) return trigger;
+  switch (frequency) {
+    case 'DAILY': return 'Anytime';
+    case 'WEEKLY': return 'Weekly';
+    default: return 'Custom';
+  }
+}
+
+// ─── Component ────────────────────────────────────────────────
 
 export default function DashboardScreen() {
+  const insets = useSafeAreaInsets();
+  const router = useRouter();
+  const { user, refreshUser } = useAuth();
   const { data: habits, isLoading, error } = useHabits();
   const checkinMutation = useCheckinHabit();
-  const { user, refreshUser } = useAuth();
 
-  const handleCheckin = async (habit: Habit) => {
-    if (habit.completedToday) return;
+  // Derived data
+  const totalHabits = habits?.length || 0;
+  const completedCount = habits?.filter((h) => h.completedToday).length || 0;
 
+  // Max streak across all habits for the progress card
+  const maxCurrentStreak = useMemo(() => {
+    if (!habits || habits.length === 0) return 0;
+    return Math.max(...habits.map((h) => h.currentStreak));
+  }, [habits]);
+
+  // Greeting based on time of day
+  const greeting = useMemo(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  }, []);
+
+  // Date string
+  const dateString = useMemo(() => {
+    return new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'short',
+      day: 'numeric',
+    });
+  }, []);
+
+  const handleCheckin = async (habitId: string) => {
     try {
-      const result = await checkinMutation.mutateAsync(habit.id);
-
-      // Refrescar datos del usuario (XP, nivel)
+      const result = await checkinMutation.mutateAsync(habitId);
       await refreshUser();
 
       if (result.leveledUp) {
         Alert.alert(
-          '🎉 ¡Subiste de nivel!',
-          `¡Felicidades! Ahora eres nivel ${result.newLevel}.`,
-          [{ text: '¡Genial!' }]
+          '🎉 Level Up!',
+          `Congratulations! You're now level ${result.newLevel}.`,
+          [{ text: 'Awesome!' }]
         );
       }
     } catch (error: any) {
       const message =
-        error.response?.data?.error || 'Error al registrar el check-in.';
+        error.response?.data?.error || 'Failed to check in. Try again.';
       Alert.alert('Error', message);
     }
   };
 
+  // ─── Loading state ──────────────────────────────────────────
+
   if (isLoading) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" color="#018ABE" />
+      <View style={[styles.container, styles.centered]}>
+        <ActivityIndicator size="large" color={colors.primary} />
       </View>
     );
   }
+
+  // ─── Error state ────────────────────────────────────────────
 
   if (error) {
     return (
-      <View style={[styles.container, styles.center]}>
-        <Text style={styles.errorText}>Error al cargar los hábitos.</Text>
+      <View style={[styles.container, styles.centered]}>
+        <Text style={styles.errorText}>Failed to load habits.</Text>
       </View>
     );
   }
 
-  // Calcular progreso del día
-  const totalHabits = habits?.length || 0;
-  const completedCount = habits?.filter((h) => h.completedToday).length || 0;
-  const progressPercent = totalHabits > 0 ? Math.round((completedCount / totalHabits) * 100) : 0;
+  // ─── Main render ────────────────────────────────────────────
 
   return (
     <View style={styles.container}>
-      {/* Header con stats */}
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <View style={styles.headerTextContainer}>
-            <Text style={styles.greeting}>
-              Hola, {user?.name || 'Héroe'} 👋
+      <StatusBar barStyle="dark-content" />
+      <ScrollView
+        style={styles.scrollView}
+        contentContainerStyle={[
+          styles.scrollContent,
+          { paddingTop: insets.top + spacing.lg },
+        ]}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.headerText}>
+            <Text style={styles.dateText}>{dateString}</Text>
+            <Text style={styles.greetingText}>
+              {greeting}, {user?.name || 'there'}
             </Text>
-            <Text style={styles.levelBadge}>
-              Nivel {user?.level || 1} · {user?.totalXp || 0} XP
+          </View>
+          <View style={styles.avatar}>
+            <Text style={styles.avatarText}>
+              {(user?.name || 'U')[0].toUpperCase()}
             </Text>
           </View>
         </View>
 
-        {/* Barra de progreso */}
-        <View style={styles.progressContainer}>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
-          </View>
-          <Text style={styles.progressText}>
-            {completedCount}/{totalHabits} completados hoy
-          </Text>
+        {/* Progress Card */}
+        <View style={styles.progressSection}>
+          <ProgressBar
+            completed={completedCount}
+            total={totalHabits}
+            currentStreak={maxCurrentStreak}
+          />
         </View>
-      </View>
 
-      {/* Lista de hábitos */}
-      <Text style={styles.sectionTitle}>Mis Hábitos</Text>
-
-      {!habits || habits.length === 0 ? (
-        <View style={styles.center}>
-          <Text style={styles.emptyText}>
-            Aún no tienes hábitos registrados. 🌱
-          </Text>
+        {/* Today's Habits */}
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionTitle}>Today's Habits</Text>
+          <Pressable>
+            <Text style={styles.seeAllLink}>See all</Text>
+          </Pressable>
         </View>
-      ) : (
-        <FlatList
-          data={habits}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.list}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
+
+        {/* Habit List */}
+        {habits && habits.length > 0 ? (
+          habits.map((habit) => (
             <Pressable
-              style={({ pressed }) => [
-                styles.card,
-                { borderLeftColor: item.color || '#018ABE' },
-                item.completedToday && styles.cardCompleted,
-                pressed && styles.cardPressed,
-              ]}
-              onPress={() => handleCheckin(item)}
-              disabled={item.completedToday}
+              key={habit.id}
+              onLongPress={() => router.push(`/(tabs)/habits/${habit.id}`)}
             >
-              <View style={styles.cardContent}>
-                <View style={styles.cardLeft}>
-                  <Text style={[styles.cardTitle, item.completedToday && styles.cardTitleCompleted]}>
-                    {item.name}
-                  </Text>
-                  {item.description ? (
-                    <Text style={styles.cardDescription}>{item.description}</Text>
-                  ) : null}
-                  <View style={styles.statsRow}>
-                    <Text style={styles.statBadge}>
-                      🔥 {item.currentStreak}
-                    </Text>
-                    {item.shields > 0 && (
-                      <Text style={styles.statBadge}>
-                        🛡️ {item.shields}
-                      </Text>
-                    )}
-                    <Text style={styles.statBadge}>
-                      📊 {item.totalCompletions}
-                    </Text>
-                  </View>
-                </View>
-
-                <View style={styles.checkContainer}>
-                  {item.completedToday ? (
-                    <View style={styles.checkDone}>
-                      <FontAwesome name="check" size={18} color="#FFF" />
-                    </View>
-                  ) : (
-                    <View style={styles.checkEmpty} />
-                  )}
-                </View>
-              </View>
+              <HabitCard
+                id={habit.id}
+                name={habit.name}
+                icon={<Text style={styles.habitIcon}>{getHabitIcon(habit.icon)}</Text>}
+                streak={habit.currentStreak}
+                timeLabel={getTimeLabel(habit.frequency, habit.trigger)}
+                completedToday={habit.completedToday}
+                onCheckin={handleCheckin}
+              />
             </Pressable>
-          )}
-        />
-      )}
+          ))
+        ) : (
+          <View style={styles.emptyContainer}>
+            <Text style={styles.emptyIcon}>🌱</Text>
+            <Text style={styles.emptyText}>
+              No habits yet.{'\n'}Start building your routine!
+            </Text>
+          </View>
+        )}
+      </ScrollView>
     </View>
   );
 }
 
+// ─── Styles ───────────────────────────────────────────────────
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#D6E8EE',
+    backgroundColor: colors.background,
   },
-  center: {
-    flex: 1,
+  centered: {
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'transparent',
   },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: spacing.xl,
+    paddingBottom: 120,
+  },
+
+  // Header
   header: {
-    backgroundColor: '#001B48',
-    paddingTop: 60,
-    paddingBottom: 24,
-    paddingHorizontal: 20,
-    borderBottomLeftRadius: 24,
-    borderBottomRightRadius: 24,
-  },
-  headerTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    backgroundColor: 'transparent',
+    marginBottom: spacing.xl,
   },
-  headerTextContainer: {
-    backgroundColor: 'transparent',
+  headerText: {
+    flex: 1,
   },
-  greeting: {
-    fontSize: 24,
-    fontWeight: '700',
-    color: '#FFFFFF',
+  dateText: {
+    ...typography.subhead,
+    color: colors.primary,
+    marginBottom: 2,
   },
-  levelBadge: {
-    fontSize: 14,
-    color: '#97BFD5',
-    marginTop: 4,
-    fontWeight: '600',
+  greetingText: {
+    ...typography.title1,
+    color: colors.textPrimary,
   },
-  progressContainer: {
-    marginTop: 16,
-    backgroundColor: 'transparent',
+  avatar: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: colors.cardMuted,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: colors.border,
   },
-  progressBar: {
-    height: 8,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    borderRadius: 4,
-    overflow: 'hidden',
+  avatarText: {
+    ...typography.headline,
+    color: colors.textPrimary,
   },
-  progressFill: {
-    height: '100%',
-    backgroundColor: '#018ABE',
-    borderRadius: 4,
+
+  // Progress
+  progressSection: {
+    marginBottom: spacing['2xl'],
   },
-  progressText: {
-    fontSize: 12,
-    color: '#97BFD5',
-    marginTop: 6,
-    fontWeight: '500',
+
+  // Section header
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: spacing.lg,
   },
   sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#001B48',
-    marginTop: 20,
-    marginBottom: 12,
-    paddingHorizontal: 20,
+    ...typography.title3,
+    color: colors.textPrimary,
   },
-  list: {
-    paddingHorizontal: 20,
-    paddingBottom: 100,
+  seeAllLink: {
+    ...typography.subhead,
+    color: colors.primary,
   },
-  card: {
-    backgroundColor: '#FFFFFF',
-    padding: 16,
-    borderRadius: 16,
-    marginBottom: 12,
-    borderLeftWidth: 5,
-    shadowColor: '#001B48',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.06,
-    shadowRadius: 8,
-    elevation: 2,
+
+  // Habit icons
+  habitIcon: {
+    fontSize: 22,
   },
-  cardCompleted: {
-    backgroundColor: '#EFF7FA',
-    opacity: 0.85,
-  },
-  cardPressed: {
-    transform: [{ scale: 0.98 }],
-  },
-  cardContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+
+  // Empty state
+  emptyContainer: {
     alignItems: 'center',
-    backgroundColor: 'transparent',
+    paddingVertical: spacing['4xl'],
   },
-  cardLeft: {
-    flex: 1,
-    backgroundColor: 'transparent',
-  },
-  cardTitle: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#001B48',
-  },
-  cardTitleCompleted: {
-    textDecorationLine: 'line-through',
-    opacity: 0.6,
-  },
-  cardDescription: {
-    fontSize: 13,
-    color: '#555',
-    marginTop: 4,
-  },
-  statsRow: {
-    flexDirection: 'row',
-    marginTop: 8,
-    gap: 8,
-    backgroundColor: 'transparent',
-  },
-  statBadge: {
-    fontSize: 12,
-    color: '#02457A',
-    backgroundColor: '#EFF7FA',
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-    overflow: 'hidden',
-    fontWeight: '600',
-  },
-  checkContainer: {
-    marginLeft: 12,
-    backgroundColor: 'transparent',
-  },
-  checkDone: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#018ABE',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkEmpty: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    borderWidth: 2.5,
-    borderColor: '#97BFD5',
-  },
-  errorText: {
-    color: '#D32F2F',
-    fontSize: 16,
-    textAlign: 'center',
-    paddingHorizontal: 20,
+  emptyIcon: {
+    fontSize: 48,
+    marginBottom: spacing.lg,
   },
   emptyText: {
-    fontSize: 16,
-    color: '#001B48',
-    opacity: 0.7,
+    ...typography.body,
+    color: colors.textMuted,
+    textAlign: 'center',
+  },
+
+  // Error
+  errorText: {
+    ...typography.body,
+    color: colors.danger,
     textAlign: 'center',
   },
 });
