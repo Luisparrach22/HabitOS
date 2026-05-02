@@ -1,6 +1,12 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
-import { colors, radius, shadows, typography, spacing } from '@/constantes/tema';
+import React from "react";
+import { View, Text, StyleSheet } from "react-native";
+import {
+  colors,
+  radius,
+  shadows,
+  typography,
+  spacing,
+} from "@/constantes/tema";
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -34,11 +40,8 @@ export default function BarraProgreso({
 
       {/* Main text */}
       <Text style={styles.mainText}>
-        You've completed{' '}
-        <Text style={styles.mainTextBold}>{completed}</Text>
-        {'\n'}of{' '}
-        <Text style={styles.mainTextBold}>{total}</Text>
-        {' '}habits today
+        You've completed <Text style={styles.mainTextBold}>{completed}</Text>
+        {"\n"}of <Text style={styles.mainTextBold}>{total}</Text> habits today
       </Text>
 
       {/* Progress bar */}
@@ -53,20 +56,20 @@ export default function BarraProgreso({
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: colors.accentDeep,
-    borderRadius: radius['2xl'],
+    backgroundColor: "#018ABE",
+    borderRadius: radius["2xl"],
     padding: spacing.xl,
     ...shadows.cardHeavy,
   },
   headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: spacing.sm,
   },
   streakBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   streakIcon: {
     fontSize: 14,
@@ -78,7 +81,7 @@ const styles = StyleSheet.create({
     opacity: 0.9,
   },
   dayBadge: {
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.xs,
     borderRadius: radius.md,
@@ -93,16 +96,16 @@ const styles = StyleSheet.create({
     marginBottom: spacing.lg,
   },
   mainTextBold: {
-    fontWeight: '800',
+    fontWeight: "800",
   },
   barTrack: {
     height: 6,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     borderRadius: 3,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   barFill: {
-    height: '100%',
+    height: "100%",
     backgroundColor: colors.textWhite,
     borderRadius: 3,
   },
