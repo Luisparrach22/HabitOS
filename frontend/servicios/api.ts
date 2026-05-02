@@ -39,7 +39,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Token expirado o inválido — se maneja en AuthContext
+      // Token expirado o inválido — se maneja en ContextoAuth
       console.warn('Token expirado. Redirigiendo a login...');
     }
     return Promise.reject(error);
@@ -78,11 +78,11 @@ export const habitsApi = {
     apiClient.post('/habits', data),
 
   update: (id: string, data: Record<string, unknown>) =>
-    apiClient.put(`/habits/${id}`, data),
+    apiClient.put(`/habitos/${id}`, data),
 
   delete: (id: string) =>
-    apiClient.delete(`/habits/${id}`),
+    apiClient.delete(`/habitos/${id}`),
 
   checkin: (id: string) =>
-    apiClient.post(`/habits/${id}/checkin`),
+    apiClient.post(`/habitos/${id}/checkin`),
 };

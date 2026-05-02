@@ -8,9 +8,10 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radius, shadows, typography, spacing } from '@/constants/theme';
-import ActionButton from '@/components/ActionButton';
-import FeatureBadge from '@/components/FeatureBadge';
+import { colors, radius, shadows, typography, spacing } from '@/constantes/tema';
+import BotonAccion from '@/componentes/BotonAccion';
+import InsigniaCaracteristica from '@/componentes/InsigniaCaracteristica';
+import { styles } from '@/estilos/bienvenida.styles';
 
 const { width } = Dimensions.get('window');
 
@@ -41,11 +42,11 @@ export default function OnboardingScreen() {
 
       {/* Feature Badges */}
       <View style={styles.badgesContainer}>
-        <FeatureBadge
+        <InsigniaCaracteristica
           icon={<Text style={styles.badgeIcon}>🧠</Text>}
           label="Science-backed nudges"
         />
-        <FeatureBadge
+        <InsigniaCaracteristica
           icon={<Text style={styles.badgeIcon}>📈</Text>}
           label="Streak momentum tracking"
         />
@@ -53,15 +54,15 @@ export default function OnboardingScreen() {
 
       {/* CTAs */}
       <View style={[styles.ctaContainer, { paddingBottom: insets.bottom + 20 }]}>
-        <ActionButton
+        <BotonAccion
           title="Get Started"
-          onPress={() => router.push('/login')}
+          onPress={() => router.push('/acceso')}
           variant="primary"
           style={styles.primaryButton}
         />
-        <ActionButton
+        <BotonAccion
           title="I already have an account"
-          onPress={() => router.push('/login')}
+          onPress={() => router.push('/acceso')}
           variant="ghost"
         />
       </View>
@@ -69,66 +70,4 @@ export default function OnboardingScreen() {
   );
 }
 
-// ─── Styles ───────────────────────────────────────────────────
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-    paddingHorizontal: spacing['2xl'],
-  },
-
-  // Logo
-  logoContainer: {
-    alignItems: 'center',
-    marginBottom: spacing['3xl'],
-  },
-  logoBox: {
-    width: 88,
-    height: 88,
-    borderRadius: radius['2xl'],
-    backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.cardHeavy,
-  },
-  logoIcon: {
-    fontSize: 40,
-    color: colors.textWhite,
-  },
-
-  // Hero
-  heroContainer: {
-    alignItems: 'center',
-    marginBottom: spacing['3xl'],
-  },
-  heroTitle: {
-    ...typography.largeTitle,
-    color: colors.textPrimary,
-    textAlign: 'center',
-    marginBottom: spacing.md,
-  },
-  heroDescription: {
-    ...typography.body,
-    color: colors.textMuted,
-    textAlign: 'center',
-    lineHeight: 22,
-  },
-
-  // Badges
-  badgesContainer: {
-    marginBottom: spacing['3xl'],
-  },
-  badgeIcon: {
-    fontSize: 20,
-  },
-
-  // CTAs
-  ctaContainer: {
-    marginTop: 'auto',
-  },
-  primaryButton: {
-    width: '100%',
-    marginBottom: spacing.sm,
-  },
-});
+// ─── Componente Estilos ───────────────────────────────────────────

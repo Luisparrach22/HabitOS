@@ -2,11 +2,15 @@
   "compilerOptions": {
     "target": "esnext",
     "moduleResolution": "node",
-    "jsx": "react-native"
+    "jsx": "react-native",
+    "baseUrl": ".",
+    "paths": {
+      "@frontend/*": ["frontend/*"],
+      "@backend/*": ["backend/*"]
+    },
+    "skipLibCheck": true,
+    "esModuleInterop": true
   },
-  "exclude": [
-    "node_modules",
-    "frontend",
-    "backend"
-  ]
+  "include": [],
+  "references": [{ "path": "./frontend" }, { "path": "./backend" }]
 }

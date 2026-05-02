@@ -3,7 +3,7 @@ import { View, Pressable, StyleSheet } from 'react-native';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { Tabs, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radius, shadows, spacing } from '@/constants/theme';
+import { colors, radius, shadows, spacing } from '@/constantes/tema';
 
 // ─── Tab bar icon component ───────────────────────────────────
 
@@ -53,7 +53,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                   style={styles.addButton}
                   onPress={() => {
                     // TODO: Navigate to add habit modal
-                    router.push('/modal');
+                    router.push('/crear_habito');
                   }}
                 >
                   <FontAwesome name="plus" size={20} color={colors.textWhite} />

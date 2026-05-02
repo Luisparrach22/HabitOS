@@ -11,11 +11,11 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radius, shadows, typography, spacing } from '@/constants/theme';
-import { useAuth } from '@/context/AuthContext';
-import { useHabits, useCheckinHabit, type Habit } from '@/hooks/useHabits';
-import HabitCard from '@/components/HabitCard';
-import ProgressBar from '@/components/ProgressBar';
+import { colors, radius, shadows, typography, spacing } from '@/constantes/tema';
+import { useAuth } from '@/contextos/ContextoAuth';
+import { usarHabitos, useCheckinHabito, type Habit } from '@/hooks/usarHabitos';
+import TarjetaHabito from '@/componentes/TarjetaHabito';
+import BarraProgreso from '@/componentes/BarraProgreso';
 
 // ─── Icon mapping (emoji fallback, replace with Lucide when installed) ─
 
@@ -48,8 +48,8 @@ export default function DashboardScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { user, refreshUser } = useAuth();
-  const { data: habits, isLoading, error } = useHabits();
-  const checkinMutation = useCheckinHabit();
+  const { data: habits, isLoading, error } = usarHabitos();
+  const checkinMutation = useCheckinHabito();
 
   // Derived data
   const totalHabits = habits?.length || 0;
@@ -147,7 +147,7 @@ export default function DashboardScreen() {
 
         {/* Progress Card */}
         <View style={styles.progressSection}>
-          <ProgressBar
+          <BarraProgreso
             completed={completedCount}
             total={totalHabits}
             currentStreak={maxCurrentStreak}
@@ -167,9 +167,9 @@ export default function DashboardScreen() {
           habits.map((habit) => (
             <Pressable
               key={habit.id}
-              onLongPress={() => router.push(`/(tabs)/habits/${habit.id}`)}
+              onLongPress={() => router.push(`/(pestanas)/habitos/${habit.id}`)}
             >
-              <HabitCard
+              <TarjetaHabito
                 id={habit.id}
                 name={habit.name}
                 icon={<Text style={styles.habitIcon}>{getHabitIcon(habit.icon)}</Text>}

@@ -11,11 +11,11 @@ import {
   View,
   Text,
 } from 'react-native';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/contextos/ContextoAuth';
 import { router } from 'expo-router';
 import * as Localization from 'expo-localization';
-import { colors, radius, shadows, typography, spacing } from '@/constants/theme';
-import ActionButton from '@/components/ActionButton';
+import { colors, radius, shadows, typography, spacing } from '@/constantes/tema';
+import BotonAccion from '@/componentes/BotonAccion';
 
 export default function LoginScreen() {
   const { login, signup } = useAuth();
@@ -109,7 +109,7 @@ export default function LoginScreen() {
             />
           </View>
 
-          <ActionButton
+          <BotonAccion
             title={isSignup ? 'Crear cuenta' : 'Iniciar sesión'}
             onPress={handleSubmit}
             disabled={loading}

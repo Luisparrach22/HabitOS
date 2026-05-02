@@ -8,7 +8,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/useColorScheme';
-import { AuthProvider, useAuth } from '@/context/AuthContext';
+import { AuthProvider, useAuth } from '@/contextos/ContextoAuth';
 
 export {
   // Catch any errors thrown by the Layout component.
@@ -16,8 +16,8 @@ export {
 } from 'expo-router';
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
-  initialRouteName: '(tabs)',
+  // Ensure that reloading on `/crear_habito` keeps a back button present.
+  initialRouteName: '(pestanas)',
 };
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -64,8 +64,8 @@ export default function RootLayout() {
 }
 
 /**
- * Protector de rutas: redirige a /onboarding si no hay sesión,
- * y a /(tabs) si ya está autenticado y está en pantallas públicas.
+ * Protector de rutas: redirige a /bienvenida si no hay sesión,
+ * y a /(pestanas) si ya está autenticado y está en pantallas públicas.
  */
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
@@ -76,24 +76,24 @@ function RootLayoutNav() {
   useEffect(() => {
     if (isLoading) return;
 
-    const inAuthGroup = segments[0] === 'login' || segments[0] === 'onboarding';
+    const inAuthGroup = segments[0] === 'acceso' || segments[0] === 'bienvenida';
 
     if (!isAuthenticated && !inAuthGroup) {
       // No autenticado y no está en rutas públicas → redirigir a onboarding
-      router.replace('/onboarding');
+      router.replace('/bienvenida');
     } else if (isAuthenticated && inAuthGroup) {
       // Autenticado pero está en rutas públicas → redirigir a tabs
-      router.replace('/(tabs)');
+      router.replace('/(pestanas)');
     }
   }, [isAuthenticated, isLoading, segments]);
 
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <Stack>
-        <Stack.Screen name="onboarding" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="bienvenida" options={{ headerShown: false }} />
+        <Stack.Screen name="acceso" options={{ headerShown: false }} />
+        <Stack.Screen name="(pestanas)" options={{ headerShown: false }} />
+        <Stack.Screen name="crear_habito" options={{ presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
   );

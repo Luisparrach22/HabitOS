@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { habitsApi } from '../services/api';
+import { habitsApi } from '../servicios/api';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -37,7 +37,7 @@ export const habitKeys = {
 
 // ─── Fetch Habits ─────────────────────────────────────────────
 
-export function useHabits() {
+export function usarHabitos() {
   return useQuery({
     queryKey: habitKeys.all,
     queryFn: async (): Promise<Habit[]> => {
@@ -121,7 +121,7 @@ export function useDeleteHabit() {
 
 // ─── Check-in (OPTIMISTIC UPDATE) ────────────────────────────
 
-export function useCheckinHabit() {
+export function useCheckinHabito() {
   const queryClient = useQueryClient();
 
   return useMutation({

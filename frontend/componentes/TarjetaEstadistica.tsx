@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, radius, typography, spacing } from '@/constants/theme';
+import { colors, radius, typography, spacing } from '@/constantes/tema';
 
 // ─── Types ────────────────────────────────────────────────────
 
-interface StatCardProps {
+interface TarjetaEstadisticaProps {
   value: string | number;
   label: string;
   icon?: React.ReactNode;
@@ -12,7 +12,7 @@ interface StatCardProps {
 
 // ─── Component ────────────────────────────────────────────────
 
-export default function StatCard({ value, label, icon }: StatCardProps) {
+export default function TarjetaEstadistica({ value, label, icon }: TarjetaEstadisticaProps) {
   return (
     <View style={styles.container}>
       {icon && <View style={styles.iconRow}>{icon}</View>}

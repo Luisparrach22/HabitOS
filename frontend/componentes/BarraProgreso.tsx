@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, radius, shadows, typography, spacing } from '@/constants/theme';
+import { colors, radius, shadows, typography, spacing } from '@/constantes/tema';
 
 // ─── Types ────────────────────────────────────────────────────
 
-interface ProgressBarProps {
+interface BarraProgresoProps {
   completed: number;
   total: number;
   currentStreak: number;
@@ -12,11 +12,11 @@ interface ProgressBarProps {
 
 // ─── Component ────────────────────────────────────────────────
 
-export default function ProgressBar({
+export default function BarraProgreso({
   completed,
   total,
   currentStreak,
-}: ProgressBarProps) {
+}: BarraProgresoProps) {
   const progress = total > 0 ? completed / total : 0;
 
   return (

@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, radius, typography, spacing, shadows } from '@/constants/theme';
+import { colors, radius, typography, spacing, shadows } from '@/constantes/tema';
 
 // ─── Types ────────────────────────────────────────────────────
 
-interface WeeklyChartProps {
+interface GraficoSemanalProps {
   /** Array of 7 completion values (0 to 1) for Mon–Sun */
   data: number[];
   /** Label for the date range, e.g. "Apr 20 – 26" */
@@ -16,7 +16,7 @@ const BAR_MAX_HEIGHT = 80;
 
 // ─── Component ────────────────────────────────────────────────
 
-export default function WeeklyChart({ data, dateRange }: WeeklyChartProps) {
+export default function GraficoSemanal({ data, dateRange }: GraficoSemanalProps) {
   return (
     <View style={styles.container}>
       {/* Header */}

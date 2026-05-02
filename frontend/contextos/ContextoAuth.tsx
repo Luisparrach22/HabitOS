@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import * as SecureStore from 'expo-secure-store';
-import { authApi, TOKEN_KEY } from '../services/api';
+import { authApi, TOKEN_KEY } from '../servicios/api';
 
 // ─── Types ────────────────────────────────────────────────────
 
@@ -20,7 +20,7 @@ interface AuthState {
   isAuthenticated: boolean;
 }
 
-interface AuthContextType extends AuthState {
+interface ContextoAuthType extends AuthState {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, password: string, name?: string, timezone?: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -29,7 +29,7 @@ interface AuthContextType extends AuthState {
 
 // ─── Context ──────────────────────────────────────────────────
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const ContextoAuth = createContext<ContextoAuthType | undefined>(undefined);
 
 // ─── Provider ─────────────────────────────────────────────────
 
@@ -114,16 +114,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ ...state, login, signup, logout, refreshUser }}>
+    <ContextoAuth.Provider value={{ ...state, login, signup, logout, refreshUser }}>
       {children}
-    </AuthContext.Provider>
+    </ContextoAuth.Provider>
   );
 }
 
 // ─── Hook ─────────────────────────────────────────────────────
 
 export function useAuth() {
-  const context = useContext(AuthContext);
+  const context = useContext(ContextoAuth);
   if (context === undefined) {
     throw new Error('useAuth debe usarse dentro de un AuthProvider.');
   }

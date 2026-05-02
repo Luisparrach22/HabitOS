@@ -1,10 +1,10 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, radius, shadows, typography, spacing } from '@/constants/theme';
+import { colors, radius, shadows, typography, spacing } from '@/constantes/tema';
 
 // ─── Types ────────────────────────────────────────────────────
 
-interface NudgeCardProps {
+interface TarjetaSugerenciaProps {
   title?: string;
   message: string;
   icon?: React.ReactNode;
@@ -12,11 +12,11 @@ interface NudgeCardProps {
 
 // ─── Component ────────────────────────────────────────────────
 
-export default function NudgeCard({
+export default function TarjetaSugerencia({
   title = 'Behavioral Nudge',
   message,
   icon,
-}: NudgeCardProps) {
+}: TarjetaSugerenciaProps) {
   return (
     <View style={styles.container}>
       {/* Icon */}

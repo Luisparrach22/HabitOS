@@ -1,17 +1,17 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { colors, radius, shadows, typography, spacing } from '@/constants/theme';
+import { colors, radius, shadows, typography, spacing } from '@/constantes/tema';
 
 // ─── Types ────────────────────────────────────────────────────
 
-interface FeatureBadgeProps {
+interface InsigniaCaracteristicaProps {
   icon: React.ReactNode;
   label: string;
 }
 
 // ─── Component ────────────────────────────────────────────────
 
-export default function FeatureBadge({ icon, label }: FeatureBadgeProps) {
+export default function InsigniaCaracteristica({ icon, label }: InsigniaCaracteristicaProps) {
   return (
     <View style={styles.container}>
       <View style={styles.iconBox}>

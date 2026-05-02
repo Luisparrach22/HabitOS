@@ -1,10 +1,10 @@
 import React from 'react';
 import { Pressable, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import { colors, radius, shadows, typography, spacing } from '@/constants/theme';
+import { colors, radius, shadows, typography, spacing } from '@/constantes/tema';
 
 // ─── Types ────────────────────────────────────────────────────
 
-interface ActionButtonProps {
+interface BotonAccionProps {
   title: string;
   onPress: () => void;
   variant?: 'primary' | 'secondary' | 'ghost';
@@ -16,7 +16,7 @@ interface ActionButtonProps {
 
 // ─── Component ────────────────────────────────────────────────
 
-export default function ActionButton({
+export default function BotonAccion({
   title,
   onPress,
   variant = 'primary',
@@ -24,7 +24,7 @@ export default function ActionButton({
   style,
   textStyle,
   icon,
-}: ActionButtonProps) {
+}: BotonAccionProps) {
   const buttonStyles = variantStyles[variant];
 
   return (
