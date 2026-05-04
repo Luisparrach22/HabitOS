@@ -1,13 +1,19 @@
-import React from 'react';
-import { View, Pressable, StyleSheet } from 'react-native';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { Tabs, useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radius, shadows, spacing } from '@/constantes/tema';
+import React from "react";
+import { View, Pressable, StyleSheet } from "react-native";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { Tabs, useRouter } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { colors, radius, shadows, spacing } from "@/constantes/tema";
 
 // ─── Tab bar icon component ───────────────────────────────────
 
-function TabIcon({ name, color }: { name: React.ComponentProps<typeof FontAwesome>['name']; color: string }) {
+function TabIcon({
+  name,
+  color,
+}: {
+  name: React.ComponentProps<typeof FontAwesome>["name"];
+  color: string;
+}) {
   return <FontAwesome size={22} name={name} color={color} />;
 }
 
@@ -17,23 +23,33 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
   const insets = useSafeAreaInsets();
   const router = useRouter();
 
+  // 1. Filtrar de manera segura solo las rutas visibles (ignoramos las ocultas)
+  const visibleRoutes = state.routes.filter((route: any) => {
+    const { options } = descriptors[route.key];
+    // Excluimos las que tienen href: null o nombres específicos ocultos
+    return options.href !== null && route.name !== "habits/[id]";
+  });
+
+  // 2. Calcular el punto medio exacto para el botón '+'
+  // Si hay 3 rutas, el botón irá después de la 2da. Si hay 4, después de la 2da, etc.
+  const middleIndex = Math.ceil(visibleRoutes.length / 2) - 1;
+
   return (
     <View style={[styles.tabBarContainer, { paddingBottom: insets.bottom }]}>
       <View style={styles.tabBar}>
-        {state.routes.map((route: any, index: number) => {
-          // Skip the habits/[id] route from showing in the tab bar
-          if (route.name === 'habits/[id]') return null;
-
+        {visibleRoutes.map((route: any, index: number) => {
           const { options } = descriptors[route.key];
-          const isFocused = state.index === index;
-          const tintColor = isFocused ? colors.primary : colors.blueLight;
 
-          // Insert the "+" button after the second tab icon
-          const isMiddleInsertPoint = index === 1;
+          // Recuperamos el índice original para saber si está activa
+          const originalIndex = state.routes.findIndex(
+            (r: any) => r.key === route.key,
+          );
+          const isFocused = state.index === originalIndex;
+          const tintColor = isFocused ? colors.primary : colors.blueLight;
 
           const onPress = () => {
             const event = navigation.emit({
-              type: 'tabPress',
+              type: "tabPress",
               target: route.key,
               canPreventDefault: true,
             });
@@ -45,18 +61,26 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
           return (
             <React.Fragment key={route.key}>
               <Pressable style={styles.tabItem} onPress={onPress}>
-                {options.tabBarIcon?.({ color: tintColor, focused: isFocused, size: 22 })}
+                {options.tabBarIcon?.({
+                  color: tintColor,
+                  focused: isFocused,
+                  size: 24,
+                })}
               </Pressable>
 
-              {isMiddleInsertPoint && (
+              {/* Inserción dinámica del botón '+' */}
+              {index === middleIndex && (
                 <Pressable
                   style={styles.addButton}
-                  onPress={() => {
-                    // TODO: Navigate to add habit modal
-                    router.push('/crear_habito');
-                  }}
+                  onPress={() => router.push("/crear_habito")}
                 >
-                  <FontAwesome name="plus" size={20} color={colors.textWhite} />
+                  <View style={{ marginTop: 2 }}>
+                    <FontAwesome
+                      name="plus"
+                      size={24}
+                      color={colors.textWhite}
+                    />
+                  </View>
                 </Pressable>
               )}
             </React.Fragment>
@@ -80,21 +104,28 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: 'Home',
+          title: "Home",
           tabBarIcon: ({ color }) => <TabIcon name="home" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="estadisticas"
         options={{
-          title: 'Stats',
+          title: "Stats",
           tabBarIcon: ({ color }) => <TabIcon name="bar-chart" color={color} />,
         }}
       />
       <Tabs.Screen
         name="habits/[id]"
         options={{
-          href: null, // Hide from tab bar
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="perfil"
+        options={{
+          title: "Perfil",
+          tabBarIcon: ({ color }) => <TabIcon name="user" color={color} />,
         }}
       />
     </Tabs>
@@ -105,40 +136,39 @@ export default function TabLayout() {
 
 const styles = StyleSheet.create({
   tabBarContainer: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'transparent',
-    alignItems: 'center',
-    paddingHorizontal: spacing['3xl'],
+    backgroundColor: "transparent",
+    alignItems: "center",
+    paddingHorizontal: spacing.xl, // Reducimos margen para pantallas pequeñas
   },
   tabBar: {
-    flexDirection: 'row',
+    flexDirection: "row",
     backgroundColor: colors.card,
     borderRadius: radius.full,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing['2xl'],
-    alignItems: 'center',
-    justifyContent: 'center',
+    paddingHorizontal: spacing.md,
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: spacing.sm,
     ...shadows.cardHeavy,
-    width: 260,
+    width: "100%",
+    height: 64, // Altura fija para consistencia visual
   },
   tabItem: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: spacing.sm,
+    alignItems: "center",
+    justifyContent: "center",
   },
   addButton: {
     width: 48,
     height: 48,
     borderRadius: 24,
     backgroundColor: colors.primary,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: spacing.lg,
-    ...shadows.card,
+    alignItems: "center",
+    justifyContent: "center",
+    marginHorizontal: spacing.sm,
+    ...shadows.cardHeavy,
   },
 });
