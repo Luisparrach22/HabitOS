@@ -5,6 +5,7 @@ import {
   StyleSheet,
   Dimensions,
   StatusBar,
+  Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -12,6 +13,7 @@ import { colors, radius, shadows, typography, spacing } from '@/constantes/tema'
 import BotonAccion from '@/componentes/BotonAccion';
 import InsigniaCaracteristica from '@/componentes/InsigniaCaracteristica';
 import { styles } from '@/estilos/bienvenida.styles';
+import LogoSVG from '@/assets/images/LogoSVG.svg';
 
 const { width } = Dimensions.get('window');
 
@@ -25,9 +27,7 @@ export default function OnboardingScreen() {
 
       {/* App Logo */}
       <View style={styles.logoContainer}>
-        <View style={styles.logoBox}>
-          <Text style={styles.logoIcon}>✦</Text>
-        </View>
+        <LogoSVG width={120} height={120} />
       </View>
 
       {/* Hero Copy */}

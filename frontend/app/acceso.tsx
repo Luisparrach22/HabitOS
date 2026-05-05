@@ -10,12 +10,14 @@ import {
   Alert,
   View,
   Text,
+  Image,
 } from 'react-native';
 import { useAuth } from '@/contextos/ContextoAuth';
 import { router } from 'expo-router';
 import * as Localization from 'expo-localization';
 import { colors, radius, shadows, typography, spacing } from '@/constantes/tema';
 import BotonAccion from '@/componentes/BotonAccion';
+import LogoSVG from '@/assets/images/LogoSVG.svg';
 
 export default function LoginScreen() {
   const { login, signup } = useAuth();
@@ -61,7 +63,7 @@ export default function LoginScreen() {
       >
         {/* Header */}
         <View style={styles.headerContainer}>
-          <Text style={styles.logo}>HabitOS</Text>
+          <LogoSVG width={80} height={80} style={{ marginBottom: spacing.md }} />
           <Text style={styles.subtitle}>
             {isSignup ? 'Crea tu cuenta' : 'Inicia sesión'}
           </Text>
