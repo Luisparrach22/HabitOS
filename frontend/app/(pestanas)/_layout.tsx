@@ -35,7 +35,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
   const middleIndex = Math.ceil(visibleRoutes.length / 2) - 1;
 
   return (
-    <View style={[styles.tabBarContainer, { paddingBottom: insets.bottom }]}>
+    <View style={[styles.tabBarContainer, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
       <View style={styles.tabBar}>
         {visibleRoutes.map((route: any, index: number) => {
           const { options } = descriptors[route.key];
@@ -151,10 +151,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     alignItems: "center",
     justifyContent: "space-between",
-    marginBottom: spacing.sm,
     ...shadows.cardHeavy,
     width: "100%",
-    height: 64, // Altura fija para consistencia visual
+    height: 60, // Reducido de 64 a 60
   },
   tabItem: {
     flex: 1,
