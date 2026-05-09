@@ -1,217 +1,337 @@
-import { StyleSheet, Platform } from 'react-native';
+import { StyleSheet, Platform, Dimensions } from 'react-native';
+import { colors, typography, spacing, radius, shadows } from '@/constantes/tema';
 
-// Colores del diseño de Figma
-const designColors = {
-  darkText: '#001B48',
-  mutedText: '#02457A',
-  primary: '#018ABE',
-  borderLight: '#97CADB',
-  bgLight: '#D6E8EE',
-  white: '#ffffff',
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+
+// ─── Design Tokens (locales a esta pantalla) ──────────────────
+
+const tokens = {
+  darkText: colors.textPrimary,    // #001B48
+  mutedText: colors.textSecondary, // #02457A
+  primary: colors.primary,        // #018ABE
+  borderLight: colors.blueLight,   // #97CADB
+  bgLight: colors.cardMuted,       // #EFF7FA
+  bgScreen: colors.background,     // #D6E8EE
+  white: colors.card,              // #FFFFFF
 };
 
 export const styles = StyleSheet.create({
+
+  // ─── Layout ──────────────────────────────────────────────────
+
   container: {
     flex: 1,
-    backgroundColor: designColors.white, // O usar el color de fondo general si lo prefieres, pero el figma sugiere fondo blanco/claro
-    paddingHorizontal: 24,
-    paddingTop: Platform.OS === 'ios' ? 12 : 24,
-    paddingBottom: 32,
+    backgroundColor: tokens.bgScreen,
   },
-  
-  // Header
+  contentContainer: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: spacing.xl,
+    paddingBottom: 40,
+    gap: spacing.xl,
+  },
+
+  // ─── Header ──────────────────────────────────────────────────
+
   headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 24,
+    paddingHorizontal: spacing.xl,
+    paddingTop: Platform.OS === 'ios' ? 8 : spacing.xl,
+    paddingBottom: spacing.lg,
   },
   closeButton: {
     width: 40,
     height: 40,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: designColors.borderLight,
-    backgroundColor: designColors.white,
+    borderRadius: radius.md,
+    backgroundColor: tokens.white,
     alignItems: 'center',
     justifyContent: 'center',
+    ...shadows.soft,
   },
   headerTitle: {
-    color: designColors.darkText,
-    fontSize: 17,
-    fontWeight: '700',
+    ...typography.title3,
+    color: tokens.darkText,
   },
   headerSpacer: {
     width: 40,
   },
 
-  // Content
-  contentContainer: {
-    flex: 1,
-  },
-  scrollGap: {
-    paddingBottom: 20,
-    gap: 20,
-  },
-  
-  // Section Structure
-  sectionContainer: {
-    marginBottom: 20,
-  },
+  // ─── Section ─────────────────────────────────────────────────
+
+  sectionContainer: {},
   sectionLabel: {
-    color: designColors.mutedText,
-    fontSize: 12,
-    fontWeight: '600',
-    letterSpacing: 0.5,
-    marginBottom: 8,
-    paddingHorizontal: 4,
-    textTransform: 'uppercase',
+    ...typography.caption,
+    color: tokens.mutedText,
+    marginBottom: spacing.sm,
+    paddingHorizontal: spacing.xs,
   },
 
-  // Text Inputs
-  inputContainer: {
-    backgroundColor: designColors.white,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: designColors.borderLight,
+  // ─── Input Fields ────────────────────────────────────────────
+
+  inputCard: {
+    backgroundColor: tokens.white,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: 14,
+    borderRadius: radius.xl,
+    ...shadows.soft,
   },
   inputText: {
-    color: designColors.darkText,
-    fontSize: 16,
-    fontWeight: '500',
+    ...typography.headline,
+    color: tokens.darkText,
+    padding: 0, // Reset default padding on Android
+  },
+  descriptionInput: {
+    ...typography.body,
+    color: tokens.darkText,
+    padding: 0,
+    minHeight: 60,
+    textAlignVertical: 'top',
   },
 
-  // Icons Picker
+  // ─── Icon Picker (Fila rápida) ───────────────────────────────
+
   iconsRow: {
     flexDirection: 'row',
-    backgroundColor: designColors.white,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: designColors.borderLight,
+    backgroundColor: tokens.white,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    borderRadius: radius.xl,
     justifyContent: 'space-between',
+    alignItems: 'center',
+    ...shadows.soft,
   },
   iconBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 14,
+    width: 46,
+    height: 46,
+    borderRadius: radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },
   iconBoxActive: {
-    backgroundColor: designColors.primary,
+    backgroundColor: tokens.primary,
+    ...shadows.card,
+    shadowColor: tokens.primary,
   },
   iconBoxInactive: {
-    backgroundColor: designColors.bgLight,
+    backgroundColor: tokens.bgLight,
+  },
+  iconBoxPlus: {
+    backgroundColor: tokens.bgLight,
+    borderWidth: 1.5,
+    borderColor: tokens.borderLight,
+    borderStyle: 'dashed',
   },
 
-  // Frequency Picker
-  frequencyGrid: {
+  // ─── Color Picker ────────────────────────────────────────────
+
+  colorRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
+    backgroundColor: tokens.white,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.md,
+    borderRadius: radius.xl,
     justifyContent: 'space-between',
+    alignItems: 'center',
+    ...shadows.soft,
+  },
+  colorDot: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+  },
+  colorDotActive: {
+    borderWidth: 3,
+    borderColor: tokens.white,
+    ...shadows.card,
+  },
+  colorCheckmark: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  // ─── Frequency Picker ────────────────────────────────────────
+
+  frequencyRow: {
+    flexDirection: 'row',
+    gap: spacing.sm,
   },
   frequencyPill: {
-    width: '48%',
-    paddingVertical: 12,
+    flex: 1,
+    paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 18,
+    borderRadius: radius.xl,
+    ...shadows.soft,
   },
   frequencyPillActive: {
-    backgroundColor: designColors.primary,
+    backgroundColor: tokens.primary,
+    shadowColor: tokens.primary,
   },
   frequencyPillInactive: {
-    backgroundColor: designColors.white,
-    borderWidth: 1,
-    borderColor: designColors.borderLight,
+    backgroundColor: tokens.white,
   },
   frequencyTextActive: {
-    color: designColors.white,
-    fontSize: 14,
-    fontWeight: '600',
+    ...typography.subhead,
+    color: tokens.white,
+    fontWeight: '700',
   },
   frequencyTextInactive: {
-    color: designColors.darkText,
-    fontSize: 14,
-    fontWeight: '600',
+    ...typography.subhead,
+    color: tokens.darkText,
+  },
+  frequencyIcon: {
+    marginBottom: 4,
   },
 
-  // Reminder Box
-  reminderBox: {
+  // ─── Reminder ────────────────────────────────────────────────
+
+  reminderCard: {
     flexDirection: 'row',
-    backgroundColor: designColors.white,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: designColors.borderLight,
+    backgroundColor: tokens.white,
+    paddingHorizontal: spacing.lg,
+    paddingVertical: 14,
+    borderRadius: radius.xl,
     alignItems: 'center',
+    ...shadows.soft,
   },
   reminderIconBox: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: designColors.bgLight,
+    width: 42,
+    height: 42,
+    borderRadius: radius.md,
+    backgroundColor: tokens.bgLight,
     alignItems: 'center',
     justifyContent: 'center',
-    marginRight: 12,
+    marginRight: spacing.md,
   },
   reminderTextContainer: {
     flex: 1,
   },
   reminderTime: {
-    color: designColors.darkText,
-    fontSize: 14,
-    fontWeight: '600',
+    ...typography.headline,
+    color: tokens.darkText,
   },
   reminderDesc: {
-    color: designColors.mutedText,
-    fontSize: 12,
-    marginTop: 2,
+    ...typography.footnote,
+    color: tokens.mutedText,
+    marginTop: 1,
   },
 
-  // Custom Toggle Switch
+  // ─── Toggle ──────────────────────────────────────────────────
+
   toggleTrack: {
-    width: 48,
-    height: 28,
-    borderRadius: 14,
+    width: 50,
+    height: 30,
+    borderRadius: 15,
     justifyContent: 'center',
     paddingHorizontal: 3,
   },
   toggleTrackActive: {
-    backgroundColor: designColors.primary,
+    backgroundColor: tokens.primary,
   },
   toggleTrackInactive: {
-    backgroundColor: '#cbd5e1', // Slate-300 fallback
+    backgroundColor: '#CBD5E1',
   },
   toggleThumb: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: designColors.white,
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: tokens.white,
+    ...shadows.soft,
   },
 
-  // Action Button
+  // ─── CTA Button ──────────────────────────────────────────────
+
   createButton: {
-    backgroundColor: designColors.primary,
-    paddingVertical: 16,
-    borderRadius: 24,
+    backgroundColor: tokens.primary,
+    paddingVertical: 18,
+    borderRadius: radius['2xl'],
     alignItems: 'center',
-    marginTop: 16,
-    shadowColor: designColors.primary,
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.5,
-    shadowRadius: 24,
-    elevation: 8,
+    marginHorizontal: spacing.xl,
+    marginBottom: Platform.OS === 'ios' ? 36 : 24,
+    marginTop: spacing.md,
+    ...shadows.cardHeavy,
+    shadowColor: tokens.primary,
   },
   createButtonText: {
-    color: designColors.white,
-    fontSize: 16,
-    fontWeight: '600',
+    ...typography.headline,
+    color: tokens.white,
+    fontWeight: '700',
+  },
+
+  // ─── Modal (BottomSheet) ─────────────────────────────────────
+
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 27, 72, 0.45)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: tokens.bgScreen,
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+    paddingTop: spacing.md,
+    paddingBottom: Platform.OS === 'ios' ? 44 : 24,
+    maxHeight: '85%',
+    ...shadows.cardHeavy,
+  },
+  modalHandle: {
+    width: 40,
+    height: 5,
+    backgroundColor: tokens.borderLight,
+    borderRadius: 10,
+    alignSelf: 'center',
+    marginBottom: spacing.lg,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: spacing.xl,
+    marginBottom: spacing.lg,
+  },
+  modalTitle: {
+    ...typography.title2,
+    color: tokens.darkText,
+  },
+
+  // ─── Modal — Category Sections ───────────────────────────────
+
+  categorySection: {
+    marginBottom: spacing.xl,
+    paddingHorizontal: spacing.xl,
+  },
+  categoryLabel: {
+    ...typography.subhead,
+    color: tokens.mutedText,
+    marginBottom: spacing.md,
+  },
+  iconGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.sm,
+  },
+  modalIconBox: {
+    width: (SCREEN_WIDTH - spacing.xl * 2 - spacing.sm * 4) / 5,
+    aspectRatio: 1,
+    borderRadius: radius.lg,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalIconBoxInactive: {
+    backgroundColor: tokens.white,
+    ...shadows.soft,
+  },
+  modalIconBoxActive: {
+    backgroundColor: tokens.primary,
+    ...shadows.card,
+    shadowColor: tokens.primary,
   },
 });

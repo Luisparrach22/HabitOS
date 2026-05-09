@@ -1,8 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   Pressable,
   ActivityIndicator,
@@ -11,34 +10,22 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, radius, shadows, typography, spacing } from '@/constantes/tema';
+import { FontAwesome5, Feather } from '@expo/vector-icons';
+import { colors, spacing } from '@/constantes/tema';
 import { useAuth } from '@/contextos/ContextoAuth';
 import { usarHabitos, useCheckinHabito, type Habit } from '@/hooks/usarHabitos';
 import TarjetaHabito from '@/componentes/TarjetaHabito';
 import BarraProgreso from '@/componentes/BarraProgreso';
+import { dashboardStyles as styles } from '@/estilos/dashboard.styles';
 
-// ─── Icon mapping (emoji fallback, replace with Lucide when installed) ─
-
-const HABIT_ICONS: Record<string, string> = {
-  water: '💧',
-  book: '📖',
-  sleep: '🌙',
-  exercise: '🏃',
-  meditate: '🧘',
-  default: '⭐',
-};
-
-function getHabitIcon(icon: string | null): string {
-  if (!icon) return HABIT_ICONS.default;
-  return HABIT_ICONS[icon.toLowerCase()] || HABIT_ICONS.default;
-}
+// ─── Helpers ──────────────────────────────────────────────────
 
 function getTimeLabel(frequency: string, trigger: string | null): string {
   if (trigger) return trigger;
   switch (frequency) {
-    case 'DAILY': return 'Anytime';
+    case 'DAILY':  return 'Every day';
     case 'WEEKLY': return 'Weekly';
-    default: return 'Custom';
+    default:       return 'Custom';
   }
 }
 
@@ -51,17 +38,27 @@ export default function DashboardScreen() {
   const { data: habits, isLoading, error } = usarHabitos();
   const checkinMutation = useCheckinHabito();
 
-  // Derived data
-  const totalHabits = habits?.length || 0;
-  const completedCount = habits?.filter((h) => h.completedToday).length || 0;
+  // Toggle para mostrar/ocultar completados
+  const [showCompleted, setShowCompleted] = useState(true);
 
-  // Max streak across all habits for the progress card
+  // ── Derived data ─────────────────────────────────────────────
+
+  const { pendingHabits, completedHabits } = useMemo(() => {
+    if (!habits) return { pendingHabits: [], completedHabits: [] };
+    return {
+      pendingHabits: habits.filter((h) => !h.completedToday),
+      completedHabits: habits.filter((h) => h.completedToday),
+    };
+  }, [habits]);
+
+  const totalHabits = habits?.length || 0;
+  const completedCount = completedHabits.length;
+
   const maxCurrentStreak = useMemo(() => {
     if (!habits || habits.length === 0) return 0;
     return Math.max(...habits.map((h) => h.currentStreak));
   }, [habits]);
 
-  // Greeting based on time of day
   const greeting = useMemo(() => {
     const hour = new Date().getHours();
     if (hour < 12) return 'Good morning';
@@ -69,7 +66,6 @@ export default function DashboardScreen() {
     return 'Good evening';
   }, []);
 
-  // Date string
   const dateString = useMemo(() => {
     return new Date().toLocaleDateString('en-US', {
       weekday: 'long',
@@ -77,6 +73,8 @@ export default function DashboardScreen() {
       day: 'numeric',
     });
   }, []);
+
+  // ── Handlers ─────────────────────────────────────────────────
 
   const handleCheckin = async (habitId: string) => {
     try {
@@ -90,14 +88,13 @@ export default function DashboardScreen() {
           [{ text: 'Awesome!' }]
         );
       }
-    } catch (error: any) {
-      const message =
-        error.response?.data?.error || 'Failed to check in. Try again.';
+    } catch (err: any) {
+      const message = err.response?.data?.error || 'Failed to check in. Try again.';
       Alert.alert('Error', message);
     }
   };
 
-  // ─── Loading state ──────────────────────────────────────────
+  // ── Loading / Error states ───────────────────────────────────
 
   if (isLoading) {
     return (
@@ -107,8 +104,6 @@ export default function DashboardScreen() {
     );
   }
 
-  // ─── Error state ────────────────────────────────────────────
-
   if (error) {
     return (
       <View style={[styles.container, styles.centered]}>
@@ -117,7 +112,32 @@ export default function DashboardScreen() {
     );
   }
 
-  // ─── Main render ────────────────────────────────────────────
+  // ── Render helper ────────────────────────────────────────────
+
+  const renderHabitCard = (habit: Habit) => (
+    <Pressable
+      key={habit.id}
+      onLongPress={() => router.push(`/(pestanas)/habitos/${habit.id}`)}
+    >
+      <TarjetaHabito
+        id={habit.id}
+        name={habit.name}
+        icon={
+          <FontAwesome5
+            name={habit.icon || 'star'}
+            size={22}
+            color={habit.completedToday ? colors.success : (habit.color || colors.primary)}
+          />
+        }
+        streak={habit.currentStreak}
+        timeLabel={getTimeLabel(habit.frequency, habit.trigger)}
+        completedToday={habit.completedToday}
+        onCheckin={handleCheckin}
+      />
+    </Pressable>
+  );
+
+  // ── Main render ──────────────────────────────────────────────
 
   return (
     <View style={styles.container}>
@@ -154,35 +174,56 @@ export default function DashboardScreen() {
           />
         </View>
 
-        {/* Today's Habits */}
-        <View style={styles.sectionHeader}>
-          <Text style={styles.sectionTitle}>Today's Habits</Text>
-          <Pressable>
-            <Text style={styles.seeAllLink}>See all</Text>
-          </Pressable>
-        </View>
+        {/* ── Pending Habits ── */}
+        {totalHabits > 0 ? (
+          <>
+            <View style={styles.sectionHeader}>
+              <Text style={styles.sectionTitle}>To Do</Text>
+              <Text style={styles.sectionCount}>
+                {pendingHabits.length} remaining
+              </Text>
+            </View>
 
-        {/* Habit List */}
-        {habits && habits.length > 0 ? (
-          habits.map((habit) => (
-            <Pressable
-              key={habit.id}
-              onLongPress={() => router.push(`/(pestanas)/habitos/${habit.id}`)}
-            >
-              <TarjetaHabito
-                id={habit.id}
-                name={habit.name}
-                icon={<Text style={styles.habitIcon}>{getHabitIcon(habit.icon)}</Text>}
-                streak={habit.currentStreak}
-                timeLabel={getTimeLabel(habit.frequency, habit.trigger)}
-                completedToday={habit.completedToday}
-                onCheckin={handleCheckin}
-              />
-            </Pressable>
-          ))
+            {pendingHabits.length > 0 ? (
+              pendingHabits.map(renderHabitCard)
+            ) : (
+              <View style={styles.emptyContainer}>
+                <Feather name="check-circle" size={40} color={colors.success} />
+                <Text style={styles.emptyText}>
+                  All done for today! 🎉{'\n'}Great job!
+                </Text>
+              </View>
+            )}
+
+            {/* ── Completed Habits ── */}
+            {completedHabits.length > 0 && (
+              <>
+                <Pressable
+                  style={styles.completedHeader}
+                  onPress={() => setShowCompleted(!showCompleted)}
+                >
+                  <Text style={styles.completedTitle}>
+                    ✓ Completed ({completedHabits.length})
+                  </Text>
+                  <View style={styles.completedToggle}>
+                    <Text style={styles.completedToggleText}>
+                      {showCompleted ? 'Hide' : 'Show'}
+                    </Text>
+                    <Feather
+                      name={showCompleted ? 'chevron-up' : 'chevron-down'}
+                      size={16}
+                      color={colors.textMuted}
+                    />
+                  </View>
+                </Pressable>
+
+                {showCompleted && completedHabits.map(renderHabitCard)}
+              </>
+            )}
+          </>
         ) : (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyIcon}>🌱</Text>
+            <FontAwesome5 name="seedling" size={48} color={colors.textMuted} />
             <Text style={styles.emptyText}>
               No habits yet.{'\n'}Start building your routine!
             </Text>
@@ -192,105 +233,3 @@ export default function DashboardScreen() {
     </View>
   );
 }
-
-// ─── Styles ───────────────────────────────────────────────────
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  centered: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  scrollView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingHorizontal: spacing.xl,
-    paddingBottom: 120,
-  },
-
-  // Header
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.xl,
-  },
-  headerText: {
-    flex: 1,
-  },
-  dateText: {
-    ...typography.subhead,
-    color: colors.primary,
-    marginBottom: 2,
-  },
-  greetingText: {
-    ...typography.title1,
-    color: colors.textPrimary,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: colors.cardMuted,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 2,
-    borderColor: colors.border,
-  },
-  avatarText: {
-    ...typography.headline,
-    color: colors.textPrimary,
-  },
-
-  // Progress
-  progressSection: {
-    marginBottom: spacing['2xl'],
-  },
-
-  // Section header
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.lg,
-  },
-  sectionTitle: {
-    ...typography.title3,
-    color: colors.textPrimary,
-  },
-  seeAllLink: {
-    ...typography.subhead,
-    color: colors.primary,
-  },
-
-  // Habit icons
-  habitIcon: {
-    fontSize: 22,
-  },
-
-  // Empty state
-  emptyContainer: {
-    alignItems: 'center',
-    paddingVertical: spacing['4xl'],
-  },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: spacing.lg,
-  },
-  emptyText: {
-    ...typography.body,
-    color: colors.textMuted,
-    textAlign: 'center',
-  },
-
-  // Error
-  errorText: {
-    ...typography.body,
-    color: colors.danger,
-    textAlign: 'center',
-  },
-});
