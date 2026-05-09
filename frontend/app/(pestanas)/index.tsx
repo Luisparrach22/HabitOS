@@ -126,12 +126,13 @@ export default function DashboardScreen() {
           <FontAwesome5
             name={habit.icon || 'star'}
             size={22}
-            color={habit.completedToday ? colors.success : (habit.color || colors.primary)}
+            color={habit.color || colors.primary}
           />
         }
         streak={habit.currentStreak}
         timeLabel={getTimeLabel(habit.frequency, habit.trigger)}
         completedToday={habit.completedToday}
+        color={habit.color || undefined}
         onCheckin={handleCheckin}
       />
     </Pressable>

@@ -28,6 +28,7 @@ export const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: spacing.xl,
+    paddingTop: spacing.md,
     paddingBottom: 40,
     gap: spacing.xl,
   },
@@ -39,8 +40,9 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.xl,
-    paddingTop: Platform.OS === 'ios' ? 8 : spacing.xl,
-    paddingBottom: spacing.lg,
+    paddingBottom: spacing.md,
+    backgroundColor: tokens.bgScreen,
+    zIndex: 10,
   },
   closeButton: {
     width: 40,
@@ -52,8 +54,10 @@ export const styles = StyleSheet.create({
     ...shadows.soft,
   },
   headerTitle: {
-    ...typography.title3,
+    ...typography.headline,
+    fontSize: 18,
     color: tokens.darkText,
+    fontWeight: '700',
   },
   headerSpacer: {
     width: 40,
@@ -333,5 +337,106 @@ export const styles = StyleSheet.create({
     backgroundColor: tokens.primary,
     ...shadows.card,
     shadowColor: tokens.primary,
+  },
+
+  // ─── Time Picker Modal ───────────────────────────────────────
+
+  timePickerContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: spacing.xl,
+    gap: spacing.md,
+  },
+  timeColumn: {
+    width: 80,
+    height: 180,
+  },
+  timeItem: {
+    height: 60,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  timeText: {
+    ...typography.title2,
+    color: tokens.mutedText,
+  },
+  timeTextActive: {
+    ...typography.largeTitle,
+    color: tokens.primary,
+  },
+  timeSeparator: {
+    ...typography.largeTitle,
+    color: tokens.darkText,
+    paddingBottom: 5,
+  },
+  amPmSelector: {
+    flexDirection: 'column',
+    gap: spacing.md,
+    marginLeft: spacing.lg,
+  },
+  amPmButton: {
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.md,
+    backgroundColor: tokens.bgLight,
+  },
+  amPmButtonActive: {
+    backgroundColor: tokens.primary,
+    ...shadows.soft,
+  },
+  amPmText: {
+    ...typography.headline,
+    color: tokens.darkText,
+  },
+  amPmTextActive: {
+    ...typography.headline,
+    color: tokens.white,
+  },
+  modalPrimaryButton: {
+    backgroundColor: tokens.primary,
+    paddingVertical: 16,
+    borderRadius: radius.xl,
+    alignItems: 'center',
+    marginTop: spacing.xl,
+    ...shadows.soft,
+  },
+  modalPrimaryButtonText: {
+    ...typography.headline,
+    color: tokens.white,
+  },
+
+  // ─── Custom Frequency Days ───────────────────────────────────
+
+  daysContainer: {
+    marginTop: spacing.md,
+    backgroundColor: tokens.white,
+    padding: spacing.md,
+    borderRadius: radius.xl,
+    ...shadows.soft,
+  },
+  daysRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  dayCircle: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: tokens.bgLight,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  dayCircleActive: {
+    backgroundColor: tokens.primary,
+    ...shadows.soft,
+  },
+  dayText: {
+    ...typography.headline,
+    color: tokens.mutedText,
+  },
+  dayTextActive: {
+    ...typography.headline,
+    color: tokens.white,
   },
 });

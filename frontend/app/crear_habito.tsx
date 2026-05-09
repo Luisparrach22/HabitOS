@@ -13,7 +13,9 @@ import {
   KeyboardAvoidingView,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FontAwesome5, Feather } from '@expo/vector-icons';
+import { spacing } from '@/constantes/tema';
 import { styles } from '@/estilos/crear_habito.styles';
 import { useCreateHabit } from '@/hooks/usarHabitos';
 import {
@@ -27,6 +29,7 @@ import {
 
 export default function CrearHabitoScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const createHabitMutation = useCreateHabit();
 
   // Form state
@@ -40,6 +43,16 @@ export default function CrearHabitoScreen() {
 
   // Modal state
   const [showIconModal, setShowIconModal] = useState(false);
+  const [showTimeModal, setShowTimeModal] = useState(false);
+
+  // Time picker state
+  const [hour, setHour] = useState(7);
+  const [minute, setMinute] = useState(0);
+  const [isPM, setIsPM] = useState(false);
+
+  // Custom days state
+  const [customDays, setCustomDays] = useState<string[]>(['Mon', 'Wed', 'Fri']);
+  const WEEK_DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   // ─── Handlers ──────────────────────────────────────────────
 
@@ -51,13 +64,20 @@ export default function CrearHabitoScreen() {
     }
 
     try {
+      // Build final trigger string if custom frequency
+      let finalTrigger = trigger.trim();
+      if (selectedFrequency === 'CUSTOM') {
+        const daysStr = customDays.join(', ');
+        finalTrigger = finalTrigger ? `${finalTrigger} (Days: ${daysStr})` : `Days: ${daysStr}`;
+      }
+      
       await createHabitMutation.mutateAsync({
         name: trimmedName,
         description: description.trim() || undefined,
         icon: selectedIcon,
         color: selectedColor,
         frequency: selectedFrequency,
-        trigger: trigger.trim() || undefined,
+        trigger: finalTrigger || undefined,
       });
       router.back();
     } catch (err: any) {
@@ -69,6 +89,14 @@ export default function CrearHabitoScreen() {
   const quickIcons = [...new Set([...DEFAULT_QUICK_ICONS, selectedIcon])].slice(0, 5);
   const isPending = createHabitMutation.isPending;
 
+  const formattedTime = `${hour === 0 ? 12 : hour}:${minute.toString().padStart(2, '0')} ${isPM ? 'PM' : 'AM'}`;
+
+  const toggleCustomDay = (day: string) => {
+    setCustomDays(prev => 
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    );
+  };
+
   // ─── Render ────────────────────────────────────────────────
 
   return (
@@ -77,7 +105,10 @@ export default function CrearHabitoScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       {/* Header */}
-      <View style={styles.headerContainer}>
+      <View style={[
+        styles.headerContainer,
+        { paddingTop: Math.max(insets.top, spacing.lg) }
+      ]}>
         <Pressable style={styles.closeButton} onPress={() => router.back()}>
           <Feather name="x" size={18} color="#001B48" />
         </Pressable>
@@ -211,6 +242,31 @@ export default function CrearHabitoScreen() {
               );
             })}
           </View>
+          
+          {/* Custom Days Selector */}
+          {selectedFrequency === 'CUSTOM' && (
+            <View style={styles.daysContainer}>
+              <View style={styles.daysRow}>
+                {WEEK_DAYS.map((day) => {
+                  const isActive = customDays.includes(day);
+                  return (
+                    <Pressable
+                      key={day}
+                      onPress={() => toggleCustomDay(day)}
+                      style={[
+                        styles.dayCircle,
+                        isActive && styles.dayCircleActive,
+                      ]}
+                    >
+                      <Text style={isActive ? styles.dayTextActive : styles.dayText}>
+                        {day[0]}
+                      </Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            </View>
+          )}
         </View>
 
         {/* ── Habit Stack (trigger) ── */}
@@ -231,13 +287,20 @@ export default function CrearHabitoScreen() {
         {/* ── Reminder ── */}
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionLabel}>REMINDER</Text>
-          <View style={styles.reminderCard}>
-            <View style={styles.reminderIconBox}>
-              <Feather name="bell" size={18} color={selectedColor} />
+          <Pressable 
+            style={styles.reminderCard}
+            onPress={() => reminderEnabled && setShowTimeModal(true)}
+          >
+            <View style={[styles.reminderIconBox, !reminderEnabled && { opacity: 0.5 }]}>
+              <Feather name="bell" size={18} color={reminderEnabled ? selectedColor : '#97CADB'} />
             </View>
             <View style={styles.reminderTextContainer}>
-              <Text style={styles.reminderTime}>7:00 AM</Text>
-              <Text style={styles.reminderDesc}>Gentle notification</Text>
+              <Text style={[styles.reminderTime, !reminderEnabled && { color: '#97CADB' }]}>
+                {reminderEnabled ? formattedTime : 'Off'}
+              </Text>
+              <Text style={styles.reminderDesc}>
+                {reminderEnabled ? 'Tap to change time' : 'Enable notifications'}
+              </Text>
             </View>
             <Pressable
               onPress={() => setReminderEnabled(!reminderEnabled)}
@@ -249,7 +312,7 @@ export default function CrearHabitoScreen() {
             >
               <View style={styles.toggleThumb} />
             </Pressable>
-          </View>
+          </Pressable>
         </View>
       </ScrollView>
 
@@ -320,6 +383,73 @@ export default function CrearHabitoScreen() {
                 </View>
               ))}
             </ScrollView>
+          </View>
+        </View>
+      </Modal>
+
+      {/* ── Time Picker Modal ── */}
+      <Modal
+        visible={showTimeModal}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setShowTimeModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={[styles.modalContent, { paddingBottom: Platform.OS === 'ios' ? 44 : 32 }]}>
+            <View style={styles.modalHandle} />
+            
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Set Reminder Time</Text>
+              <Pressable style={styles.closeButton} onPress={() => setShowTimeModal(false)}>
+                <Feather name="check" size={18} color="#001B48" />
+              </Pressable>
+            </View>
+
+            <View style={styles.timePickerContainer}>
+              {/* Hours */}
+              <View style={{ alignItems: 'center' }}>
+                <Pressable onPress={() => setHour(h => (h === 12 ? 1 : h + 1))} style={{ padding: 10 }}>
+                  <Feather name="chevron-up" size={32} color="#02457A" />
+                </Pressable>
+                <Text style={styles.timeTextActive}>{hour === 0 ? 12 : hour}</Text>
+                <Pressable onPress={() => setHour(h => (h === 1 ? 12 : h - 1))} style={{ padding: 10 }}>
+                  <Feather name="chevron-down" size={32} color="#02457A" />
+                </Pressable>
+              </View>
+
+              <Text style={styles.timeSeparator}>:</Text>
+
+              {/* Minutes */}
+              <View style={{ alignItems: 'center' }}>
+                <Pressable onPress={() => setMinute(m => (m + 5) % 60)} style={{ padding: 10 }}>
+                  <Feather name="chevron-up" size={32} color="#02457A" />
+                </Pressable>
+                <Text style={styles.timeTextActive}>{minute.toString().padStart(2, '0')}</Text>
+                <Pressable onPress={() => setMinute(m => (m - 5 < 0 ? 55 : m - 5))} style={{ padding: 10 }}>
+                  <Feather name="chevron-down" size={32} color="#02457A" />
+                </Pressable>
+              </View>
+
+              {/* AM/PM */}
+              <View style={styles.amPmSelector}>
+                <Pressable 
+                  style={[styles.amPmButton, !isPM && styles.amPmButtonActive]} 
+                  onPress={() => setIsPM(false)}
+                >
+                  <Text style={!isPM ? styles.amPmTextActive : styles.amPmText}>AM</Text>
+                </Pressable>
+                <Pressable 
+                  style={[styles.amPmButton, isPM && styles.amPmButtonActive]} 
+                  onPress={() => setIsPM(true)}
+                >
+                  <Text style={isPM ? styles.amPmTextActive : styles.amPmText}>PM</Text>
+                </Pressable>
+              </View>
+            </View>
+
+            <Pressable style={styles.modalPrimaryButton} onPress={() => setShowTimeModal(false)}>
+              <Text style={styles.modalPrimaryButtonText}>Confirm Time</Text>
+            </Pressable>
           </View>
         </View>
       </Modal>

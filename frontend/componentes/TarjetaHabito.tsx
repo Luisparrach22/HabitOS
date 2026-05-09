@@ -12,6 +12,7 @@ interface TarjetaHabitoProps {
   streak: number;
   timeLabel: string;
   completedToday: boolean;
+  color?: string;
   onCheckin: (id: string) => void;
 }
 
@@ -24,6 +25,7 @@ export default function TarjetaHabito({
   streak,
   timeLabel,
   completedToday,
+  color,
   onCheckin,
 }: TarjetaHabitoProps) {
   return (
@@ -42,24 +44,33 @@ export default function TarjetaHabito({
 
       {/* Info */}
       <View style={styles.infoContainer}>
-        <Text style={styles.name}>{name}</Text>
+        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">{name}</Text>
         <View style={styles.metaRow}>
-          <Text style={styles.streakIcon}>🔥</Text>
-          <Text style={styles.metaText}>
-            {streak} day streak · {timeLabel}
+          <Text style={styles.metaText} numberOfLines={1} ellipsizeMode="tail">
+            {timeLabel}
           </Text>
         </View>
       </View>
 
-      {/* Checkbox */}
-      <View style={styles.checkboxContainer}>
+      {/* Right Side */}
+      <View style={styles.rightSide}>
+        {streak > 0 && (
+          <View style={styles.streakBadge}>
+            <Text style={styles.streakBadgeText}>{streak}</Text>
+            <Text style={styles.streakBadgeIcon}>🔥</Text>
+          </View>
+        )}
+        
+        {/* Checkbox */}
+        <View style={styles.checkboxContainer}>
         {completedToday ? (
           <View style={styles.checkboxDone}>
             <Text style={styles.checkmark}>✓</Text>
           </View>
         ) : (
-          <View style={styles.checkboxEmpty} />
+          <View style={[styles.checkboxEmpty, color ? { borderColor: color } : null]} />
         )}
+        </View>
       </View>
     </Pressable>
   );

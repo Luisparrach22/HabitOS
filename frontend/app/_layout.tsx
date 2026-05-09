@@ -97,7 +97,7 @@ function RootLayoutNav() {
         <Stack.Screen name="bienvenida" options={{ headerShown: false }} />
         <Stack.Screen name="acceso" options={{ headerShown: false }} />
         <Stack.Screen name="(pestanas)" options={{ headerShown: false }} />
-        <Stack.Screen name="crear_habito" options={{ presentation: 'modal' }} />
+        <Stack.Screen name="crear_habito" options={{ presentation: 'modal', headerShown: false }} />
       </Stack>
     </ThemeProvider>
   );

@@ -36,13 +36,32 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 2,
   },
-  streakIcon: {
-    fontSize: 12,
-    marginRight: 4,
-  },
   metaText: {
     ...typography.footnote,
     color: colors.textMuted,
+    flex: 1,
+  },
+  rightSide: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
+  streakBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(245, 166, 35, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: radius.full,
+  },
+  streakBadgeText: {
+    ...typography.caption,
+    color: colors.warning,
+    fontWeight: '700',
+    marginRight: 2,
+  },
+  streakBadgeIcon: {
+    fontSize: 12,
   },
   checkboxContainer: {
     marginLeft: spacing.md,
@@ -51,7 +70,7 @@ export const styles = StyleSheet.create({
     width: 32,
     height: 32,
     borderRadius: 16,
-    backgroundColor: colors.primary,
+    backgroundColor: colors.success,
     alignItems: 'center',
     justifyContent: 'center',
   },
