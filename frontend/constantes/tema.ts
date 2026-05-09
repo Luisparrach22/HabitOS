@@ -79,53 +79,63 @@ export const shadows = {
 
 export const typography = {
   largeTitle: {
+    fontFamily: 'Outfit-Bold',
     fontSize: 32,
     fontWeight: '700' as const,
     lineHeight: 38,
     letterSpacing: -0.5,
   },
   title1: {
+    fontFamily: 'Outfit-Bold',
     fontSize: 26,
     fontWeight: '700' as const,
     lineHeight: 32,
     letterSpacing: -0.3,
   },
   title2: {
+    fontFamily: 'Outfit-SemiBold',
     fontSize: 22,
     fontWeight: '600' as const,
     lineHeight: 28,
   },
   title3: {
+    fontFamily: 'Outfit-SemiBold',
     fontSize: 18,
     fontWeight: '600' as const,
     lineHeight: 24,
   },
   headline: {
+    fontFamily: 'Outfit-SemiBold',
     fontSize: 16,
     fontWeight: '600' as const,
     lineHeight: 22,
   },
   body: {
+    fontFamily: 'Outfit-Regular',
     fontSize: 15,
     fontWeight: '400' as const,
     lineHeight: 22,
   },
   callout: {
+    fontFamily: 'Outfit-Regular',
     fontSize: 14,
     fontWeight: '400' as const,
     lineHeight: 20,
   },
   subhead: {
+    fontFamily: 'Outfit-Medium',
     fontSize: 13,
     fontWeight: '500' as const,
     lineHeight: 18,
   },
   footnote: {
+    fontFamily: 'Outfit-Regular',
     fontSize: 12,
     fontWeight: '400' as const,
     lineHeight: 16,
   },
   caption: {
+    fontFamily: 'Outfit-Medium',
     fontSize: 11,
     fontWeight: '500' as const,
     lineHeight: 14,

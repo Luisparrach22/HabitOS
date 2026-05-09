@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import {
   StyleSheet,
   TextInput,
@@ -11,25 +11,31 @@ import {
   View,
   Text,
   Image,
-} from 'react-native';
-import { useAuth } from '@/contextos/ContextoAuth';
-import { router } from 'expo-router';
-import * as Localization from 'expo-localization';
-import { colors, radius, shadows, typography, spacing } from '@/constantes/tema';
-import BotonAccion from '@/componentes/BotonAccion';
-import LogoSVG from '@/assets/images/LogoSVG.svg';
+} from "react-native";
+import { useAuth } from "@/contextos/ContextoAuth";
+import { router } from "expo-router";
+import * as Localization from "expo-localization";
+import {
+  colors,
+  radius,
+  shadows,
+  typography,
+  spacing,
+} from "@/constantes/tema";
+import BotonAccion from "@/componentes/BotonAccion";
+import LogoSVG from "@/assets/images/LogoSVG.svg";
 
 export default function LoginScreen() {
   const { login, signup } = useAuth();
   const [isSignup, setIsSignup] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     if (!email.trim() || !password.trim()) {
-      Alert.alert('Error', 'Por favor ingresa email y contraseña.');
+      Alert.alert("Error", "Por favor ingresa email y contraseña.");
       return;
     }
 
@@ -37,16 +43,21 @@ export default function LoginScreen() {
     try {
       if (isSignup) {
         // Detectar timezone del dispositivo automáticamente
-        const timezone = Localization.getCalendars()[0]?.timeZone || 'UTC';
-        await signup(email.trim(), password, name.trim() || undefined, timezone);
+        const timezone = Localization.getCalendars()[0]?.timeZone || "UTC";
+        await signup(
+          email.trim(),
+          password,
+          name.trim() || undefined,
+          timezone,
+        );
       } else {
         await login(email.trim(), password);
       }
-      router.replace('/(tabs)');
+      router.replace("/(pestanas)");
     } catch (error: any) {
       const message =
-        error.response?.data?.error || 'Error de conexión. Intenta de nuevo.';
-      Alert.alert('Error', message);
+        error.response?.data?.error || "Error de conexión. Intenta de nuevo.";
+      Alert.alert("Error", message);
     } finally {
       setLoading(false);
     }
@@ -55,7 +66,7 @@ export default function LoginScreen() {
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
     >
       <ScrollView
         contentContainerStyle={styles.scrollContent}
@@ -63,9 +74,13 @@ export default function LoginScreen() {
       >
         {/* Header */}
         <View style={styles.headerContainer}>
-          <LogoSVG width={80} height={80} style={{ marginBottom: spacing.md }} />
+          <LogoSVG
+            width={80}
+            height={80}
+            style={{ marginBottom: spacing.md }}
+          />
           <Text style={styles.subtitle}>
-            {isSignup ? 'Crea tu cuenta' : 'Inicia sesión'}
+            {isSignup ? "Crea tu cuenta" : "Inicia sesión"}
           </Text>
         </View>
 
@@ -112,7 +127,7 @@ export default function LoginScreen() {
           </View>
 
           <BotonAccion
-            title={isSignup ? 'Crear cuenta' : 'Iniciar sesión'}
+            title={isSignup ? "Crear cuenta" : "Iniciar sesión"}
             onPress={handleSubmit}
             disabled={loading}
             style={styles.button}
@@ -124,8 +139,8 @@ export default function LoginScreen() {
           >
             <Text style={styles.toggleText}>
               {isSignup
-                ? '¿Ya tienes cuenta? Inicia sesión'
-                : '¿No tienes cuenta? Regístrate'}
+                ? "¿Ya tienes cuenta? Inicia sesión"
+                : "¿No tienes cuenta? Regístrate"}
             </Text>
           </Pressable>
         </View>
@@ -141,13 +156,13 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    justifyContent: 'center',
-    paddingHorizontal: spacing['2xl'],
-    paddingVertical: spacing['4xl'],
+    justifyContent: "center",
+    paddingHorizontal: spacing["2xl"],
+    paddingVertical: spacing["4xl"],
   },
   headerContainer: {
-    alignItems: 'center',
-    marginBottom: spacing['4xl'],
+    alignItems: "center",
+    marginBottom: spacing["4xl"],
   },
   logo: {
     ...typography.largeTitle,
@@ -161,8 +176,8 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     backgroundColor: colors.card,
-    borderRadius: radius['2xl'],
-    padding: spacing['2xl'],
+    borderRadius: radius["2xl"],
+    padding: spacing["2xl"],
     ...shadows.cardHeavy,
   },
   inputWrapper: {
@@ -184,11 +199,11 @@ const styles = StyleSheet.create({
   },
   button: {
     marginTop: spacing.sm,
-    width: '100%',
+    width: "100%",
   },
   toggleButton: {
     marginTop: spacing.lg,
-    alignItems: 'center',
+    alignItems: "center",
   },
   toggleText: {
     ...typography.subhead,

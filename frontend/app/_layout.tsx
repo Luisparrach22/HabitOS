@@ -1,7 +1,7 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useFonts } from 'expo-font';
+import { useFonts, Outfit_400Regular, Outfit_500Medium, Outfit_600SemiBold, Outfit_700Bold } from '@expo-google-fonts/outfit';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
@@ -35,6 +35,10 @@ const queryClient = new QueryClient({
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
+    'Outfit-Regular': Outfit_400Regular,
+    'Outfit-Medium': Outfit_500Medium,
+    'Outfit-SemiBold': Outfit_600SemiBold,
+    'Outfit-Bold': Outfit_700Bold,
     SpaceMono: require('../assets/fonts/SpaceMono-Regular.ttf'),
     ...FontAwesome.font,
   });

@@ -7,23 +7,46 @@ import {
   TextInput,
   Pressable,
   ScrollView,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import { useRouter } from "expo-router";
 import { FontAwesome5, Feather } from "@expo/vector-icons";
 import { styles } from "@/estilos/crear_habito.styles";
+import { useCreateHabit } from "@/hooks/usarHabitos";
 
 const ICONS = ["tint", "book-open", "moon", "dumbbell", "brain", "leaf"];
 const FREQUENCIES = ["Daily", "Weekly", "Mon–Fri", "Custom"];
 
 export default function CrearHabitoScreen() {
   const router = useRouter();
-  const [habitName, setHabitName] = useState("Meditate for 10 minutes");
+  const createHabitMutation = useCreateHabit();
+  
+  const [habitName, setHabitName] = useState("");
   const [selectedIcon, setSelectedIcon] = useState(4); // Brain selected by default
   const [selectedFrequency, setSelectedFrequency] = useState(0); // Daily selected by default
-  const [habitStack, setHabitStack] = useState(
-    "After I pour my morning coffee",
-  );
+  const [habitStack, setHabitStack] = useState("");
   const [reminderEnabled, setReminderEnabled] = useState(true);
+
+  const handleCreateHabit = async () => {
+    if (!habitName.trim()) {
+      Alert.alert("Error", "Please enter a habit name.");
+      return;
+    }
+
+    try {
+      await createHabitMutation.mutateAsync({
+        name: habitName.trim(),
+        icon: ICONS[selectedIcon],
+        frequency: FREQUENCIES[selectedFrequency] === "Weekly" ? "WEEKLY" : "DAILY",
+        trigger: habitStack.trim() || undefined,
+      });
+      router.back();
+    } catch (error: any) {
+      const message = error.response?.data?.error || "Failed to create habit.";
+      Alert.alert("Error", message);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -156,8 +179,16 @@ export default function CrearHabitoScreen() {
       </ScrollView>
 
       {/* Create Button */}
-      <Pressable style={styles.createButton} onPress={() => router.back()}>
-        <Text style={styles.createButtonText}>Create Habit</Text>
+      <Pressable 
+        style={[styles.createButton, createHabitMutation.isPending && { opacity: 0.7 }]} 
+        onPress={handleCreateHabit}
+        disabled={createHabitMutation.isPending}
+      >
+        {createHabitMutation.isPending ? (
+          <ActivityIndicator color="#ffffff" />
+        ) : (
+          <Text style={styles.createButtonText}>Create Habit</Text>
+        )}
       </Pressable>
 
       <StatusBar style={Platform.OS === "ios" ? "dark" : "auto"} />

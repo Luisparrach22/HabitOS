@@ -78,11 +78,11 @@ export const habitsApi = {
     apiClient.post('/habits', data),
 
   update: (id: string, data: Record<string, unknown>) =>
-    apiClient.put(`/habitos/${id}`, data),
+    apiClient.put(`/habits/${id}`, data),
 
   delete: (id: string) =>
-    apiClient.delete(`/habitos/${id}`),
+    apiClient.delete(`/habits/${id}`),
 
   checkin: (id: string) =>
-    apiClient.post(`/habitos/${id}/checkin`),
+    apiClient.post(`/habits/${id}/checkin`),
 };
