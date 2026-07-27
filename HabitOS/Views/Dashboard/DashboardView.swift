@@ -3,25 +3,26 @@
 // ──────────────────────────────────────────────
 // Pantalla principal del usuario.
 // Lista los hábitos cargados en SwiftData, divididos
-// entre pendientes y completados, junto con un resumen diario.
-// Permite completar hábitos directamente y navegar al detalle.
+// entre pendientes y completados, junto con un resumen diario y gamificación.
 
 import SwiftUI
 import SwiftData
 
 struct DashboardView: View {
-    // Inyectamos el contexto de base de datos de SwiftData
     @Environment(\.modelContext) private var modelContext
     
-    // Obtenemos todos los hábitos ordenados por fecha de creación
     @Query(sort: \Habit.createdAt, order: .forward) private var habits: [Habit]
+    @Query private var users: [User]
     
-    // Estados de UI
+    @State private var viewModel = HabitViewModel()
+    
     @State private var showCompleted = true
     @State private var showingCreateHabitSheet = false
     @State private var selectedHabitForDetail: Habit?
     
-    // ── Datos Derivados ───────────────────────────
+    private var currentUser: User? {
+        users.first
+    }
     
     private var pendingHabits: [Habit] {
         habits.filter { !$0.isCompletedToday }
@@ -56,32 +57,53 @@ struct DashboardView: View {
                     .ignoresSafeArea()
                 
                 ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: Spacing.lg) {
+                    VStack(spacing: Spacing.xl) {
                         
-                        // 1. Cabecera (Fecha, Saludo, Avatar)
+                        // 1. Cabecera (Fecha y Saludo)
                         HStack {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(dateString)
-                                    .font(.habFootnote)
-                                    .foregroundStyle(Color.habTextMuted)
-                                
-                                Text("\(greeting), desarrollador")
-                                    .font(.habTitle2)
-                                    .foregroundStyle(Color.habTextPrimary)
+                                    .font(.system(.footnote, design: .rounded))
                                     .fontWeight(.bold)
+                                    .foregroundStyle(Color.secondary)
+                                
+                                Text("\(greeting), \(currentUser?.name ?? "Guerrero")")
+                                    .font(.system(.title2, design: .rounded))
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(Color.primary)
                             }
                             
                             Spacer()
                             
-                            // Avatar circular
-                            Circle()
-                                .fill(Color.habPrimary)
-                                .frame(width: 44, height: 44)
-                                .overlay(
-                                    Text("D")
-                                        .font(.habHeadline)
-                                        .foregroundStyle(Color.white)
-                                )
+                            // Badge de Nivel del Usuario (Avatar HIG)
+                            if let user = currentUser {
+                                NavigationLink(destination: ProfileView()) {
+                                    HStack(spacing: 8) {
+                                        VStack(alignment: .trailing, spacing: 1) {
+                                            Text("NV. \(user.level)")
+                                                .font(.system(size: 11, weight: .black, design: .rounded))
+                                                .foregroundStyle(Color.white)
+                                                .padding(.horizontal, 8)
+                                                .padding(.vertical, 3)
+                                                .background(
+                                                    Capsule()
+                                                        .fill(LinearGradient(colors: [Color(hex: "#7B2CBF"), Color(hex: "#00F5D4")], startPoint: .leading, endPoint: .trailing))
+                                                )
+                                        }
+                                        
+                                        Circle()
+                                            .fill(Color.habPrimary.opacity(0.1))
+                                            .frame(width: 36, height: 36)
+                                            .overlay(
+                                                Text(user.name?.prefix(1).uppercased() ?? "H")
+                                                    .font(.system(.body, design: .rounded))
+                                                    .fontWeight(.bold)
+                                                    .foregroundStyle(Color.habPrimary)
+                                            )
+                                    }
+                                }
+                                .buttonStyle(.plain)
+                            }
                         }
                         .padding(.top, Spacing.sm)
                         
@@ -92,115 +114,23 @@ struct DashboardView: View {
                             maxCurrentStreak: maxCurrentStreak
                         )
                         
-                        // 3. Contenido Principal: Hábitos
+                        // 3. Hábitos
                         if habits.isEmpty {
-                            // Empty State
-                            VStack(spacing: Spacing.md) {
-                                Image(systemName: "tree.fill")
-                                    .font(.system(size: 64))
-                                    .foregroundStyle(Color.habBlueLight)
-                                
-                                Text("Aún no tienes hábitos")
-                                    .font(.habTitle3)
-                                    .foregroundStyle(Color.habTextPrimary)
-                                
-                                Text("¡Empieza a construir tu rutina agregando un nuevo hábito pulsando el botón + arriba!")
-                                    .font(.habBody)
-                                    .foregroundStyle(Color.habTextMuted)
-                                    .multilineTextAlignment(.center)
-                                    .padding(.horizontal, Spacing.xl)
-                            }
-                            .padding(.vertical, Spacing.xl4)
+                            emptyStateView
                         } else {
-                            // Listado de Hábitos
-                            VStack(alignment: .leading, spacing: Spacing.md) {
-                                
-                                // ── Sección de Pendientes ──
-                                if !pendingHabits.isEmpty {
-                                    HStack {
-                                        Text("Por hacer")
-                                            .font(.habHeadline)
-                                            .foregroundStyle(Color.habTextSecondary)
-                                        Spacer()
-                                        Text("\(pendingHabits.count) restantes")
-                                            .font(.habCaption)
-                                            .foregroundStyle(Color.habTextMuted)
-                                    }
-                                    
-                                    ForEach(pendingHabits) { habit in
-                                        HabitCard(
-                                            habit: habit,
-                                            onCheckin: { toggleCompletion(for: habit) },
-                                            onTapGesture: { selectedHabitForDetail = habit }
-                                        )
-                                    }
-                                } else {
-                                    // Todo completado
-                                    VStack(spacing: Spacing.sm) {
-                                        Image(systemName: "checkmark.seal.fill")
-                                            .font(.system(size: 40))
-                                            .foregroundStyle(Color.habSuccess)
-                                        Text("¡Todo listo por hoy!")
-                                            .font(.habHeadline)
-                                            .foregroundStyle(Color.habTextPrimary)
-                                        Text("¡Gran trabajo!")
-                                            .font(.habCaption)
-                                            .foregroundStyle(Color.habTextMuted)
-                                    }
-                                    .frame(maxWidth: .infinity)
-                                    .padding(.vertical, Spacing.xl)
-                                    .background(Color.habCard.opacity(0.5))
-                                    .cornerRadius(Radius.lg)
-                                }
-                                
-                                // ── Sección de Completados ──
-                                if !completedHabits.isEmpty {
-                                    Button {
-                                        withAnimation {
-                                            showCompleted.toggle()
-                                        }
-                                    } label: {
-                                        HStack {
-                                            Text("✓ Completados (\(completedHabits.count))")
-                                                .font(.habHeadline)
-                                                .foregroundStyle(Color.habTextSecondary)
-                                            Spacer()
-                                            Text(showCompleted ? "Ocultar" : "Mostrar")
-                                                .font(.habCaption)
-                                                .foregroundStyle(Color.habTextMuted)
-                                            Image(systemName: showCompleted ? "chevron.up" : "chevron.down")
-                                                .font(.caption2)
-                                                .foregroundStyle(Color.habTextMuted)
-                                        }
-                                    }
-                                    .padding(.top, Spacing.md)
-                                    
-                                    if showCompleted {
-                                        ForEach(completedHabits) { habit in
-                                            HabitCard(
-                                                habit: habit,
-                                                onCheckin: { toggleCompletion(for: habit) },
-                                                onTapGesture: { selectedHabitForDetail = habit }
-                                            )
-                                        }
-                                    }
-                                }
-                            }
+                            habitsListView
                         }
                     }
                     .padding(.horizontal, Spacing.lg)
                     .padding(.bottom, Spacing.xl3)
                 }
             }
-            .navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Mi Día")
             .toolbar {
-                ToolbarItem(placement: .principal) {
-                    Text("Mi Día")
-                        .font(.habHeadline)
-                        .foregroundStyle(Color.habTextPrimary)
-                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button {
+                        let generator = UIImpactFeedbackGenerator(style: .light)
+                        generator.impactOccurred()
                         showingCreateHabitSheet = true
                     } label: {
                         Image(systemName: "plus.circle.fill")
@@ -209,43 +139,143 @@ struct DashboardView: View {
                     }
                 }
             }
-            // Navegación al detalle del hábito (se abre como modal/sheet en este sprint)
+            .onAppear {
+                viewModel.ensureDefaultUser(context: modelContext)
+            }
+            .alert("¡Nivel Conquistado! 🎉", isPresented: $viewModel.showLevelUpAlert) {
+                Button("¡Genial!", role: .cancel) { }
+            } message: {
+                if let result = viewModel.lastLevelUpResult {
+                    Text("¡Has alcanzado el Nivel \(result.newLevel)! Se ha otorgado \(result.shieldsAwarded) escudo adicional para proteger tu racha.")
+                } else {
+                    Text("¡Subiste de nivel!")
+                }
+            }
             .sheet(item: $selectedHabitForDetail) { habit in
                 HabitDetailView(habit: habit)
             }
-            // Modal de Creación de Hábito
             .sheet(isPresented: $showingCreateHabitSheet) {
                 CreateHabitView()
             }
         }
     }
     
-    // Lógica para marcar como completado
-    private func toggleCompletion(for habit: Habit) {
-        if habit.isCompletedToday {
-            // Desmarcar: buscamos el log de hoy y lo eliminamos
-            if let todayLog = habit.logs.first(where: { Calendar.current.isDateInToday($0.completedAt) }) {
-                modelContext.delete(todayLog)
-                habit.currentStreak = max(0, habit.currentStreak - 1)
+    // Vista del listado de hábitos
+    private var habitsListView: some View {
+        VStack(alignment: .leading, spacing: Spacing.lg) {
+            
+            // ── Sección de Pendientes ──
+            if !pendingHabits.isEmpty {
+                VStack(alignment: .leading, spacing: Spacing.sm) {
+                    HStack {
+                        Text("POR HACER")
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .foregroundStyle(Color.secondary)
+                        Spacer()
+                        Text("\(pendingHabits.count) restantes")
+                            .font(.system(size: 11, design: .rounded))
+                            .foregroundStyle(Color.secondary.opacity(0.8))
+                    }
+                    .padding(.horizontal, Spacing.xs)
+                    
+                    ForEach(pendingHabits) { habit in
+                        HabitCard(
+                            habit: habit,
+                            onCheckin: { toggleCompletion(for: habit) },
+                            onTapGesture: { selectedHabitForDetail = habit }
+                        )
+                    }
+                }
+            } else {
+                // Todo completado
+                VStack(spacing: Spacing.md) {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.system(size: 44))
+                        .foregroundStyle(Color.habSuccess)
+                    
+                    Text("¡Todo listo por hoy!")
+                        .font(.system(.headline, design: .rounded))
+                        .fontWeight(.bold)
+                        .foregroundStyle(Color.primary)
+                    
+                    Text("¡Gran trabajo acumulando XP!")
+                        .font(.caption)
+                        .foregroundStyle(Color.secondary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, Spacing.xl)
+                .background(Color.habCard.opacity(0.4))
+                .cornerRadius(Radius.lg)
             }
-        } else {
-            // Marcar: creamos un nuevo log
-            let newLog = HabitLog(habitId: habit.id)
-            modelContext.insert(newLog)
-            habit.logs.append(newLog)
-            habit.currentStreak += 1
-            if habit.currentStreak > habit.maxStreak {
-                habit.maxStreak = habit.currentStreak
+            
+            // ── Sección de Completados ──
+            if !completedHabits.isEmpty {
+                VStack(alignment: .leading, spacing: Spacing.sm) {
+                    Button {
+                        withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                            showCompleted.toggle()
+                        }
+                    } label: {
+                        HStack {
+                            Text("COMPLETADOS (\(completedHabits.count))")
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                .foregroundStyle(Color.secondary)
+                            Spacer()
+                            Image(systemName: "chevron.up")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundStyle(Color.secondary)
+                                .rotationEffect(.degrees(showCompleted ? 0 : 180))
+                        }
+                        .padding(.horizontal, Spacing.xs)
+                    }
+                    .buttonStyle(.plain)
+                    
+                    if showCompleted {
+                        ForEach(completedHabits) { habit in
+                            HabitCard(
+                                habit: habit,
+                                onCheckin: { toggleCompletion(for: habit) },
+                                onTapGesture: { selectedHabitForDetail = habit }
+                            )
+                        }
+                    }
+                }
             }
         }
-        
-        // Guardamos los cambios en SwiftData
-        try? modelContext.save()
+    }
+    
+    // Vista de estado vacío
+    private var emptyStateView: some View {
+        VStack(spacing: Spacing.lg) {
+            ZStack {
+                Circle()
+                    .fill(Color.habPrimary.opacity(0.08))
+                    .frame(width: 100, height: 100)
+                Image(systemName: "checklist")
+                    .font(.system(size: 40))
+                    .foregroundStyle(Color.habPrimary)
+            }
+            
+            Text("Comienza tu rutina")
+                .font(.system(.title3, design: .rounded))
+                .fontWeight(.bold)
+                .foregroundStyle(Color.primary)
+            
+            Text("Añade hábitos diarios pulsando el botón + arriba para iniciar tu camino hacia la disciplina.")
+                .font(.subheadline)
+                .foregroundStyle(Color.secondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, Spacing.xl2)
+        }
+        .padding(.vertical, Spacing.xl4)
+    }
+    
+    private func toggleCompletion(for habit: Habit) {
+        viewModel.toggleCompletion(for: habit, user: currentUser, context: modelContext)
     }
 }
 
 // MARK: - Previsualización
-
 #Preview {
     DashboardView()
         .modelContainer(for: [Habit.self, User.self], inMemory: true)

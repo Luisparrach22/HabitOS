@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- SEO -->
+  <title>HabitOS — Tu Sistema Operativo de Hábitos | Rachas, Escudos y Gamificación</title>
+  <meta name="description" content="HabitOS es la app de hábitos que gamifica tu disciplina. Construye rachas, protégelas con escudos y sube de nivel cada día. Descárgala gratis para iOS.">
+  <meta name="keywords" content="habit tracker, hábitos, rachas, gamificación, productividad, iOS, app">
+  <meta name="author" content="HabitOS">
+  <meta name="robots" content="index, follow">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="HabitOS — Tu Sistema Operativo de Hábitos">
+  <meta property="og:description" content="Construye rutinas que duran con rachas, escudos y gamificación inteligente.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/hero-mockup.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/hero-mockup.png">
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════
+       NAVIGATION
+       ═══════════════════════════════════════════════ -->
+  <nav class="navbar" id="navbar">
+    <div class="container">
+      <a href="#" class="navbar-brand">
+        <div class="logo-icon">⚡</div>
+        HabitOS
+      </a>
+
+      <div class="navbar-links" id="navLinks">
+        <a href="#features">Funciones</a>
+        <a href="#showcase">Cómo Funciona</a>
+        <a href="#testimonials">Opiniones</a>
+        <a href="#pricing">Precios</a>
+        <a href="#faq">FAQ</a>
+        <a href="#download" class="navbar-cta">
+          Descargar Gratis
+          <span>→</span>
+        </a>
+      </div>
+
+      <button class="menu-toggle" id="menuToggle" aria-label="Abrir menú">
+        ☰
+      </button>
+    </div>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════
+       HERO
+       ═══════════════════════════════════════════════ -->
+  <section class="hero" id="hero">
+    <div class="container">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="pulse-dot"></span>
+          Disponible para iOS · Versión 1.0
+        </div>
+
+        <h1 class="text-display hero-title">
+          Tu <span class="gradient-text">sistema operativo</span> de hábitos
+        </h1>
+
+        <p class="hero-description">
+          Construye rutinas que duran con rachas motivantes, escudos protectores y gamificación inteligente. HabitOS convierte tu disciplina en un juego que quieres ganar.
+        </p>
+
+        <div class="hero-actions">
+          <a href="#download" class="btn btn-gradient btn-primary-lg">
+            🚀 Descargar Gratis
+          </a>
+          <a href="#showcase" class="btn btn-secondary">
+            Ver Demo
+          </a>
+        </div>
+
+        <div class="hero-social-proof">
+          <div class="avatar-stack">
+            <div class="avatar" style="background: #8B5CF6;">M</div>
+            <div class="avatar" style="background: #018ABE;">A</div>
+            <div class="avatar" style="background: #EC4899;">S</div>
+            <div class="avatar" style="background: #21AF4B;">L</div>
+            <div class="avatar" style="background: #F5A623;">R</div>
+          </div>
+          <p class="text-small">
+            <strong>+10,000 personas</strong> ya construyen<br>mejores hábitos con HabitOS
+          </p>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="phone-wrapper">
+          <div class="phone-glow"></div>
+          <img src="assets/hero-mockup.png" alt="HabitOS App — Dashboard principal mostrando progreso diario de hábitos" id="heroPhone">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       STATS BAR
+       ═══════════════════════════════════════════════ -->
+  <section class="stats-bar">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item reveal">
+          <div class="stat-number" data-target="10000" data-suffix="+">0</div>
+          <div class="stat-label">Usuarios Activos</div>
+        </div>
+        <div class="stat-item reveal reveal-delay-1">
+          <div class="stat-number" data-target="250000" data-suffix="+">0</div>
+          <div class="stat-label">Hábitos Completados</div>
+        </div>
+        <div class="stat-item reveal reveal-delay-2">
+          <div class="stat-number" data-target="94" data-suffix="%">0</div>
+          <div class="stat-label">Tasa de Retención</div>
+        </div>
+        <div class="stat-item reveal reveal-delay-3">
+          <div class="stat-number" data-target="4.9" data-suffix="★" data-decimal="true">0</div>
+          <div class="stat-label">Valoración App Store</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       FEATURES
+       ═══════════════════════════════════════════════ -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="text-caption">¿Por qué HabitOS?</span>
+        <h2 class="text-h2">Todo lo que necesitas para construir hábitos que duran</h2>
+        <p>Un sistema completo diseñado con ciencia del comportamiento y gamificación para que nunca pierdas la motivación.</p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Feature 1: Rachas -->
+        <div class="feature-card reveal" id="feature-streaks">
+          <div class="feature-icon" style="background: rgba(245, 166, 35, 0.12); color: #F5A623;">🔥</div>
+          <h3>Rachas Motivantes</h3>
+          <p>Cada día que completas un hábito, tu racha crece. Visualiza tu consistencia y no querrás romper la cadena.</p>
+        </div>
+
+        <!-- Feature 2: Escudos -->
+        <div class="feature-card reveal reveal-delay-1" id="feature-shields">
+          <div class="feature-icon" style="background: rgba(1, 138, 190, 0.12); color: #018ABE;">🛡️</div>
+          <h3>Escudos Protectores</h3>
+          <p>¿Un mal día? Tus escudos protegen tu racha automáticamente. No pierdes semanas de progreso por un tropiezo.</p>
+        </div>
+
+        <!-- Feature 3: Gamificación -->
+        <div class="feature-card reveal reveal-delay-2" id="feature-xp">
+          <div class="feature-icon" style="background: rgba(139, 92, 246, 0.12); color: #8B5CF6;">⚡</div>
+          <h3>XP y Niveles</h3>
+          <p>Gana experiencia con cada check-in, sube de nivel y desbloquea logros. Tu progreso tiene recompensas reales.</p>
+        </div>
+
+        <!-- Feature 4: Estadísticas -->
+        <div class="feature-card reveal" id="feature-stats">
+          <div class="feature-icon" style="background: rgba(33, 175, 75, 0.12); color: #21AF4B;">📊</div>
+          <h3>Estadísticas Claras</h3>
+          <p>Calendario de consistencia tipo GitHub, tasa de completado semanal y ranking de tus mejores rachas.</p>
+        </div>
+
+        <!-- Feature 5: Personalización -->
+        <div class="feature-card reveal reveal-delay-1" id="feature-custom">
+          <div class="feature-icon" style="background: rgba(236, 72, 153, 0.12); color: #EC4899;">🎨</div>
+          <h3>Totalmente Personalizable</h3>
+          <p>Elige entre 10 colores vibrantes, cientos de iconos y configura frecuencias diarias, semanales o personalizadas.</p>
+        </div>
+
+        <!-- Feature 6: Disparadores -->
+        <div class="feature-card reveal reveal-delay-2" id="feature-triggers">
+          <div class="feature-icon" style="background: rgba(45, 212, 168, 0.12); color: #2DD4A8;">🔗</div>
+          <h3>Habit Stacking</h3>
+          <p>Vincula hábitos nuevos a rutinas existentes con disparadores. "Después del café → Meditar 5 min."</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SHOWCASE 1 — Dashboard
+       ═══════════════════════════════════════════════ -->
+  <section class="section showcase" id="showcase">
+    <div class="container">
+      <div class="showcase-grid">
+        <div class="showcase-visual reveal">
+          <img src="assets/hero-mockup.png" alt="Dashboard de HabitOS mostrando progreso diario y tarjetas de hábitos" loading="lazy">
+        </div>
+        <div class="showcase-content reveal reveal-delay-1">
+          <span class="text-caption">Dashboard Intuitivo</span>
+          <h2 class="text-h2">Completa todos tus hábitos en menos de 30 segundos</h2>
+          <p>Tu día entero en una sola pantalla. Progreso visual instantáneo, check-in con un toque y mensajes motivacionales que se adaptan a tu progreso.</p>
+          <div class="feature-list">
+            <div class="feature-list-item">
+              <span class="check-icon">✓</span>
+              Barra de progreso con gradiente animado
+            </div>
+            <div class="feature-list-item">
+              <span class="check-icon">✓</span>
+              Check-in con un solo toque + haptic feedback
+            </div>
+            <div class="feature-list-item">
+              <span class="check-icon">✓</span>
+              Mensajes motivacionales dinámicos
+            </div>
+            <div class="feature-list-item">
+              <span class="check-icon">✓</span>
+              Secciones colapsables: pendientes y completados
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SHOWCASE 2 — Estadísticas
+       ═══════════════════════════════════════════════ -->
+  <section class="section">
+    <div class="container">
+      <div class="showcase-grid reverse">
+        <div class="showcase-visual reveal">
+          <img src="assets/stats-mockup.png" alt="Estadísticas de HabitOS con calendario de consistencia y mejores rachas" loading="lazy">
+        </div>
+        <div class="showcase-content reveal reveal-delay-1">
+          <span class="text-caption">Estadísticas Avanzadas</span>
+          <h2 class="text-h2">Visualiza tu evolución con datos reales</h2>
+          <p>No se trata solo de completar hábitos — se trata de entender tus patrones. El calendario de consistencia y tus métricas semanales te muestran exactamente dónde estás mejorando.</p>
+          <div class="feature-list">
+            <div class="feature-list-item">
+              <span class="check-icon">✓</span>
+              Calendario tipo GitHub con intensidad de color
+            </div>
+            <div class="feature-list-item">
+              <span class="check-icon">✓</span>
+              Tasa de completado semanal con tendencia
+            </div>
+            <div class="feature-list-item">
+              <span class="check-icon">✓</span>
+              Ranking de mejores rachas por hábito
+            </div>
+            <div class="feature-list-item">
+              <span class="check-icon">✓</span>
+              Insignias de logro desbloqueables
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       SHOWCASE 3 — Gamificación
+       ═══════════════════════════════════════════════ -->
+  <section class="section showcase">
+    <div class="container">
+      <div class="showcase-grid">
+        <div class="showcase-visual reveal">
+          <img src="assets/shields-mockup.png" alt="Perfil de gamificación con XP, nivel y escudos protectores" loading="lazy">
+        </div>
+        <div class="showcase-content reveal reveal-delay-1">
+          <span class="text-caption">Gamificación Inteligente</span>
+          <h2 class="text-h2">Sube de nivel, acumula XP y protege tu progreso</h2>
+          <p>HabitOS transforma la disciplina en un juego. Gana experiencia, sube de nivel y usa escudos para proteger tus rachas en los días difíciles. Tu perfil refleja tu compromiso.</p>
+          <div class="feature-list">
+            <div class="feature-list-item">
+              <span class="check-icon">✓</span>
+              Sistema de XP y niveles progresivos
+            </div>
+            <div class="feature-list-item">
+              <span class="check-icon">✓</span>
+              Escudos que protegen tus rachas automáticamente
+            </div>
+            <div class="feature-list-item">
+              <span class="check-icon">✓</span>
+              Perfil personalizable con avatar
+            </div>
+            <div class="feature-list-item">
+              <span class="check-icon">✓</span>
+              Notificaciones inteligentes y modo oscuro
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       TESTIMONIALS
+       ═══════════════════════════════════════════════ -->
+  <section class="section" id="testimonials">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="text-caption">Lo que dicen nuestros usuarios</span>
+        <h2 class="text-h2">Miles de personas ya confían en HabitOS</h2>
+        <p>Estas son las historias reales de personas que transformaron sus rutinas con nuestra app.</p>
+      </div>
+
+      <div class="testimonials-grid">
+        <div class="testimonial-card reveal" id="testimonial-1">
+          <div class="testimonial-stars">★★★★★</div>
+          <blockquote>
+            "Llevo 45 días de racha en meditación gracias a los escudos. Hubo dos días que no pude, pero mis escudos me salvaron. Es un cambio de mentalidad total."
+          </blockquote>
+          <div class="testimonial-author">
+            <div class="avatar" style="background: #8B5CF6;">M</div>
+            <div class="testimonial-author-info">
+              <strong>María G.</strong>
+              <span>Racha máxima: 45 días 🔥</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal reveal-delay-1" id="testimonial-2">
+          <div class="testimonial-stars">★★★★★</div>
+          <blockquote>
+            "La gamificación es adictiva (en el buen sentido). Ver mi XP subir y desbloquear niveles me motiva muchísimo. Mejor app de hábitos que he probado."
+          </blockquote>
+          <div class="testimonial-author">
+            <div class="avatar" style="background: #018ABE;">A</div>
+            <div class="testimonial-author-info">
+              <strong>Andrés P.</strong>
+              <span>Nivel 12 · 3,400 XP ⚡</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="testimonial-card reveal reveal-delay-2" id="testimonial-3">
+          <div class="testimonial-stars">★★★★★</div>
+          <blockquote>
+            "Probé 5 apps de hábitos antes de HabitOS. El diseño es precioso y la funcionalidad de disparadores me ayudó a crear cadenas de hábitos sin esfuerzo."
+          </blockquote>
+          <div class="testimonial-author">
+            <div class="avatar" style="background: #EC4899;">S</div>
+            <div class="testimonial-author-info">
+              <strong>Sofía R.</strong>
+              <span>5 hábitos activos · 🛡️ 8 escudos</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       PRICING
+       ═══════════════════════════════════════════════ -->
+  <section class="section showcase" id="pricing">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="text-caption">Planes y Precios</span>
+        <h2 class="text-h2">Elige el plan perfecto para ti</h2>
+        <p>Empieza gratis y mejora cuando estés listo. Sin presión, sin trucos.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <!-- Plan Free -->
+        <div class="pricing-card reveal" id="plan-free">
+          <div class="plan-name">Free</div>
+          <div class="plan-price">Gratis</div>
+          <div class="plan-description">Todo lo esencial para empezar</div>
+          <div class="pricing-features">
+            <div class="pricing-feature">
+              <span class="icon-check">✓</span>
+              Hasta 5 hábitos activos
+            </div>
+            <div class="pricing-feature">
+              <span class="icon-check">✓</span>
+              Rachas y check-in diario
+            </div>
+            <div class="pricing-feature">
+              <span class="icon-check">✓</span>
+              1 escudo por hábito
+            </div>
+            <div class="pricing-feature">
+              <span class="icon-check">✓</span>
+              10 colores personalizables
+            </div>
+            <div class="pricing-feature disabled">
+              <span class="icon-cross">✗</span>
+              Estadísticas avanzadas
+            </div>
+            <div class="pricing-feature disabled">
+              <span class="icon-cross">✗</span>
+              Temas premium
+            </div>
+            <div class="pricing-feature disabled">
+              <span class="icon-cross">✗</span>
+              Escudos ilimitados
+            </div>
+          </div>
+          <a href="#download" class="btn btn-secondary" style="width: 100%;">Empezar Gratis</a>
+        </div>
+
+        <!-- Plan Pro -->
+        <div class="pricing-card featured reveal reveal-delay-1" id="plan-pro">
+          <div class="pricing-badge">Más Popular</div>
+          <div class="plan-name" style="color: var(--text-accent);">Pro</div>
+          <div class="plan-price">$4.99 <span>/ mes</span></div>
+          <div class="plan-description">Desbloquea todo el potencial de HabitOS</div>
+          <div class="pricing-features">
+            <div class="pricing-feature">
+              <span class="icon-check">✓</span>
+              Hábitos ilimitados
+            </div>
+            <div class="pricing-feature">
+              <span class="icon-check">✓</span>
+              Todas las estadísticas
+            </div>
+            <div class="pricing-feature">
+              <span class="icon-check">✓</span>
+              Escudos ilimitados
+            </div>
+            <div class="pricing-feature">
+              <span class="icon-check">✓</span>
+              Temas y colores premium
+            </div>
+            <div class="pricing-feature">
+              <span class="icon-check">✓</span>
+              Calendario de consistencia
+            </div>
+            <div class="pricing-feature">
+              <span class="icon-check">✓</span>
+              Exportar datos
+            </div>
+            <div class="pricing-feature">
+              <span class="icon-check">✓</span>
+              Soporte prioritario
+            </div>
+          </div>
+          <a href="#download" class="btn btn-gradient" style="width: 100%;">🚀 Prueba 7 Días Gratis</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       FAQ
+       ═══════════════════════════════════════════════ -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="section-header reveal">
+        <span class="text-caption">Preguntas Frecuentes</span>
+        <h2 class="text-h2">¿Tienes dudas? Te las resolvemos</h2>
+      </div>
+
+      <div class="faq-list">
+        <div class="faq-item reveal" id="faq-1">
+          <button class="faq-question">
+            ¿HabitOS es realmente gratis?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Sí, el plan Free es 100% gratis y sin fecha de expiración. Puedes usar hasta 5 hábitos, rachas y 1 escudo por hábito sin pagar nada. El plan Pro desbloquea funciones avanzadas como estadísticas, escudos ilimitados y temas premium.</p>
+          </div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-1" id="faq-2">
+          <button class="faq-question">
+            ¿Qué son los escudos y cómo funcionan?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Los escudos son tu red de seguridad. Si un día no puedes completar un hábito, el escudo se activa automáticamente y protege tu racha. Así no pierdes semanas de progreso por un mal día. En el plan Free tienes 1 escudo por hábito; en Pro, ilimitados.</p>
+          </div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-2" id="faq-3">
+          <button class="faq-question">
+            ¿Puedo cancelar el plan Pro en cualquier momento?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Absolutamente. Puedes cancelar tu suscripción Pro en cualquier momento desde los ajustes de tu cuenta de Apple. Sin preguntas, sin trámites. Si cancelas, mantienes el acceso Pro hasta el final de tu periodo de facturación.</p>
+          </div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-3" id="faq-4">
+          <button class="faq-question">
+            ¿Mis datos están seguros?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Tus datos se almacenan localmente en tu dispositivo usando SwiftData, la tecnología nativa de Apple. No vendemos ni compartimos tu información personal. Tu privacidad es nuestra prioridad.</p>
+          </div>
+        </div>
+
+        <div class="faq-item reveal" id="faq-5">
+          <button class="faq-question">
+            ¿HabitOS está disponible para Android?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>Actualmente HabitOS está disponible exclusivamente para iOS (iPhone). Estamos trabajando en la versión para Android y la lanzaremos próximamente. Suscríbete a nuestra newsletter para ser el primero en enterarte.</p>
+          </div>
+        </div>
+
+        <div class="faq-item reveal reveal-delay-1" id="faq-6">
+          <button class="faq-question">
+            ¿Qué es el Habit Stacking?
+            <span class="faq-icon">+</span>
+          </button>
+          <div class="faq-answer">
+            <p>El Habit Stacking (o "apilamiento de hábitos") es una técnica basada en ciencia del comportamiento. Consiste en vincular un nuevo hábito a una rutina que ya haces. Por ejemplo: "Después del café → Meditar 5 min". HabitOS te permite configurar estos disparadores para cada hábito.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       CTA FINAL
+       ═══════════════════════════════════════════════ -->
+  <section class="section" id="download">
+    <div class="container">
+      <div class="cta-box reveal">
+        <h2 class="text-display">
+          Empieza hoy,<br><span class="gradient-text">mejora cada día</span>
+        </h2>
+        <p>Únete a miles de personas que ya están construyendo mejores hábitos con HabitOS. Descárgala gratis.</p>
+
+        <div class="cta-actions">
+          <a href="#" class="btn btn-gradient btn-primary-lg" id="cta-download">
+            🚀 Descargar en App Store
+          </a>
+          <a href="#features" class="btn btn-secondary">
+            Explorar Funciones
+          </a>
+        </div>
+
+        <div class="cta-trust">
+          <span>🔒 Pago seguro con Apple</span>
+          <span>🚫 Sin tarjeta de crédito</span>
+          <span>↩️ Cancela cuando quieras</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════
+       FOOTER
+       ═══════════════════════════════════════════════ -->
+  <footer class="footer" id="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="navbar-brand">
+            <div class="logo-icon">⚡</div>
+            HabitOS
+          </a>
+          <p>Tu sistema operativo de hábitos. Construye rutinas que duran con gamificación inteligente.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>Producto</h4>
+          <a href="#features">Funciones</a>
+          <a href="#pricing">Precios</a>
+          <a href="#showcase">Cómo Funciona</a>
+          <a href="#download">Descargar</a>
+        </div>
+
+        <div class="footer-col">
+          <h4>Soporte</h4>
+          <a href="#faq">Preguntas Frecuentes</a>
+          <a href="mailto:hello@habitos.app">Contacto</a>
+          <a href="#">Centro de Ayuda</a>
+          <a href="#">Reportar un Bug</a>
+        </div>
+
+        <div class="footer-col">
+          <h4>Legal</h4>
+          <a href="#">Política de Privacidad</a>
+          <a href="#">Términos de Uso</a>
+          <a href="#">Cookies</a>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 HabitOS. Todos los derechos reservados.</p>
+        <div class="footer-bottom-links">
+          <a href="#">Twitter</a>
+          <a href="#">Instagram</a>
+          <a href="#">LinkedIn</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="script.js"></script>
+</body>
+</html>

@@ -2,11 +2,11 @@
 // MainTabView.swift — Contenedor Principal de Navegación
 // ──────────────────────────────────────────────
 // Estructura TabView en SwiftUI que maneja la barra inferior
-// de pestañas de la aplicación. Equivale a tu layout (pestanas)
-// en React Native/Expo Router.
-// Mapea 3 pantallas: Dashboard (Hoy), Estadísticas y Perfil.
+// de pestañas de la aplicación. Mapea 3 pantallas principales:
+// Dashboard (Hoy), Estadísticas y Perfil.
 
 import SwiftUI
+import SwiftData
 
 struct MainTabView: View {
     // Estado para controlar la pestaña seleccionada actualmente
@@ -18,21 +18,30 @@ struct MainTabView: View {
             // PESTAÑA 1: Hoy (Dashboard de Hábitos)
             DashboardView()
                 .tabItem {
-                    Label("Mi Día", systemImage: "calendar")
+                    Label(
+                        "Mi Día",
+                        systemImage: selectedTab == 0 ? "checkmark.circle.fill" : "checkmark.circle"
+                    )
                 }
                 .tag(0)
             
-            // PESTAÑA 2: Estadísticas (Placeholder temporal premium)
-            StatsPlaceholderView()
+            // PESTAÑA 2: Estadísticas (Swift Charts + Heatmap)
+            StatsView()
                 .tabItem {
-                    Label("Estadísticas", systemImage: "chart.bar.xaxis")
+                    Label(
+                        "Estadísticas",
+                        systemImage: selectedTab == 1 ? "chart.bar.fill" : "chart.bar"
+                    )
                 }
                 .tag(1)
             
-            // PESTAÑA 3: Perfil (Placeholder temporal premium)
-            ProfilePlaceholderView()
+            // PESTAÑA 3: Perfil (Gamificación + XP + Logros)
+            ProfileView()
                 .tabItem {
-                    Label("Perfil", systemImage: "person.crop.circle")
+                    Label(
+                        "Perfil",
+                        systemImage: selectedTab == 2 ? "person.crop.circle.fill" : "person.crop.circle"
+                    )
                 }
                 .tag(2)
         }
@@ -41,58 +50,8 @@ struct MainTabView: View {
     }
 }
 
-// MARK: - Vistas de Relleno (Placeholders)
-
-struct StatsPlaceholderView: View {
-    var body: some View {
-        ZStack {
-            Color.habBackground.ignoresSafeArea()
-            VStack(spacing: Spacing.md) {
-                Image(systemName: "chart.bar.fill")
-                    .font(.system(size: 64))
-                    .foregroundStyle(Color.habPrimary)
-                
-                Text("Estadísticas")
-                    .font(.habTitle2)
-                    .foregroundStyle(Color.habTextPrimary)
-                    .fontWeight(.bold)
-                
-                Text("Próximamente en el Sprint 4.\nVisualiza tu progreso y rachas.")
-                    .font(.habBody)
-                    .foregroundStyle(Color.habTextMuted)
-                    .multilineTextAlignment(.center)
-            }
-            .padding()
-        }
-    }
-}
-
-struct ProfilePlaceholderView: View {
-    var body: some View {
-        ZStack {
-            Color.habBackground.ignoresSafeArea()
-            VStack(spacing: Spacing.md) {
-                Image(systemName: "person.circle.fill")
-                    .font(.system(size: 64))
-                    .foregroundStyle(Color.habPrimary)
-                
-                Text("Perfil del Usuario")
-                    .font(.habTitle2)
-                    .foregroundStyle(Color.habTextPrimary)
-                    .fontWeight(.bold)
-                
-                Text("Próximamente en el Sprint 4.\nSube de nivel, acumula XP y desbloquea escudos.")
-                    .font(.habBody)
-                    .foregroundStyle(Color.habTextMuted)
-                    .multilineTextAlignment(.center)
-            }
-            .padding()
-        }
-    }
-}
-
 // MARK: - Previsualización
-
 #Preview {
     MainTabView()
+        .modelContainer(for: [Habit.self, HabitLog.self, User.self], inMemory: true)
 }

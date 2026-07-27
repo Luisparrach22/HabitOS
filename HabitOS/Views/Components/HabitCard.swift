@@ -4,11 +4,6 @@
 // Componente que renderiza un hábito individual.
 // Incluye un círculo interactivo para check-in con
 // respuesta háptica y micro-animación de escala al pulsar.
-//
-// Diferencias con React Native:
-// - Usa SwiftUI `@State` local para animar la pulsación.
-// - Reacciona al toque con una animación de escala en toda la tarjeta.
-// - Usa SF Symbols para los iconos.
 
 import SwiftUI
 
@@ -26,37 +21,38 @@ struct HabitCard: View {
             // Icono del hábito con su color personalizado
             ZStack {
                 Circle()
-                    .fill(habit.swiftUIColor.opacity(0.15))
-                    .frame(width: 46, height: 46)
+                    .fill(habit.swiftUIColor.opacity(0.1))
+                    .frame(width: 44, height: 44)
                 
                 Image(systemName: habit.icon ?? "star.fill")
                     .foregroundStyle(habit.swiftUIColor)
-                    .font(.system(size: 20, weight: .semibold))
+                    .font(.system(size: 18, weight: .semibold))
             }
             
             // Textos descriptivos (Nombre, disparador y racha)
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 3) {
                 Text(habit.name)
-                    .font(.habHeadline)
-                    .foregroundStyle(Color.habTextPrimary)
-                    .strikethrough(habit.isCompletedToday, color: Color.habTextMuted.opacity(0.5))
+                    .font(.headline)
+                    .foregroundStyle(habit.isCompletedToday ? Color.secondary : Color.primary)
+                    .strikethrough(habit.isCompletedToday, color: Color.secondary.opacity(0.4))
                     .animation(.default, value: habit.isCompletedToday)
                 
                 // Mostrar disparador o frecuencia
                 Text(habit.trigger ?? habit.frequency.displayName)
-                    .font(.habFootnote)
-                    .foregroundStyle(Color.habTextMuted)
+                    .font(.footnote)
+                    .foregroundStyle(Color.secondary)
                     .lineLimit(1)
                 
                 // Racha actual e indicativo de escudos
-                HStack(spacing: Spacing.md) {
+                HStack(spacing: 10) {
                     // Racha de fuego
                     HStack(spacing: 3) {
                         Image(systemName: "flame.fill")
-                            .foregroundStyle(habit.isCompletedToday ? Color.habWarning : Color.habTextMuted)
-                        Text("\(habit.currentStreak) d")
-                            .font(.habCaption)
-                            .foregroundStyle(Color.habTextSecondary)
+                            .foregroundStyle(habit.isCompletedToday ? Color.habWarning : Color.secondary)
+                            .font(.caption)
+                        Text("\(habit.currentStreak)d racha")
+                            .font(.caption.bold())
+                            .foregroundStyle(Color.secondary)
                     }
                     
                     // Escudos activos (si tiene)
@@ -64,9 +60,10 @@ struct HabitCard: View {
                         HStack(spacing: 3) {
                             Image(systemName: "shield.fill")
                                 .foregroundStyle(Color.habPrimary)
+                                .font(.caption)
                             Text("\(habit.shields)")
-                                .font(.habCaption)
-                                .foregroundStyle(Color.habTextSecondary)
+                                .font(.caption.bold())
+                                .foregroundStyle(Color.secondary)
                         }
                     }
                 }
@@ -77,7 +74,6 @@ struct HabitCard: View {
             
             // Botón de Check-in Interactivo
             Button {
-                // Ejecutar feedback táctil ligero en iOS
                 let generator = UIImpactFeedbackGenerator(style: .medium)
                 generator.impactOccurred()
                 
@@ -93,46 +89,40 @@ struct HabitCard: View {
                             Circle()
                                 .fill(habit.isCompletedToday ? Color.habSuccess : Color.clear)
                         )
-                        .frame(width: 36, height: 36)
+                        .frame(width: 32, height: 32)
                     
                     if habit.isCompletedToday {
                         Image(systemName: "checkmark")
                             .foregroundStyle(Color.white)
-                            .font(.system(size: 14, weight: .bold))
-                            // Animación de aparición
+                            .font(.system(size: 12, weight: .bold))
                             .transition(.scale.combined(with: .opacity))
                     }
                 }
             }
-            .buttonStyle(.plain) // Evita que todo el HStack sea pulsable por el botón
-            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: habit.isCompletedToday)
+            .buttonStyle(.plain)
+            .animation(.spring(response: 0.25, dampingFraction: 0.65), value: habit.isCompletedToday)
         }
-        .padding(Spacing.md)
+        .padding(14)
         .background(Color.habCard)
         .cornerRadius(Radius.lg)
         .shadow(
-            color: Color.habTextDark.opacity(0.04),
-            radius: 8, x: 0, y: 2
+            color: Color.black.opacity(0.02),
+            radius: 6, x: 0, y: 3
         )
-        // Animación de escala cuando el usuario mantiene presionado o pulsa
-        .scaleEffect(isPressing ? 0.97 : 1.0)
-        .animation(.easeInOut(duration: 0.15), value: isPressing)
-        // Soporta gestos dobles o normales en la tarjeta
+        .scaleEffect(isPressing ? 0.98 : 1.0)
+        .animation(.easeInOut(duration: 0.1), value: isPressing)
         .onTapGesture {
             onTapGesture()
         }
-        // Simular efecto de pulsación física
-        .onLongPressGesture(minimumDuration: 0.5, pressing: { pressing in
+        .onLongPressGesture(minimumDuration: 0.4, pressing: { pressing in
             self.isPressing = pressing
         }, perform: {
-            // Acción al mantener presionado (por ejemplo, ver detalles)
             onTapGesture()
         })
     }
 }
 
 // MARK: - Previsualización
-
 #Preview {
     ZStack {
         Color.habBackground.ignoresSafeArea()
@@ -147,21 +137,6 @@ struct HabitCard: View {
                     icon: "sparkles",
                     currentStreak: 5,
                     shields: 2
-                ),
-                onCheckin: {},
-                onTapGesture: {}
-            )
-            
-            HabitCard(
-                habit: Habit(
-                    userId: "1",
-                    name: "Beber 2 litros de agua",
-                    trigger: "Al entrar a la oficina",
-                    frequency: .daily,
-                    color: "#018ABE",
-                    icon: "drop.fill",
-                    currentStreak: 12,
-                    shields: 0
                 ),
                 onCheckin: {},
                 onTapGesture: {}

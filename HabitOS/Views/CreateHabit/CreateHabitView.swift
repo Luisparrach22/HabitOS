@@ -12,6 +12,8 @@ struct CreateHabitView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     
+    @Query private var users: [User]
+    
     // Formulario State
     @State private var name: String = ""
     @State private var habitDescription: String = ""
@@ -19,6 +21,10 @@ struct CreateHabitView: View {
     @State private var selectedColorHex: String = habitColors[0].value
     @State private var selectedFrequency: Frequency = .daily
     @State private var trigger: String = ""
+    
+    // Notifications State
+    @State private var enableReminder: Bool = false
+    @State private var reminderTime: Date = Date()
     
     // Custom Days State (para frecuencia CUSTOM)
     @State private var customDays: [String] = ["L", "M", "X"]
@@ -32,7 +38,7 @@ struct CreateHabitView: View {
         Color(hex: selectedColorHex)
     }
     
-    // Fila rápida de iconos (los primeros 4 de default + el seleccionado actualmente)
+    // Fila rápida de iconos
     private var quickIcons: [String] {
         var list = defaultQuickIcons
         if !list.contains(selectedIcon) {
@@ -48,34 +54,37 @@ struct CreateHabitView: View {
                 // ── SECCIÓN 1: NOMBRE Y DESCRIPCIÓN ──
                 Section {
                     TextField("Nombre: Ej. Beber agua", text: $name)
-                        .font(.habBody)
+                        .font(.body)
                     
                     TextField("Descripción: ¿Por qué es importante?", text: $habitDescription, axis: .vertical)
-                        .font(.habBody)
+                        .font(.body)
                         .lineLimit(2...4)
                 } header: {
-                    Text("Detalles del Hábito")
-                        .font(.habCaption)
+                    Text("DETALLES DEL HÁBITO")
+                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color.secondary)
                 }
                 .listRowBackground(Color.habCard)
                 
                 // ── SECCIÓN 2: ICONO Y COLOR ──
                 Section {
-                    // Fila rápida de iconos
+                    // Selector rápido de Iconos
                     VStack(alignment: .leading, spacing: Spacing.md) {
                         Text("ICONO")
-                            .font(.habCaption)
-                            .foregroundStyle(Color.habTextSecondary)
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .foregroundStyle(Color.secondary)
                         
                         HStack(spacing: Spacing.md) {
                             ForEach(quickIcons, id: \.self) { iconName in
                                 let isActive = selectedIcon == iconName
                                 Button {
+                                    let generator = UIImpactFeedbackGenerator(style: .light)
+                                    generator.impactOccurred()
                                     selectedIcon = iconName
                                 } label: {
                                     ZStack {
                                         RoundedRectangle(cornerRadius: Radius.md)
-                                            .fill(isActive ? themeColor : Color.habCardMuted)
+                                            .fill(isActive ? themeColor : Color.habBackground)
                                             .frame(width: 44, height: 44)
                                         
                                         Image(systemName: iconName)
@@ -88,16 +97,19 @@ struct CreateHabitView: View {
                             
                             // Botón más iconos (+)
                             Button {
+                                let generator = UIImpactFeedbackGenerator(style: .light)
+                                generator.impactOccurred()
                                 showingIconPicker = true
                             } label: {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: Radius.md)
-                                        .strokeBorder(Color.habBorder, lineWidth: 2)
+                                        .strokeBorder(Color.habBorder, lineWidth: 1.5)
+                                        .background(Color.habBackground.cornerRadius(Radius.md))
                                         .frame(width: 44, height: 44)
                                     
                                     Image(systemName: "plus")
-                                        .font(.system(size: 18, weight: .bold))
-                                        .foregroundStyle(Color.habAccentDeep)
+                                        .font(.system(size: 16, weight: .bold))
+                                        .foregroundStyle(Color.secondary)
                                 }
                             }
                             .buttonStyle(.plain)
@@ -105,17 +117,19 @@ struct CreateHabitView: View {
                     }
                     .padding(.vertical, Spacing.xs)
                     
-                    // Fila de Colores
+                    // Selector de Colores
                     VStack(alignment: .leading, spacing: Spacing.md) {
                         Text("COLOR")
-                            .font(.habCaption)
-                            .foregroundStyle(Color.habTextSecondary)
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                            .foregroundStyle(Color.secondary)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack(spacing: Spacing.md) {
                                 ForEach(habitColors) { hColor in
                                     let isActive = selectedColorHex == hColor.value
                                     Button {
+                                        let generator = UIImpactFeedbackGenerator(style: .light)
+                                        generator.impactOccurred()
                                         selectedColorHex = hColor.value
                                     } label: {
                                         ZStack {
@@ -125,7 +139,7 @@ struct CreateHabitView: View {
                                             
                                             if isActive {
                                                 Image(systemName: "checkmark")
-                                                    .font(.system(size: 12, weight: .bold))
+                                                    .font(.system(size: 11, weight: .bold))
                                                     .foregroundStyle(Color.white)
                                             }
                                         }
@@ -137,10 +151,14 @@ struct CreateHabitView: View {
                         }
                     }
                     .padding(.vertical, Spacing.xs)
+                } header: {
+                    Text("PERSONALIZACIÓN VISUAL")
+                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color.secondary)
                 }
                 .listRowBackground(Color.habCard)
                 
-                // ── SECCIÓN 3: FRECUENCIA Y DISPARADOR ──
+                // ── SECCIÓN 3: FRECUENCIA Y RECORDATORIO ──
                 Section {
                     // Selector de frecuencia
                     Picker("Frecuencia", selection: $selectedFrequency) {
@@ -151,18 +169,20 @@ struct CreateHabitView: View {
                     .pickerStyle(.segmented)
                     .padding(.vertical, Spacing.xs)
                     
-                    // Si la frecuencia es personalizada (Custom), muestra días de la semana
+                    // Frecuencia personalizada (días de la semana)
                     if selectedFrequency == .custom {
                         VStack(alignment: .leading, spacing: Spacing.sm) {
                             Text("Días de la semana:")
-                                .font(.habSubhead)
-                                .foregroundStyle(Color.habTextSecondary)
+                                .font(.subheadline)
+                                .foregroundStyle(Color.secondary)
                             
                             HStack(spacing: Spacing.xs) {
                                 Spacer()
                                 ForEach(weekDays, id: \.self) { day in
                                     let isSelected = customDays.contains(day)
                                     Button {
+                                        let generator = UIImpactFeedbackGenerator(style: .light)
+                                        generator.impactOccurred()
                                         if isSelected {
                                             customDays.removeAll(where: { $0 == day })
                                         } else {
@@ -170,13 +190,13 @@ struct CreateHabitView: View {
                                         }
                                     } label: {
                                         Text(day)
-                                            .font(.habCaption)
+                                            .font(.caption)
                                             .fontWeight(.bold)
-                                            .foregroundStyle(isSelected ? Color.white : Color.habTextPrimary)
+                                            .foregroundStyle(isSelected ? Color.white : Color.primary)
                                             .frame(width: 36, height: 36)
                                             .background(
                                                 Circle()
-                                                    .fill(isSelected ? themeColor : Color.habCardMuted)
+                                                    .fill(isSelected ? themeColor : Color.habBackground)
                                             )
                                     }
                                     .buttonStyle(.plain)
@@ -187,12 +207,25 @@ struct CreateHabitView: View {
                         .padding(.vertical, Spacing.xs)
                     }
                     
-                    // Habit Stack / Disparador
+                    // Toggle de Recordatorio Diario
+                    Toggle(isOn: $enableReminder) {
+                        Label("Recordatorio Diario", systemImage: "bell.fill")
+                            .font(.body)
+                    }
+                    .tint(themeColor)
+                    
+                    if enableReminder {
+                        DatePicker("Hora de notificación", selection: $reminderTime, displayedComponents: .hourAndMinute)
+                            .font(.body)
+                    }
+                    
+                    // Disparador
                     TextField("Disparador: Ej. Al terminar el café", text: $trigger)
-                        .font(.habBody)
+                        .font(.body)
                 } header: {
-                    Text("Planificación e Hilado")
-                        .font(.habCaption)
+                    Text("PLANIFICACIÓN Y RECORDATORIOS")
+                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color.secondary)
                 }
                 .listRowBackground(Color.habCard)
             }
@@ -205,20 +238,22 @@ struct CreateHabitView: View {
                     Button("Cancelar") {
                         dismiss()
                     }
-                    .font(.habBody)
+                    .font(.body)
                     .foregroundStyle(Color.habDanger)
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Crear") {
+                        let generator = UIImpactFeedbackGenerator(style: .medium)
+                        generator.impactOccurred()
                         saveHabit()
                     }
-                    .font(.habHeadline)
-                    .foregroundStyle(name.trimmingCharacters(in: .whitespaces).isEmpty ? Color.habTextMuted : Color.habPrimary)
+                    .font(.system(.body, design: .rounded))
+                    .fontWeight(.bold)
+                    .foregroundStyle(name.trimmingCharacters(in: .whitespaces).isEmpty ? Color.secondary.opacity(0.4) : Color.habPrimary)
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }
-            // Lanzador del Selector de Iconos
             .sheet(isPresented: $showingIconPicker) {
                 IconPickerSheet(selectedIcon: $selectedIcon, themeColor: themeColor)
             }
@@ -233,15 +268,15 @@ struct CreateHabitView: View {
         let trimmedDesc = habitDescription.trimmingCharacters(in: .whitespacesAndNewlines)
         var finalTrigger = trigger.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        // Si es personalizado, hilamos los días en el trigger
         if selectedFrequency == .custom {
             let daysStr = customDays.joined(separator: ", ")
             finalTrigger = finalTrigger.isEmpty ? "Días: \(daysStr)" : "\(finalTrigger) (Días: \(daysStr))"
         }
         
-        // Creamos la instancia de Hábito
+        let ownerId = users.first?.id ?? "local_user_id"
+        
         let newHabit = Habit(
-            userId: "temp-user-id", // Por ahora mock, se enlazará luego
+            userId: ownerId,
             name: trimmedName,
             habitDescription: trimmedDesc.isEmpty ? nil : trimmedDesc,
             trigger: finalTrigger.isEmpty ? nil : finalTrigger,
@@ -250,13 +285,20 @@ struct CreateHabitView: View {
             icon: selectedIcon
         )
         
-        // Insertamos en el contexto de SwiftData
         modelContext.insert(newHabit)
         
-        // Intentamos guardar físicamente
         do {
             try modelContext.save()
-            dismiss() // Cierra el formulario modal
+            
+            if enableReminder {
+                NotificationService.shared.requestAuthorization { granted in
+                    if granted {
+                        NotificationService.shared.scheduleReminder(for: newHabit, at: reminderTime)
+                    }
+                }
+            }
+            
+            dismiss()
         } catch {
             print("Error al guardar hábito en SwiftData: \(error)")
         }
@@ -264,7 +306,6 @@ struct CreateHabitView: View {
 }
 
 // MARK: - Previsualización
-
 #Preview {
     CreateHabitView()
 }

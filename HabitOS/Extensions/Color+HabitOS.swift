@@ -50,4 +50,15 @@ extension Color {
         // 4. Creamos el Color de SwiftUI
         self.init(red: red, green: green, blue: blue, opacity: alpha)
     }
+    
+    /// Crea un Color dinámico que se adapta automáticamente a Light Mode y Dark Mode.
+    static func dynamic(lightHex: String, darkHex: String) -> Color {
+        Color(uiColor: UIColor { traitCollection in
+            if traitCollection.userInterfaceStyle == .dark {
+                return UIColor(Color(hex: darkHex))
+            } else {
+                return UIColor(Color(hex: lightHex))
+            }
+        })
+    }
 }

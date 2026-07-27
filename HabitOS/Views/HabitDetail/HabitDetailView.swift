@@ -26,25 +26,26 @@ struct HabitDetailView: View {
                     VStack(spacing: Spacing.md) {
                         ZStack {
                             Circle()
-                                .fill(habit.swiftUIColor.opacity(0.15))
-                                .frame(width: 80, height: 80)
+                                .fill(habit.swiftUIColor.opacity(0.12))
+                                .frame(width: 84, height: 84)
                             
                             Image(systemName: habit.icon ?? "star.fill")
                                 .foregroundStyle(habit.swiftUIColor)
-                                .font(.system(size: 36, weight: .bold))
+                                .font(.system(size: 36, weight: .semibold))
                         }
                         .padding(.top, Spacing.lg)
                         
                         Text(habit.name)
-                            .font(.habTitle1)
-                            .foregroundStyle(Color.habTextPrimary)
+                            .font(.system(.title, design: .rounded))
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color.primary)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, Spacing.lg)
                         
                         if let desc = habit.habitDescription {
                             Text(desc)
-                                .font(.habBody)
-                                .foregroundStyle(Color.habTextMuted)
+                                .font(.subheadline)
+                                .foregroundStyle(Color.secondary)
                                 .multilineTextAlignment(.center)
                                 .padding(.horizontal, Spacing.xl)
                         }
@@ -58,66 +59,73 @@ struct HabitDetailView: View {
                             // Tarjeta: Racha Actual
                             VStack(spacing: Spacing.xs) {
                                 Image(systemName: "flame.fill")
-                                    .font(.title)
+                                    .font(.title2)
                                     .foregroundStyle(Color.habWarning)
                                 
-                                Text("\(habit.currentStreak) días")
-                                    .font(.habHeadline)
-                                    .foregroundStyle(Color.habTextPrimary)
+                                Text("\(habit.currentStreak)")
+                                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                                    .foregroundStyle(Color.primary)
                                 
                                 Text("Racha Actual")
-                                    .font(.habCaption)
-                                    .foregroundStyle(Color.habTextMuted)
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                    .foregroundStyle(Color.secondary)
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, Spacing.lg)
                             .background(Color.habCard)
                             .cornerRadius(Radius.lg)
+                            .shadow(color: Color.black.opacity(0.01), radius: 4, x: 0, y: 2)
                             
                             // Tarjeta: Racha Máxima
                             VStack(spacing: Spacing.xs) {
                                 Image(systemName: "trophy.fill")
-                                    .font(.title)
-                                    .foregroundStyle(Color(hex: "#F5A623"))
+                                    .font(.title2)
+                                    .foregroundStyle(Color.habWarning)
                                 
-                                Text("\(habit.maxStreak) días")
-                                    .font(.habHeadline)
-                                    .foregroundStyle(Color.habTextPrimary)
+                                Text("\(habit.maxStreak)")
+                                    .font(.system(size: 28, weight: .bold, design: .rounded))
+                                    .foregroundStyle(Color.primary)
                                 
                                 Text("Racha Máxima")
-                                    .font(.habCaption)
-                                    .foregroundStyle(Color.habTextMuted)
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                    .foregroundStyle(Color.secondary)
                             }
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, Spacing.lg)
                             .background(Color.habCard)
                             .cornerRadius(Radius.lg)
+                            .shadow(color: Color.black.opacity(0.01), radius: 4, x: 0, y: 2)
                         }
                         
                         // Tarjeta: Escudos Protectores
-                        HStack(spacing: Spacing.lg) {
-                            Image(systemName: "shield.fill")
-                                .font(.system(size: 32))
-                                .foregroundStyle(Color.habPrimary)
+                        HStack(spacing: Spacing.md) {
+                            ZStack {
+                                Circle()
+                                    .fill(Color.habPrimary.opacity(0.12))
+                                    .frame(width: 44, height: 44)
+                                Image(systemName: "shield.fill")
+                                    .font(.title3)
+                                    .foregroundStyle(Color.habPrimary)
+                            }
                             
                             VStack(alignment: .leading, spacing: 2) {
-                                Text("\(habit.shields) Escudos")
-                                    .font(.habHeadline)
-                                    .foregroundStyle(Color.habTextPrimary)
+                                Text("\(habit.shields) Escudos disponibles")
+                                    .font(.headline)
+                                    .foregroundStyle(Color.primary)
                                 
                                 Text("Protegen tu racha si fallas un día")
-                                    .font(.habFootnote)
-                                    .foregroundStyle(Color.habTextMuted)
+                                    .font(.caption)
+                                    .foregroundStyle(Color.secondary)
                             }
                             
                             Spacer()
                             
-                            // Botón para añadir escudo (para propósitos de prueba / gamificación)
+                            // Botón para añadir escudo
                             Button {
                                 let generator = UIImpactFeedbackGenerator(style: .light)
                                 generator.impactOccurred()
                                 
-                                withAnimation {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
                                     habit.shields += 1
                                     try? modelContext.save()
                                 }
@@ -128,9 +136,10 @@ struct HabitDetailView: View {
                             }
                             .buttonStyle(.plain)
                         }
-                        .padding(Spacing.lg)
+                        .padding(14)
                         .background(Color.habCard)
                         .cornerRadius(Radius.lg)
+                        .shadow(color: Color.black.opacity(0.01), radius: 4, x: 0, y: 2)
                     }
                     .padding(.horizontal, Spacing.lg)
                     
@@ -138,21 +147,26 @@ struct HabitDetailView: View {
                     if let trig = habit.trigger {
                         VStack(alignment: .leading, spacing: Spacing.xs) {
                             Text("DISPARADOR ASOCIADO")
-                                .font(.habCaption)
-                                .foregroundStyle(Color.habTextMuted)
+                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                                .foregroundStyle(Color.secondary)
                                 .padding(.horizontal, Spacing.xs)
                             
                             HStack {
                                 Image(systemName: "link")
                                     .foregroundStyle(habit.swiftUIColor)
+                                    .font(.subheadline)
                                 Text(trig)
-                                    .font(.habBody)
-                                    .foregroundStyle(Color.habTextPrimary)
+                                    .font(.body)
+                                    .foregroundStyle(Color.primary)
                                 Spacer()
                             }
                             .padding(Spacing.md)
-                            .background(Color.habCardMuted)
+                            .background(Color.habCard)
                             .cornerRadius(Radius.md)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: Radius.md)
+                                    .stroke(Color.primary.opacity(0.04), lineWidth: 1)
+                            )
                         }
                         .padding(.horizontal, Spacing.lg)
                     }
@@ -168,12 +182,13 @@ struct HabitDetailView: View {
                             Text("Eliminar Hábito")
                                 .fontWeight(.bold)
                         }
-                        .font(.habBody)
+                        .font(.system(.body, design: .rounded))
                         .foregroundStyle(Color.white)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, Spacing.md)
+                        .padding(.vertical, 16)
                         .background(Color.habDanger)
-                        .cornerRadius(Radius.md)
+                        .cornerRadius(Radius.xl)
+                        .shadow(color: Color.habDanger.opacity(0.15), radius: 8, x: 0, y: 4)
                     }
                     .padding(.horizontal, Spacing.lg)
                     .padding(.bottom, Spacing.xl)
@@ -185,7 +200,8 @@ struct HabitDetailView: View {
                     Button("Cerrar") {
                         dismiss()
                     }
-                    .font(.habHeadline)
+                    .font(.system(.body, design: .rounded))
+                    .fontWeight(.bold)
                     .foregroundStyle(Color.habPrimary)
                 }
             }
@@ -194,11 +210,9 @@ struct HabitDetailView: View {
     
     // Función para borrar el hábito
     private func deleteHabit() {
-        // Ejecutar feedback táctil de advertencia
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.warning)
         
-        // Eliminamos el objeto del contexto de SwiftData
         modelContext.delete(habit)
         
         do {
@@ -211,7 +225,6 @@ struct HabitDetailView: View {
 }
 
 // MARK: - Previsualización
-
 #Preview {
     HabitDetailView(
         habit: Habit(

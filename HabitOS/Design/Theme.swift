@@ -13,46 +13,46 @@ import SwiftUI
 extension Color {
     
     // ── Primarios ─────────────────────────────────
-    /// Fondo principal de la app (#D6E8EE)
-    static let habBackground    = Color(hex: "#D6E8EE")
-    /// Color de acento principal (#018ABE)
-    static let habPrimary       = Color(hex: "#018ABE")
-    /// Texto oscuro principal (#001B48)
-    static let habTextDark      = Color(hex: "#001B48")
-    /// Azul profundo para acentos (#02457A)
-    static let habAccentDeep    = Color(hex: "#02457A")
-    /// Azul claro para elementos sutiles (#97CADB)
-    static let habBlueLight     = Color(hex: "#97CADB")
+    /// Fondo principal de la app (Dinámico iOS nativo)
+    static let habBackground    = Color(uiColor: .systemGroupedBackground)
+    /// Color de acento principal (Vibrante y contrastante)
+    static let habPrimary       = Color.dynamic(lightHex: "#018ABE", darkHex: "#30A2FF")
+    /// Texto oscuro principal
+    static let habTextDark      = Color.dynamic(lightHex: "#001B48", darkHex: "#1C1C1E")
+    /// Azul profundo para acentos
+    static let habAccentDeep    = Color.dynamic(lightHex: "#02457A", darkHex: "#0A84FF")
+    /// Azul claro para elementos sutiles
+    static let habBlueLight     = Color.dynamic(lightHex: "#97CADB", darkHex: "#5AC8F5")
     
     // ── Superficies ───────────────────────────────
-    /// Fondo de tarjetas (#FFFFFF)
-    static let habCard          = Color.white
-    /// Tarjeta atenuada (#EFF7FA)
-    static let habCardMuted     = Color(hex: "#EFF7FA")
-    /// Tarjeta con fondo de acento (#018ABE)
-    static let habCardDeep      = Color(hex: "#018ABE")
+    /// Fondo de tarjetas (Adaptativo nativo)
+    static let habCard          = Color(uiColor: .secondarySystemGroupedBackground)
+    /// Tarjeta atenuada (Adaptativo nativo)
+    static let habCardMuted     = Color(uiColor: .tertiarySystemGroupedBackground)
+    /// Tarjeta con fondo de acento
+    static let habCardDeep      = Color.dynamic(lightHex: "#018ABE", darkHex: "#1E293B")
     
     // ── Texto ─────────────────────────────────────
-    /// Texto principal (#001B48)
-    static let habTextPrimary   = Color(hex: "#001B48")
-    /// Texto secundario (#02457A)
-    static let habTextSecondary = Color(hex: "#02457A")
-    /// Texto atenuado (#5A8A9E)
-    static let habTextMuted     = Color(hex: "#5A8A9E")
+    /// Texto principal (Soporta Dynamic Type y contraste)
+    static let habTextPrimary   = Color.primary
+    /// Texto secundario
+    static let habTextSecondary = Color.secondary
+    /// Texto atenuado
+    static let habTextMuted     = Color.dynamic(lightHex: "#5A8A9E", darkHex: "#8E8E93")
     
     // ── Estados ───────────────────────────────────
-    /// Éxito / hábito completado (#21AF4B)
-    static let habSuccess       = Color(hex: "#21AF4B")
-    /// Advertencia (#F5A623)
-    static let habWarning       = Color(hex: "#F5A623")
-    /// Error / eliminar (#EF4444)
-    static let habDanger        = Color(hex: "#EF4444")
+    /// Éxito / hábito completado
+    static let habSuccess       = Color.dynamic(lightHex: "#21AF4B", darkHex: "#34C759")
+    /// Advertencia
+    static let habWarning       = Color.dynamic(lightHex: "#F5A623", darkHex: "#FF9F0A")
+    /// Error / eliminar
+    static let habDanger        = Color.dynamic(lightHex: "#EF4444", darkHex: "#FF453A")
     
     // ── Bordes ────────────────────────────────────
-    /// Borde estándar (#D6E8EE)
-    static let habBorder        = Color(hex: "#D6E8EE")
+    /// Borde estándar
+    static let habBorder        = Color(uiColor: .separator)
     /// Borde sutil, semitransparente
-    static let habBorderLight   = Color(hex: "#018ABE").opacity(0.15)
+    static let habBorderLight   = Color.primary.opacity(0.08)
 }
 
 // MARK: - Espaciado

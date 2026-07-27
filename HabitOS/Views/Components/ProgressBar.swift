@@ -3,8 +3,6 @@
 // ──────────────────────────────────────────────
 // Componente premium que muestra el progreso del día
 // y la racha de hábitos actual más alta del usuario.
-// Incorpora un diseño Soft-UI, gradiente de progreso
-// y esquinas redondeadas de 24pt.
 
 import SwiftUI
 
@@ -23,77 +21,84 @@ struct ProgressBar: View {
         VStack(alignment: .leading, spacing: Spacing.md) {
             
             // Fila de Cabecera: Progreso de Hábitos e Icono de Racha
-            HStack {
+            HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text("Progreso de Hoy")
-                        .font(.habHeadline)
+                    Text("PROGRESO HOY")
+                        .font(.system(size: 11, weight: .bold, design: .rounded))
                         .foregroundStyle(Color.habTextSecondary)
                     
                     if totalCount > 0 {
-                        Text("\(completedCount) de \(totalCount) hábitos")
-                            .font(.habLargeTitle)
+                        Text("\(completedCount) de \(totalCount) completados")
+                            .font(.system(.title2, design: .rounded))
+                            .fontWeight(.bold)
                             .foregroundStyle(Color.habTextPrimary)
                     } else {
-                        Text("Sin hábitos")
-                            .font(.habLargeTitle)
+                        Text("Comienza tu rutina")
+                            .font(.system(.title2, design: .rounded))
+                            .fontWeight(.bold)
                             .foregroundStyle(Color.habTextPrimary)
                     }
                 }
                 
                 Spacer()
                 
-                // Medallón de racha actual
+                // Medallón de racha actual con estilo HIG premium
                 HStack(spacing: 4) {
                     Image(systemName: "flame.fill")
-                        .foregroundStyle(Color.habWarning)
-                        .font(.title3)
+                        .foregroundStyle(
+                            LinearGradient(
+                                colors: [Color(hex: "#FF9F0A"), Color(hex: "#FF3B30")],
+                                startPoint: .top,
+                                endPoint: .bottom
+                            )
+                        )
+                        .font(.system(size: 16, weight: .semibold))
                     
                     Text("\(maxCurrentStreak)")
-                        .font(.habTitle3)
+                        .font(.system(.subheadline, design: .rounded))
+                        .fontWeight(.bold)
                         .foregroundStyle(Color.habTextPrimary)
                 }
-                .padding(.horizontal, Spacing.md)
-                .padding(.vertical, Spacing.sm)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
                 .background(Color.habCardMuted)
                 .cornerRadius(Radius.md)
             }
             
-            // Barra de progreso propiamente
+            // Barra de progreso delgada de 8pt con gradiente premium
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
                     // Fondo de la barra
                     Capsule()
-                        .fill(Color.habBlueLight.opacity(0.3))
-                        .frame(height: 12)
+                        .fill(Color.primary.opacity(0.06))
+                        .frame(height: 8)
                     
                     // Barra de progreso con gradiente
                     Capsule()
                         .fill(
                             LinearGradient(
-                                colors: [.habPrimary, .habBlueLight],
+                                colors: [Color(hex: "#7B2CBF"), Color(hex: "#00F5D4")],
                                 startPoint: .leading,
                                 endPoint: .trailing
                             )
                         )
-                        // Anima el cambio de longitud
-                        .frame(width: geometry.size.width * CGFloat(progress), height: 12)
-                        .animation(.spring(response: 0.5, dampingFraction: 0.7), value: progress)
+                        .frame(width: geometry.size.width * CGFloat(progress), height: 8)
+                        .animation(.spring(response: 0.5, dampingFraction: 0.75), value: progress)
                 }
             }
-            .frame(height: 12)
+            .frame(height: 8)
             
             // Mensaje motivacional según progreso
             Text(motivationalMessage)
-                .font(.habFootnote)
+                .font(.footnote)
                 .foregroundStyle(Color.habTextMuted)
-                .padding(.top, 4)
         }
-        .padding(Spacing.xl)
+        .padding(18)
         .background(Color.habCard)
-        .cornerRadius(Radius.xl2) // 24pt corners de tu design system
+        .cornerRadius(Radius.xl2)
         .shadow(
-            color: Color.habTextDark.opacity(0.05),
-            radius: 12, x: 0, y: 4
+            color: Color.black.opacity(0.02),
+            radius: 8, x: 0, y: 4
         )
     }
     
@@ -109,7 +114,6 @@ struct ProgressBar: View {
 }
 
 // MARK: - Previsualización
-
 #Preview {
     ZStack {
         Color.habBackground.ignoresSafeArea()
