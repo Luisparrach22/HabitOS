@@ -158,7 +158,7 @@ struct StatsView: View {
                                 Spacer()
                             }
                             
-                            MonthHeatmapGrid(logs: habitsLogs)
+                            MonthHeatmapGrid(logs: habitsLogs, habitsCount: habits.count)
                         }
                         .padding(18)
                         .background(Color.habCard)
@@ -224,25 +224,99 @@ struct KpiCard: View {
 // MARK: - Rejilla de Consistencia Mensual Rediseñada
 struct MonthHeatmapGrid: View {
     let logs: [HabitLog]
+    let habitsCount: Int
     
-    private let daysInMonth = 30
+    private let calendar = Calendar.current
+    private let now = Date()
+    
     private let columns = Array(repeating: GridItem(.flexible(), spacing: 6), count: 7)
+    private let weekdayHeaders = ["L", "M", "X", "J", "V", "S", "D"]
+    
+    private var year: Int {
+        calendar.component(.year, from: now)
+    }
+    
+    private var month: Int {
+        calendar.component(.month, from: now)
+    }
+    
+    private var daysInMonth: Int {
+        guard let range = calendar.range(of: .day, in: .month, for: now) else {
+            return 30
+        }
+        return range.count
+    }
+    
+    private var firstWeekdayOffset: Int {
+        guard let firstDayOfMonth = calendar.date(from: calendar.dateComponents([.year, .month], from: now)) else {
+            return 0
+        }
+        let weekday = calendar.component(.weekday, from: firstDayOfMonth)
+        // Mapear Domingo (1) a 6, Lunes (2) a 0, Martes (3) a 1...
+        return (weekday + 5) % 7
+    }
+    
+    private var currentMonthName: String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "es_ES")
+        formatter.dateFormat = "MMMM yyyy"
+        return formatter.string(from: now).capitalized
+    }
     
     var body: some View {
-        LazyVGrid(columns: columns, spacing: 6) {
-            ForEach(1...daysInMonth, id: \.self) { dayNumber in
-                let hasLog = dayNumber <= 15 || dayNumber % 3 == 0 // Mock de actividad pasada
+        VStack(spacing: Spacing.sm) {
+            // Nombre del mes y año dinámico
+            Text(currentMonthName)
+                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .foregroundStyle(Color.secondary)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.bottom, 2)
+            
+            // Cabeceras de los días de la semana
+            HStack(spacing: 0) {
+                ForEach(weekdayHeaders, id: \.self) { header in
+                    Text(header)
+                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                        .foregroundStyle(Color.secondary.opacity(0.6))
+                        .frame(maxWidth: .infinity)
+                }
+            }
+            .padding(.bottom, 2)
+            
+            LazyVGrid(columns: columns, spacing: 6) {
+                // Rellenar días vacíos (offset) del inicio de mes
+                ForEach(0..<firstWeekdayOffset, id: \.self) { _ in
+                    Color.clear
+                        .frame(height: 32)
+                }
                 
-                RoundedRectangle(cornerRadius: 6)
-                    .fill(hasLog ? Color.habPrimary.opacity(Double(dayNumber % 3 + 1) * 0.25 + 0.2) : Color.primary.opacity(0.04))
-                    .frame(height: 32)
-                    .overlay(
-                        Text("\(dayNumber)")
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
-                            .foregroundStyle(hasLog ? Color.white : Color.secondary)
-                    )
+                // Días reales del mes
+                ForEach(1...daysInMonth, id: \.self) { dayNumber in
+                    let completedCount = completedLogsCount(for: dayNumber)
+                    let intensity = habitsCount > 0 ? Double(completedCount) / Double(habitsCount) : 0.0
+                    let hasLog = completedCount > 0
+                    
+                    RoundedRectangle(cornerRadius: 6)
+                        .fill(hasLog ? Color.habPrimary.opacity(0.2 + intensity * 0.8) : Color.primary.opacity(0.04))
+                        .frame(height: 32)
+                        .overlay(
+                            Text("\(dayNumber)")
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                .foregroundStyle(hasLog ? Color.white : Color.secondary)
+                        )
+                }
             }
         }
+    }
+    
+    private func completedLogsCount(for dayNumber: Int) -> Int {
+        var components = DateComponents()
+        components.year = year
+        components.month = month
+        components.day = dayNumber
+        guard let date = calendar.date(from: components) else { return 0 }
+        
+        return logs.filter { calendar.isDate($0.completedAt, inSameDayAs: date) }.count
     }
 }
 

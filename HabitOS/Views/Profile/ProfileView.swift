@@ -21,6 +21,9 @@ struct ProfileView: View {
     @Query private var users: [User]
     @Query private var habits: [Habit]
     
+    @AppStorage("areNotificationsEnabled") private var areNotificationsEnabled: Bool = false
+    @State private var showingEditProfile = false
+    
     private var currentUser: User? {
         users.first
     }
@@ -89,6 +92,22 @@ struct ProfileView: View {
                                 Text(currentUser?.email ?? "usuario@habitos.app")
                                     .font(.footnote)
                                     .foregroundStyle(Color.secondary)
+                            }
+                            
+                            if let user = currentUser {
+                                Button {
+                                    showingEditProfile = true
+                                } label: {
+                                    Text("Editar Perfil")
+                                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                                        .foregroundStyle(Color.habPrimary)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 4)
+                                        .background(Color.habPrimary.opacity(0.1))
+                                        .cornerRadius(Radius.full)
+                                }
+                                .buttonStyle(.plain)
+                                .padding(.top, 4)
                             }
                             
                             // Barra de Progreso a Siguiente Nivel
@@ -223,15 +242,23 @@ struct ProfileView: View {
                                 .padding(.horizontal, Spacing.xs)
                             
                             VStack(spacing: 0) {
-                                HStack {
+                                Toggle(isOn: Binding(
+                                    get: { areNotificationsEnabled },
+                                    set: { newValue in
+                                        if newValue {
+                                            NotificationService.shared.requestAuthorization { granted in
+                                                areNotificationsEnabled = granted
+                                            }
+                                        } else {
+                                            areNotificationsEnabled = false
+                                        }
+                                    }
+                                )) {
                                     Label("Notificaciones locales", systemImage: "bell.fill")
                                         .font(.body)
                                         .foregroundStyle(Color.primary)
-                                    Spacer()
-                                    Text("Activadas")
-                                        .font(.footnote)
-                                        .foregroundStyle(Color.habSuccess)
                                 }
+                                .tint(Color.habPrimary)
                                 .padding(14)
                                 
                                 Divider()
@@ -242,7 +269,7 @@ struct ProfileView: View {
                                         .font(.body)
                                         .foregroundStyle(Color.primary)
                                     Spacer()
-                                    Text(currentUser?.timezone ?? "UTC")
+                                    Text(TimeZone.current.identifier)
                                         .font(.footnote)
                                         .foregroundStyle(Color.secondary)
                                 }
@@ -257,6 +284,60 @@ struct ProfileView: View {
                 }
             }
             .navigationTitle("Perfil")
+            .sheet(isPresented: $showingEditProfile) {
+                if let user = currentUser {
+                    EditProfileSheet(user: user)
+                }
+            }
+        }
+    }
+}
+
+// ── Vista de Edición de Perfil ──
+struct EditProfileSheet: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    
+    let user: User
+    
+    @State private var name: String
+    @State private var email: String
+    
+    init(user: User) {
+        self.user = user
+        _name = State(initialValue: user.name ?? "")
+        _email = State(initialValue: user.email)
+    }
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section(header: Text("Información Personal")) {
+                    TextField("Nombre", text: $name)
+                    TextField("Correo Electrónico", text: $email)
+                        .textInputAutocapitalization(.never)
+                        .keyboardType(.emailAddress)
+                }
+            }
+            .navigationTitle("Editar Perfil")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancelar") {
+                        dismiss()
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Guardar") {
+                        user.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+                        user.email = email.trimmingCharacters(in: .whitespacesAndNewlines)
+                        try? modelContext.save()
+                        dismiss()
+                    }
+                    .fontWeight(.bold)
+                    .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || email.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+                }
+            }
         }
     }
 }
