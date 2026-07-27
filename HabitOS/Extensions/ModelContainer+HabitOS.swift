@@ -20,6 +20,11 @@ extension ModelContainer {
         ])
         
         let containerURL: URL
+        #if os(watchOS)
+        // En watchOS, no compartimos App Groups del iPhone, guardamos localmente y dejamos que CloudKit sincronice
+        let appSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        containerURL = appSupportURL.appendingPathComponent("default.store")
+        #else
         // Intentamos obtener el directorio del App Group para que la app principal y los widgets compartan la misma DB
         if let groupURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.con.habitos.HabitOS") {
             containerURL = groupURL.appendingPathComponent("default.store")
@@ -28,6 +33,7 @@ extension ModelContainer {
             let appSupportURL = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
             containerURL = appSupportURL.appendingPathComponent("default.store")
         }
+        #endif
         
         // Habilita la sincronización iCloud (CloudKit) de forma automática.
         // SwiftData usará el contenedor de CloudKit configurado en el Xcode Project.
