@@ -17,7 +17,6 @@ import SwiftData
 @Model
 class ShieldUsage {
     
-    @Attribute(.unique)
     var id: String
     
     /// ID del hábito que fue protegido

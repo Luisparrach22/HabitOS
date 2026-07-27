@@ -22,12 +22,7 @@ struct HabitOSApp: App {
                 OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
             }
         }
-        // Registramos TODOS nuestros modelos SwiftData aquí.
-        .modelContainer(for: [
-            User.self,
-            Habit.self,
-            HabitLog.self,
-            ShieldUsage.self
-        ])
+        // Registramos el contenedor de SwiftData unificado e integrado con CloudKit y App Groups.
+        .modelContainer(ModelContainer.shared)
     }
 }

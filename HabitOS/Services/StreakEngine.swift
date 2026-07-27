@@ -19,10 +19,10 @@ struct StreakEngine {
         // Obtenemos todas las fechas completadas o protegidas por escudos
         var completedDates = Set<Date>()
         
-        for log in habit.logs {
+        for log in habit.logs ?? [] {
             completedDates.insert(calendar.startOfDay(for: log.completedAt))
         }
-        for shield in habit.shieldLogs {
+        for shield in habit.shieldLogs ?? [] {
             completedDates.insert(calendar.startOfDay(for: shield.usedAt))
         }
         
@@ -96,7 +96,10 @@ struct StreakEngine {
         // Registramos el uso del escudo
         let shieldUsage = ShieldUsage(habitId: habit.id, usedAt: targetDate, reason: reason)
         context.insert(shieldUsage)
-        habit.shieldLogs.append(shieldUsage)
+        if habit.shieldLogs == nil {
+            habit.shieldLogs = []
+        }
+        habit.shieldLogs?.append(shieldUsage)
         
         // Recalculamos racha
         updateStreak(for: habit)

@@ -37,8 +37,8 @@ struct ToggleHabitIntent: AppIntent {
         
         let targetId = habitIDString
         
-        // Obtenemos el contenedor de SwiftData por defecto
-        let container = try ModelContainer(for: User.self, Habit.self, HabitLog.self, ShieldUsage.self)
+        // Obtenemos el contenedor de SwiftData compartido
+        let container = ModelContainer.shared
         let context = container.mainContext
         
         // Buscamos el hábito objetivo
@@ -60,13 +60,15 @@ struct ToggleHabitIntent: AppIntent {
         
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
-        let isAlreadyCompleted = habit.logs.contains { calendar.isDate($0.completedAt, inSameDayAs: today) }
+        let isAlreadyCompleted = (habit.logs ?? []).contains { calendar.isDate($0.completedAt, inSameDayAs: today) }
         
         if isAlreadyCompleted {
             // Desmarcar hábito del día
-            if let logIndex = habit.logs.firstIndex(where: { calendar.isDate($0.completedAt, inSameDayAs: today) }) {
-                let log = habit.logs.remove(at: logIndex)
-                context.delete(log)
+            if let logIndex = (habit.logs ?? []).firstIndex(where: { calendar.isDate($0.completedAt, inSameDayAs: today) }) {
+                if habit.logs != nil {
+                    let log = habit.logs!.remove(at: logIndex)
+                    context.delete(log)
+                }
                 
                 // Actualizar racha y deducir XP
                 StreakEngine.updateStreak(for: habit)
@@ -75,7 +77,10 @@ struct ToggleHabitIntent: AppIntent {
         } else {
             // Marcar como completado
             let newLog = HabitLog(habitId: habit.id, completedAt: Date(), notes: "Completado desde Widget")
-            habit.logs.append(newLog)
+            if habit.logs == nil {
+                habit.logs = []
+            }
+            habit.logs?.append(newLog)
             context.insert(newLog)
             
             // Recalcular racha y recompensar XP

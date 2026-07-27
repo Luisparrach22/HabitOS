@@ -47,10 +47,10 @@ final class HabitViewModel {
         
         if habit.isCompletedToday {
             // Desmarcar: eliminar el log de hoy
-            if let todayLog = habit.logs.first(where: { calendar.isDateInToday($0.completedAt) }) {
+            if let todayLog = (habit.logs ?? []).first(where: { calendar.isDateInToday($0.completedAt) }) {
                 context.delete(todayLog)
-                if let index = habit.logs.firstIndex(where: { $0.id == todayLog.id }) {
-                    habit.logs.remove(at: index)
+                if let index = (habit.logs ?? []).firstIndex(where: { $0.id == todayLog.id }) {
+                    habit.logs?.remove(at: index)
                 }
             }
             
@@ -63,7 +63,10 @@ final class HabitViewModel {
             // Marcar: crear nuevo log
             let newLog = HabitLog(habitId: habit.id)
             context.insert(newLog)
-            habit.logs.append(newLog)
+            if habit.logs == nil {
+                habit.logs = []
+            }
+            habit.logs?.append(newLog)
             
             // Recalcular racha y otorgar XP
             StreakEngine.updateStreak(for: habit)

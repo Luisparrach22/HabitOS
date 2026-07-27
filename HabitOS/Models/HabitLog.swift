@@ -17,7 +17,6 @@ import SwiftData
 @Model
 class HabitLog {
     
-    @Attribute(.unique)
     var id: String
     
     /// ID del hábito al que pertenece (clave foránea)

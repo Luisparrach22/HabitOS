@@ -24,11 +24,9 @@ class User {
     // MARK: - Identificación
     
     /// ID único (UUID como string, igual que en tu SQL)
-    @Attribute(.unique)
     var id: String
     
     /// Email único del usuario
-    @Attribute(.unique)
     var email: String
     
     /// Nombre visible (opcional porque el usuario podría no configurarlo)
@@ -64,7 +62,7 @@ class User {
     /// deleteRule: .cascade → si eliminas el usuario, se borran sus hábitos.
     /// Esto es equivalente a ON DELETE CASCADE en SQL.
     @Relationship(deleteRule: .cascade, inverse: \Habit.user)
-    var habits: [Habit]
+    var habits: [Habit]?
     
     // MARK: - Inicializador
     

@@ -218,28 +218,42 @@ struct OnboardingView: View {
     // Finaliza el onboarding y guarda datos iniciales
     private func finishOnboarding() {
         let name = userName.trimmingCharacters(in: .whitespacesAndNewlines)
-        let finalName = name.isEmpty ? "Guerrero" : name
         
-        let user = User(
-            email: "usuario@habitos.app",
-            name: finalName,
-            passwordHash: "local",
-            totalXp: 0,
-            level: 1,
-            timezone: TimeZone.current.identifier
-        )
-        modelContext.insert(user)
-        
-        for seed in seedHabits where seed.isSelected {
-            let habit = Habit(
-                userId: user.id,
-                name: seed.name,
-                habitDescription: seed.description,
-                frequency: .daily,
-                color: seed.color,
-                icon: seed.icon
+        // Evitar duplicar el usuario si ya existe alguno
+        let userFetch = FetchDescriptor<User>()
+        let user: User
+        if let existingUser = (try? modelContext.fetch(userFetch))?.first {
+            user = existingUser
+        } else {
+            let finalName = name.isEmpty ? "Guerrero" : name
+            let newUser = User(
+                email: "usuario@habitos.app",
+                name: finalName,
+                passwordHash: "local",
+                totalXp: 0,
+                level: 1,
+                timezone: TimeZone.current.identifier
             )
-            modelContext.insert(habit)
+            modelContext.insert(newUser)
+            user = newUser
+        }
+        
+        // Evitar insertar hábitos semilla si ya existen hábitos en la base de datos
+        let habitFetch = FetchDescriptor<Habit>()
+        let existingHabitsCount = (try? modelContext.fetchCount(habitFetch)) ?? 0
+        
+        if existingHabitsCount == 0 {
+            for seed in seedHabits where seed.isSelected {
+                let habit = Habit(
+                    userId: user.id,
+                    name: seed.name,
+                    habitDescription: seed.description,
+                    frequency: .daily,
+                    color: seed.color,
+                    icon: seed.icon
+                )
+                modelContext.insert(habit)
+            }
         }
         
         try? modelContext.save()

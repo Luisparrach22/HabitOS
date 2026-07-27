@@ -57,7 +57,7 @@ struct HabitWidgetTimelineProvider: TimelineProvider {
     @MainActor
     private func fetchCurrentEntry(date: Date) -> HabitWidgetEntry {
         do {
-            let container = try ModelContainer(for: User.self, Habit.self, HabitLog.self, ShieldUsage.self)
+            let container = ModelContainer.shared
             let context = container.mainContext
             
             let userDescriptor = FetchDescriptor<User>()
@@ -70,7 +70,7 @@ struct HabitWidgetTimelineProvider: TimelineProvider {
             let today = calendar.startOfDay(for: date)
             
             let habitSnapshots = allHabits.map { habit in
-                let isDone = habit.logs.contains { calendar.isDate($0.completedAt, inSameDayAs: today) }
+                let isDone = (habit.logs ?? []).contains { calendar.isDate($0.completedAt, inSameDayAs: today) }
                 return HabitItemSnapshot(
                     id: habit.id,
                     title: habit.name,

@@ -51,7 +51,6 @@ class Habit {
     
     // MARK: - Identificación
     
-    @Attribute(.unique)
     var id: String
     
     /// ID del usuario dueño (clave foránea)
@@ -103,11 +102,11 @@ class Habit {
     
     /// Historial de completados del hábito
     @Relationship(deleteRule: .cascade, inverse: \HabitLog.habit)
-    var logs: [HabitLog]
+    var logs: [HabitLog]?
     
     /// Historial de uso de escudos
     @Relationship(deleteRule: .cascade, inverse: \ShieldUsage.habit)
-    var shieldLogs: [ShieldUsage]
+    var shieldLogs: [ShieldUsage]?
     
     // MARK: - Inicializador
     
@@ -150,7 +149,7 @@ class Habit {
     
     /// ¿Se completó hoy?
     var isCompletedToday: Bool {
-        logs.contains { Calendar.current.isDateInToday($0.completedAt) }
+        (logs ?? []).contains { Calendar.current.isDateInToday($0.completedAt) }
     }
 }
 
