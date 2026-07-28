@@ -331,8 +331,8 @@ struct MonthHeatmapGrid: View {
             .padding(.bottom, 2)
             
             LazyVGrid(columns: columns, spacing: 6) {
-                // Rellenar días vacíos (offset) del inicio de mes
-                ForEach(0..<firstWeekdayOffset, id: \.self) { _ in
+                // Rellenar días vacíos (offset) del inicio de mes con IDs de tipo String para evitar colisiones
+                ForEach(Array(0..<firstWeekdayOffset).map { "offset-\($0)" }, id: \.self) { _ in
                     Color.clear
                         .frame(height: 32)
                 }
