@@ -53,6 +53,7 @@ struct ProfileView: View {
     @State private var selectedCategory: AchievementCategory = .all
     @State private var showingShieldShop = false
     @State private var showingPaywall = false
+    @State private var showingAllAchievements = false
     
     private var currentUser: User? {
         users.first
@@ -312,84 +313,40 @@ struct ProfileView: View {
                         .cornerRadius(Radius.lg)
                         .shadow(color: Color.black.opacity(0.01), radius: 4, x: 0, y: 2)
                         
-                        // 3. Rejilla de Insignias y Logros (Rediseño Premium)
-                        VStack(alignment: .leading, spacing: Spacing.md) {
-                            // Cabecera e Indicador de Progreso
-                            VStack(alignment: .leading, spacing: Spacing.sm) {
-                                HStack {
-                                    Image(systemName: "trophy.fill")
-                                        .foregroundStyle(Color.habWarning)
-                                        .font(.subheadline)
-                                    Text("Insignias y Logros")
-                                        .font(.system(.subheadline, design: .rounded))
-                                        .fontWeight(.bold)
-                                        .foregroundStyle(Color.primary)
-                                    Spacer()
-                                    Text("\(unlockedCount) / \(achievements.count)")
-                                        .font(.system(.footnote, design: .rounded).bold())
-                                        .foregroundStyle(Color.secondary)
-                                }
-                                
-                                // Barra de Progreso de Logros
-                                let fraction = CGFloat(unlockedCount) / CGFloat(achievements.count)
-                                GeometryReader { geometry in
-                                    ZStack(alignment: .leading) {
-                                        Capsule()
-                                            .fill(Color.primary.opacity(0.04))
-                                            .frame(height: 6)
-                                        
-                                        Capsule()
-                                            .fill(Color.habWarning)
-                                            .frame(width: geometry.size.width * fraction, height: 6)
+                        // 3. Resumen de Insignias y Logros
+                        VStack(alignment: .leading, spacing: Spacing.sm) {
+                            HStack {
+                                Image(systemName: "trophy.fill")
+                                    .foregroundStyle(Color.habWarning)
+                                    .font(.subheadline)
+                                Text("Insignias y Logros")
+                                    .font(.system(.subheadline, design: .rounded))
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(Color.primary)
+                                Spacer()
+                                Button {
+                                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                                    generator.impactOccurred()
+                                    showingAllAchievements = true
+                                } label: {
+                                    HStack(spacing: 4) {
+                                        Text("Ver todos (\(unlockedCount))")
+                                            .font(.system(.footnote, design: .rounded).bold())
+                                        Image(systemName: "chevron.right")
+                                            .font(.system(size: 10, weight: .bold))
                                     }
+                                    .foregroundStyle(Color.habPrimary)
                                 }
-                                .frame(height: 6)
                             }
                             .padding(.horizontal, Spacing.xs)
                             
-                            // Selector de Categoría (Chips Horizontales)
-                            ScrollView(.horizontal, showsIndicators: false) {
-                                HStack(spacing: Spacing.sm) {
-                                    ForEach(AchievementCategory.allCases) { category in
-                                        let isSelected = selectedCategory == category
-                                        Button {
-                                            let generator = UIImpactFeedbackGenerator(style: .light)
-                                            generator.impactOccurred()
-                                            withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
-                                                selectedCategory = category
-                                            }
-                                        } label: {
-                                            HStack(spacing: 6) {
-                                                Image(systemName: category.iconName)
-                                                    .font(.system(size: 11))
-                                                Text(category.rawValue)
-                                                    .font(.system(size: 12, weight: .bold, design: .rounded))
-                                            }
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 6)
-                                            .background(isSelected ? Color.habPrimary : Color.habCard)
-                                            .foregroundStyle(isSelected ? Color.white : Color.secondary)
-                                            .cornerRadius(Radius.full)
-                                            .overlay(
-                                                RoundedRectangle(cornerRadius: Radius.full)
-                                                    .stroke(isSelected ? Color.clear : Color.habBorderLight, lineWidth: 1)
-                                            )
-                                        }
-                                        .buttonStyle(.plain)
-                                    }
-                                }
-                                .padding(.vertical, 2)
-                                .padding(.horizontal, 2)
-                            }
-                            
-                            // Rejilla de Logros Filtrados
-                            let columns = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
-                            LazyVGrid(columns: columns, spacing: 12) {
-                                ForEach(filteredAchievements) { achievement in
-                                    AchievementCard(achievement: achievement)
+                            // Vista previa compacta (3 insignias horizontales)
+                            HStack(spacing: Spacing.sm) {
+                                ForEach(achievements.prefix(3)) { achievement in
+                                    AchievementPreviewCell(achievement: achievement)
                                 }
                             }
-                            .padding(.top, Spacing.xs)
+                            .padding(.top, 4)
                         }
                         
                         // 4. Aspecto y Personalización
@@ -578,6 +535,14 @@ struct ProfileView: View {
             .sheet(isPresented: $showingPaywall) {
                 PaywallView()
             }
+            .sheet(isPresented: $showingAllAchievements) {
+                AchievementsDetailSheet(
+                    achievements: achievements,
+                    selectedCategory: $selectedCategory,
+                    filteredAchievements: filteredAchievements,
+                    unlockedCount: unlockedCount
+                )
+            }
             .onAppear {
                 currentAppIcon = UIApplication.shared.alternateIconName ?? "default"
             }
@@ -707,6 +672,164 @@ struct AchievementCard: View {
                 .stroke(achievement.isUnlocked ? achievement.color.opacity(0.15) : Color.primary.opacity(0.03), lineWidth: 1)
         )
         .opacity(achievement.isUnlocked ? 1.0 : 0.65)
+    }
+}
+
+// ── Celda de Vista Previa de Logro ──
+struct AchievementPreviewCell: View {
+    let achievement: Achievement
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            ZStack(alignment: .topTrailing) {
+                ZStack {
+                    Circle()
+                        .fill(achievement.isUnlocked ? achievement.color.opacity(0.12) : Color.primary.opacity(0.04))
+                        .frame(width: 44, height: 44)
+                    
+                    Image(systemName: achievement.icon)
+                        .font(.system(size: 18, weight: .semibold))
+                        .foregroundStyle(achievement.isUnlocked ? achievement.color : Color.secondary.opacity(0.4))
+                }
+                
+                if achievement.isUnlocked {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 10))
+                        .foregroundStyle(Color.habSuccess)
+                        .background(Circle().fill(Color.white))
+                        .offset(x: 2, y: -2)
+                }
+            }
+            
+            Text(achievement.title)
+                .font(.system(size: 10, weight: .bold, design: .rounded))
+                .foregroundStyle(achievement.isUnlocked ? Color.primary : Color.secondary)
+                .multilineTextAlignment(.center)
+                .lineLimit(1)
+        }
+        .padding(.vertical, 12)
+        .padding(.horizontal, 8)
+        .frame(maxWidth: .infinity)
+        .background(Color.habCard)
+        .cornerRadius(Radius.md)
+        .overlay(
+            RoundedRectangle(cornerRadius: Radius.md)
+                .stroke(achievement.isUnlocked ? achievement.color.opacity(0.15) : Color.primary.opacity(0.03), lineWidth: 1)
+        )
+        .opacity(achievement.isUnlocked ? 1.0 : 0.7)
+    }
+}
+
+// ── Modal de Detalle de Logros ──
+struct AchievementsDetailSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    
+    let achievements: [Achievement]
+    @Binding var selectedCategory: AchievementCategory
+    let filteredAchievements: [Achievement]
+    let unlockedCount: Int
+    
+    private let columns = [
+        GridItem(.flexible(), spacing: 12),
+        GridItem(.flexible(), spacing: 12)
+    ]
+    
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Color.habBackground
+                    .ignoresSafeArea()
+                
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: Spacing.lg) {
+                        // 1. Cabecera e Indicador de Progreso
+                        VStack(alignment: .leading, spacing: Spacing.sm) {
+                            HStack {
+                                Text("Tu Progreso de Logros")
+                                    .font(.system(.subheadline, design: .rounded))
+                                    .fontWeight(.bold)
+                                    .foregroundStyle(Color.primary)
+                                Spacer()
+                                Text("\(unlockedCount) de \(achievements.count) completados")
+                                    .font(.system(.footnote, design: .rounded).bold())
+                                    .foregroundStyle(Color.secondary)
+                            }
+                            
+                            // Barra de Progreso de Logros
+                            let fraction = CGFloat(unlockedCount) / CGFloat(achievements.count)
+                            GeometryReader { geometry in
+                                ZStack(alignment: .leading) {
+                                    Capsule()
+                                        .fill(Color.primary.opacity(0.04))
+                                        .frame(height: 8)
+                                    
+                                    Capsule()
+                                        .fill(Color.habWarning)
+                                        .frame(width: geometry.size.width * fraction, height: 8)
+                                }
+                            }
+                            .frame(height: 8)
+                        }
+                        .padding(.horizontal, Spacing.xs)
+                        
+                        // 2. Selector de Categoría (Chips Horizontales)
+                        ScrollView(.horizontal, showsIndicators: false) {
+                            HStack(spacing: Spacing.sm) {
+                                ForEach(AchievementCategory.allCases) { category in
+                                    let isSelected = selectedCategory == category
+                                    Button {
+                                        let generator = UIImpactFeedbackGenerator(style: .light)
+                                        generator.impactOccurred()
+                                        withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
+                                            selectedCategory = category
+                                        }
+                                    } label: {
+                                        HStack(spacing: 6) {
+                                            Image(systemName: category.iconName)
+                                                .font(.system(size: 11))
+                                            Text(category.rawValue)
+                                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                                        }
+                                        .padding(.horizontal, 12)
+                                        .padding(.vertical, 6)
+                                        .background(isSelected ? Color.habPrimary : Color.habCard)
+                                        .foregroundStyle(isSelected ? Color.white : Color.secondary)
+                                        .cornerRadius(Radius.full)
+                                        .overlay(
+                                            RoundedRectangle(cornerRadius: Radius.full)
+                                                .stroke(isSelected ? Color.clear : Color.habBorderLight, lineWidth: 1)
+                                        )
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .padding(.vertical, 2)
+                            .padding(.horizontal, 2)
+                        }
+                        
+                        // 3. Rejilla de Logros Filtrados
+                        LazyVGrid(columns: columns, spacing: 12) {
+                            ForEach(filteredAchievements) { achievement in
+                                AchievementCard(achievement: achievement)
+                            }
+                        }
+                        .padding(.top, Spacing.xs)
+                    }
+                    .padding()
+                }
+            }
+            .navigationTitle("Insignias y Logros")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Listo") {
+                        dismiss()
+                    }
+                    .font(.system(.body, design: .rounded).bold())
+                    .foregroundStyle(Color.habPrimary)
+                }
+            }
+        }
     }
 }
 
