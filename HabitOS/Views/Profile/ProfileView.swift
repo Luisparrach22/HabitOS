@@ -28,7 +28,7 @@ enum AchievementCategory: String, CaseIterable, Identifiable {
 }
 
 struct Achievement: Identifiable {
-    let id = UUID()
+    var id: String { title }
     let title: String
     let description: String
     let icon: String
@@ -93,7 +93,7 @@ struct ProfileView: View {
             
             // ── PROGRESO Y XP ──
             Achievement(title: "Primer Paso", description: "Completa tu primer hábito", icon: "sparkles", category: .level, color: Color(hex: "#00F5D4"), isUnlocked: totalXp > 0),
-            Achievement(title: "Guerrero Nivel 5", description: "Llega al nivel 5 de experiencia", icon: "shield.chevron", category: .level, color: Color(hex: "#30A2FF"), isUnlocked: currentLevel >= 5),
+            Achievement(title: "Guerrero Nivel 5", description: "Llega al nivel 5 de experiencia", icon: "shield.lefthalf.filled", category: .level, color: Color(hex: "#30A2FF"), isUnlocked: currentLevel >= 5),
             Achievement(title: "Centurión", description: "Acumula 1,000 XP totales", icon: "medal.fill", category: .level, color: Color(hex: "#BF5AF2"), isUnlocked: totalXp >= 1000),
             Achievement(title: "Soberano de Hábitos", description: "Llega al nivel 10 de experiencia", icon: "trophy.fill", category: .level, color: Color(hex: "#FFCC00"), isUnlocked: currentLevel >= 10),
             

@@ -1,3 +1,4 @@
+
 // ──────────────────────────────────────────────
 // ModelContainer+HabitOS.swift — Extensión de ModelContainer Compartido
 // ──────────────────────────────────────────────
