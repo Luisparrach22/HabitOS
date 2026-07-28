@@ -47,7 +47,13 @@ class User {
     var level: Int
     
     /// Indica si el usuario tiene la suscripción Pro activa
-    var isPro: Bool
+    /// Indica si el usuario tiene la suscripción Pro activa (persistida como opcional para evitar fallas de migración)
+    var isProValue: Bool?
+    
+    var isPro: Bool {
+        get { isProValue ?? false }
+        set { isProValue = newValue }
+    }
     
     // MARK: - Configuración
     
@@ -90,7 +96,7 @@ class User {
         self.avatarUrl = avatarUrl
         self.totalXp = totalXp
         self.level = level
-        self.isPro = isPro
+        self.isProValue = isPro
         self.timezone = timezone
         self.createdAt = createdAt
         self.habits = []
