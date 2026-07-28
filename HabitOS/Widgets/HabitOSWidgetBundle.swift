@@ -11,5 +11,7 @@ struct HabitOSWidgetBundle: WidgetBundle {
         HabitDailyWidget()
         HabitStreakWidget()
         HabitQuickAddWidget()
+        WeeklyStreakWidget()
+        GamificationWidget()
     }
 }
