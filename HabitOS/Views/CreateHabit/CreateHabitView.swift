@@ -13,6 +13,18 @@ struct CreateHabitView: View {
     @Environment(\.modelContext) private var modelContext
     
     @Query private var users: [User]
+    @Query private var habits: [Habit]
+    
+    @State private var showingPaywall = false
+    
+    private var isUserPro: Bool {
+        users.first?.isPro ?? false
+    }
+    
+    private func isPremiumColor(_ hex: String) -> Bool {
+        let freeColors = ["#018ABE", "#2DD4A8", "#F5A623", "#EF4444"]
+        return !freeColors.contains(hex)
+    }
     
     // Formulario State
     @State private var name: String = ""
@@ -127,12 +139,19 @@ struct CreateHabitView: View {
                             HStack(spacing: Spacing.md) {
                                 ForEach(habitColors) { hColor in
                                     let isActive = selectedColorHex == hColor.value
+                                    let isPremium = isPremiumColor(hColor.value)
+                                    let showLock = isPremium && !isUserPro
+                                    
                                     Button {
                                         let generator = UIImpactFeedbackGenerator(style: .light)
                                         generator.impactOccurred()
-                                        selectedColorHex = hColor.value
+                                        if showLock {
+                                            showingPaywall = true
+                                        } else {
+                                            selectedColorHex = hColor.value
+                                        }
                                     } label: {
-                                        ZStack {
+                                        ZStack(alignment: .topTrailing) {
                                             Circle()
                                                 .fill(hColor.color)
                                                 .frame(width: 32, height: 32)
@@ -141,6 +160,16 @@ struct CreateHabitView: View {
                                                 Image(systemName: "checkmark")
                                                     .font(.system(size: 11, weight: .bold))
                                                     .foregroundStyle(Color.white)
+                                            }
+                                            
+                                            if showLock {
+                                                Image(systemName: "crown.fill")
+                                                    .font(.system(size: 8))
+                                                    .foregroundStyle(Color.yellow)
+                                                    .padding(2)
+                                                    .background(Color.black.opacity(0.6))
+                                                    .clipShape(Circle())
+                                                    .offset(x: 4, y: -4)
                                             }
                                         }
                                     }
@@ -256,6 +285,9 @@ struct CreateHabitView: View {
             }
             .sheet(isPresented: $showingIconPicker) {
                 IconPickerSheet(selectedIcon: $selectedIcon, themeColor: themeColor)
+            }
+            .sheet(isPresented: $showingPaywall) {
+                PaywallView()
             }
         }
     }

@@ -44,10 +44,15 @@ struct ProfileView: View {
     @Query private var habits: [Habit]
     
     @AppStorage("areNotificationsEnabled") private var areNotificationsEnabled: Bool = false
+    @AppStorage("appThemeMode") private var appThemeMode: String = "system"
+    @AppStorage("selectedGlobalTheme") private var selectedGlobalTheme: String = "Original"
+    
+    @State private var currentAppIcon: String = "default"
     @State private var showingEditProfile = false
     @State private var showingAvatarPicker = false
     @State private var selectedCategory: AchievementCategory = .all
     @State private var showingShieldShop = false
+    @State private var showingPaywall = false
     
     private var currentUser: User? {
         users.first
@@ -149,10 +154,36 @@ struct ProfileView: View {
                             }
                             
                             VStack(spacing: 2) {
-                                Text(currentUser?.name ?? "Desarrollador HabitOS")
-                                    .font(.system(.title3, design: .rounded))
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(Color.primary)
+                                HStack(spacing: 8) {
+                                    Text(currentUser?.name ?? "Desarrollador HabitOS")
+                                        .font(.system(.title3, design: .rounded))
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(Color.primary)
+                                    
+                                    if currentUser?.isPro ?? false {
+                                        Text("PRO")
+                                            .font(.system(size: 10, weight: .black, design: .rounded))
+                                            .foregroundStyle(Color.white)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 2)
+                                            .background(
+                                                LinearGradient(
+                                                    colors: [Color(hex: "#8B5CF6"), Color(hex: "#EC4899")],
+                                                    startPoint: .leading,
+                                                    endPoint: .trailing
+                                                )
+                                            )
+                                            .cornerRadius(6)
+                                    } else {
+                                        Text("GRATIS")
+                                            .font(.system(size: 10, weight: .bold, design: .rounded))
+                                            .foregroundStyle(Color.secondary)
+                                            .padding(.horizontal, 6)
+                                            .padding(.vertical, 2)
+                                            .background(Color.primary.opacity(0.06))
+                                            .cornerRadius(6)
+                                    }
+                                }
                                 
                                 Text(currentUser?.email ?? "usuario@habitos.app")
                                     .font(.footnote)
@@ -160,18 +191,41 @@ struct ProfileView: View {
                             }
                             
                             if let user = currentUser {
-                                Button {
-                                    showingEditProfile = true
-                                } label: {
-                                    Text("Editar Perfil")
-                                        .font(.system(size: 11, weight: .bold, design: .rounded))
-                                        .foregroundStyle(Color.habPrimary)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 4)
-                                        .background(Color.habPrimary.opacity(0.1))
-                                        .cornerRadius(Radius.full)
+                                HStack(spacing: 12) {
+                                    Button {
+                                        showingEditProfile = true
+                                    } label: {
+                                        Text("Editar Perfil")
+                                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                                            .foregroundStyle(Color.habPrimary)
+                                            .padding(.horizontal, 10)
+                                            .padding(.vertical, 4)
+                                            .background(Color.habPrimary.opacity(0.1))
+                                            .cornerRadius(Radius.full)
+                                    }
+                                    .buttonStyle(.plain)
+                                    
+                                    if !user.isPro {
+                                        Button {
+                                            showingPaywall = true
+                                        } label: {
+                                            Text("Obtener Pro ✨")
+                                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                                .foregroundStyle(Color.white)
+                                                .padding(.horizontal, 10)
+                                                .padding(.vertical, 4)
+                                                .background(
+                                                    LinearGradient(
+                                                        colors: [Color(hex: "#8B5CF6"), Color(hex: "#EC4899")],
+                                                        startPoint: .leading,
+                                                        endPoint: .trailing
+                                                    )
+                                                )
+                                                .cornerRadius(Radius.full)
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
                                 }
-                                .buttonStyle(.plain)
                                 .padding(.top, 4)
                             }
                             
@@ -338,7 +392,95 @@ struct ProfileView: View {
                             .padding(.top, Spacing.xs)
                         }
                         
-                        // 4. Ajustes de la App
+                        // 4. Aspecto y Personalización
+                        VStack(alignment: .leading, spacing: Spacing.sm) {
+                            Text("ASPECTO Y PERSONALIZACIÓN")
+                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                                .foregroundStyle(Color.secondary)
+                                .padding(.horizontal, Spacing.xs)
+                            
+                            VStack(spacing: 0) {
+                                // 1. Tema Claro/Oscuro/Sistema
+                                HStack {
+                                    Label("Tema de la App", systemImage: "paintbrush.fill")
+                                        .font(.body)
+                                        .foregroundStyle(Color.primary)
+                                    Spacer()
+                                    Picker("", selection: $appThemeMode) {
+                                        ForEach(AppThemeMode.allCases) { mode in
+                                            Text(mode.displayName).tag(mode.rawValue)
+                                        }
+                                    }
+                                    .pickerStyle(.menu)
+                                    .tint(Color.habPrimary)
+                                }
+                                .padding(14)
+                                
+                                Divider()
+                                    .opacity(0.5)
+                                
+                                // 2. Temas de color globales
+                                HStack {
+                                    Label("Tema de Color", systemImage: "paintpalette.fill")
+                                        .font(.body)
+                                        .foregroundStyle(Color.primary)
+                                    Spacer()
+                                    Picker("", selection: Binding(
+                                        get: { selectedGlobalTheme },
+                                        set: { newValue in
+                                            let theme = GlobalTheme(rawValue: newValue) ?? .original
+                                            let isPro = currentUser?.isPro ?? false
+                                            if theme.isPremium && !isPro {
+                                                showingPaywall = true
+                                            } else {
+                                                selectedGlobalTheme = newValue
+                                            }
+                                        }
+                                    )) {
+                                        ForEach(GlobalTheme.allCases) { theme in
+                                            Text(theme.rawValue + (theme.isPremium ? " 👑" : "")).tag(theme.rawValue)
+                                        }
+                                    }
+                                    .pickerStyle(.menu)
+                                    .tint(Color.habPrimary)
+                                }
+                                .padding(14)
+                                
+                                Divider()
+                                    .opacity(0.5)
+                                
+                                // 3. Icono alternativo
+                                HStack {
+                                    Label("Icono de la App", systemImage: "app.dashed")
+                                        .font(.body)
+                                        .foregroundStyle(Color.primary)
+                                    Spacer()
+                                    Picker("", selection: Binding(
+                                        get: { currentAppIcon },
+                                        set: { newValue in
+                                            let isPro = currentUser?.isPro ?? false
+                                            if newValue != "default" && !isPro {
+                                                showingPaywall = true
+                                            } else {
+                                                changeAppIcon(to: newValue)
+                                            }
+                                        }
+                                    )) {
+                                        Text("Original").tag("default")
+                                        Text("Cyberpunk 👑").tag("cyberpunk")
+                                        Text("Minimal 👑").tag("minimal")
+                                        Text("Sunset 👑").tag("sunset")
+                                    }
+                                    .pickerStyle(.menu)
+                                    .tint(Color.habPrimary)
+                                }
+                                .padding(14)
+                            }
+                            .background(Color.habCard)
+                            .cornerRadius(Radius.lg)
+                        }
+                        
+                        // 5. Ajustes de la App
                         VStack(alignment: .leading, spacing: Spacing.sm) {
                             Text("AJUSTES")
                                 .font(.system(size: 10, weight: .bold, design: .rounded))
@@ -402,6 +544,26 @@ struct ProfileView: View {
                 if let user = currentUser {
                     ShieldShopSheet(user: user, habits: habits)
                 }
+            }
+            .sheet(isPresented: $showingPaywall) {
+                PaywallView()
+            }
+            .onAppear {
+                currentAppIcon = UIApplication.shared.alternateIconName ?? "default"
+            }
+        }
+    }
+    
+    // MARK: - Helper Icono Alternativo
+    
+    private func changeAppIcon(to iconName: String) {
+        let iconToSet = iconName == "default" ? nil : iconName
+        UIApplication.shared.setAlternateIconName(iconToSet) { error in
+            if let error = error {
+                print("Error al cambiar el icono alternativo: \(error)")
+            } else {
+                currentAppIcon = iconName
+                print("Icono de la app cambiado exitosamente a: \(iconName)")
             }
         }
     }

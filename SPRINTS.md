@@ -32,20 +32,21 @@ Este documento sirve como hoja de ruta (roadmap) para el desarrollo nativo de **
   * Integración del **MonthHeatmapGrid** (calendario mensual tipo GitHub) utilizando Swift Charts en la vista de estadísticas (`StatsView.swift`).
   * Edición del perfil de usuario (nombre y correo electrónico) y toggle funcional de notificaciones locales.
 
+### 🟢 Sprint 10: Suscripción Pro y Monetización (StoreKit 2) (Completado)
+* **Objetivo:** Implementar modelo de monetización premium y control de límites Pro.
+* **Componentes:**
+  - Configuración de `HabitOS.storekit` para pruebas de compras locales.
+  - Servicio `StoreManager.swift` con StoreKit 2 y sincronización de estado `isPro` en SwiftData.
+  - Pantalla premium y animada `PaywallView.swift` con beneficios detallados.
+  - Limitación de hasta 5 hábitos para usuarios básicos.
+  - Bloqueo y desenfoque del Heatmap en estadísticas y 6 colores exclusivos para usuarios Pro.
+
 ---
 
 ## 🚀 Backlog de Sprints Pendientes
 
 > [!NOTE]
 > Los siguientes sprints están planificados para ser ejecutados a continuación. Puedes elegir cualquiera de ellos para comenzar a trabajar.
-
-### ⚙️ Sprint 10: Suscripción Pro y Monetización (StoreKit 2)
-* **Descripción:** Implementar el modelo de monetización premium descrito en la landing page.
-* **Lista de Tareas:**
-  * [ ] **Límite de Hábitos:** Implementar una validación para limitar a un máximo de 5 hábitos activos en el plan gratuito.
-  * [ ] **Bloqueo Premium:** Restringir el calendario mensual de estadísticas (`MonthHeatmapGrid`) y los colores premium para usuarios Pro.
-  * [ ] **Pantalla de Paywall:** Crear una vista de Paywall atractiva y animada que liste los beneficios de la suscripción mensual ($4.99).
-  * [ ] **Configuración StoreKit:** Crear un archivo de configuración `.storekit` local para pruebas en simulador y enlazar la compra de productos usando la API nativa de Apple `StoreKit 2`.
 
 ### 🎨 Sprint 11: Personalización Estética y Temas
 * **Descripción:** Permitir al usuario cambiar la interfaz visual de la app y desbloquear opciones avanzadas.

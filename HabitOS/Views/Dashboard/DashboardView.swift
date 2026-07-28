@@ -18,6 +18,7 @@ struct DashboardView: View {
     
     @State private var showCompleted = true
     @State private var showingCreateHabitSheet = false
+    @State private var showingPaywall = false
     @State private var selectedHabitForDetail: Habit?
     
     private var currentUser: User? {
@@ -123,7 +124,13 @@ struct DashboardView: View {
                     Button {
                         let generator = UIImpactFeedbackGenerator(style: .light)
                         generator.impactOccurred()
-                        showingCreateHabitSheet = true
+                        
+                        let isPro = currentUser?.isPro ?? false
+                        if !isPro && habits.count >= 5 {
+                            showingPaywall = true
+                        } else {
+                            showingCreateHabitSheet = true
+                        }
                     } label: {
                         Image(systemName: "plus.circle.fill")
                             .font(.title3)
@@ -148,6 +155,9 @@ struct DashboardView: View {
             }
             .sheet(isPresented: $showingCreateHabitSheet) {
                 CreateHabitView()
+            }
+            .sheet(isPresented: $showingPaywall) {
+                PaywallView()
             }
         }
     }

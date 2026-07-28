@@ -1,0 +1,54 @@
+{
+  "identifier" : "E2B7DEE3",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "es_ES",
+    "_storefront" : "ESP"
+  },
+  "subscriptionGroups" : [
+    {
+      "id" : "7E4C33C0",
+      "localizations" : [
+
+      ],
+      "name" : "ProGroup",
+      "subscriptions" : [
+        {
+          "adHocOffers" : [
+
+          ],
+          "codeOffers" : [
+
+          ],
+          "displayPrice" : "4.99",
+          "familyShareable" : false,
+          "groupNumber" : 1,
+          "internalID" : "A6CF916E",
+          "introductoryOffer" : null,
+          "localizations" : [
+            {
+              "description" : "Acceso ilimitado a todas las funciones premium.",
+              "displayName" : "HabitOS Pro",
+              "locale" : "es_ES"
+            }
+          ],
+          "productID" : "com.habitos.HabitOS.pro",
+          "recurringSubscriptionPeriod" : "P1M",
+          "referenceName" : "HabitOS Pro Monthly",
+          "subscriptionGroupID" : "7E4C33C0",
+          "type" : "Recurring"
+        }
+      ]
+    }
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

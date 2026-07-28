@@ -22,8 +22,14 @@ struct StatsView: View {
     @Query private var habitsLogs: [HabitLog]
     @Query private var users: [User]
     
+    @State private var showingPaywall = false
+    
     private var currentUser: User? {
         users.first
+    }
+    
+    private var isUserPro: Bool {
+        currentUser?.isPro ?? false
     }
     
     // ── Datos Derivados ───────────────────────────
@@ -158,7 +164,45 @@ struct StatsView: View {
                                 Spacer()
                             }
                             
-                            MonthHeatmapGrid(logs: habitsLogs, habitsCount: habits.count)
+                            ZStack {
+                                MonthHeatmapGrid(logs: habitsLogs, habitsCount: habits.count)
+                                    .blur(radius: isUserPro ? 0 : 5)
+                                    .disabled(!isUserPro)
+                                
+                                if !isUserPro {
+                                    VStack(spacing: Spacing.xs) {
+                                        Image(systemName: "lock.fill")
+                                            .font(.system(size: 18))
+                                            .foregroundStyle(Color.habPrimary)
+                                        Text("Rejilla de Consistencia")
+                                            .font(.system(.caption, design: .rounded))
+                                            .fontWeight(.bold)
+                                            .foregroundStyle(Color.primary)
+                                        Button {
+                                            showingPaywall = true
+                                        } label: {
+                                            Text("Desbloquear con Pro")
+                                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                                .foregroundStyle(Color.white)
+                                                .padding(.horizontal, 12)
+                                                .padding(.vertical, 6)
+                                                .background(
+                                                    LinearGradient(
+                                                        colors: [Color(hex: "#8B5CF6"), Color(hex: "#EC4899")],
+                                                        startPoint: .leading,
+                                                        endPoint: .trailing
+                                                    )
+                                                )
+                                                .cornerRadius(12)
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                    .padding(12)
+                                    .background(Color.habCard.opacity(0.85))
+                                    .cornerRadius(Radius.md)
+                                    .shadow(color: Color.black.opacity(0.1), radius: 5)
+                                }
+                            }
                         }
                         .padding(18)
                         .background(Color.habCard)
@@ -170,6 +214,9 @@ struct StatsView: View {
                 }
             }
             .navigationTitle("Estadísticas")
+            .sheet(isPresented: $showingPaywall) {
+                PaywallView()
+            }
         }
     }
 }

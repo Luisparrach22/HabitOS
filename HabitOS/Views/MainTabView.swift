@@ -9,9 +9,13 @@ import SwiftUI
 import SwiftData
 
 struct MainTabView: View {
+    @Query private var users: [User]
+    @Query private var habits: [Habit]
+    
     // Estado para controlar la pestaña seleccionada actualmente
     @State private var selectedTab = 0
     @State private var showingCreateHabitSheet = false
+    @State private var showingPaywall = false
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -51,10 +55,19 @@ struct MainTabView: View {
         .sheet(isPresented: $showingCreateHabitSheet) {
             CreateHabitView()
         }
+        .sheet(isPresented: $showingPaywall) {
+            PaywallView()
+        }
         .onOpenURL { url in
             if url.scheme == "habitos" && (url.host == "create" || url.host == "nuevo" || url.absoluteString.contains("create")) {
                 selectedTab = 0
-                showingCreateHabitSheet = true
+                
+                let isPro = users.first?.isPro ?? false
+                if !isPro && habits.count >= 5 {
+                    showingPaywall = true
+                } else {
+                    showingCreateHabitSheet = true
+                }
             }
         }
     }

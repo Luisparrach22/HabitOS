@@ -46,6 +46,9 @@ class User {
     /// Nivel actual del usuario
     var level: Int
     
+    /// Indica si el usuario tiene la suscripción Pro activa
+    var isPro: Bool
+    
     // MARK: - Configuración
     
     /// Zona horaria del usuario (formato IANA, ej: "Europe/Madrid")
@@ -76,6 +79,7 @@ class User {
         avatarUrl: String? = nil,
         totalXp: Int = 0,
         level: Int = 1,
+        isPro: Bool = false,
         timezone: String = "UTC",
         createdAt: Date = .now
     ) {
@@ -86,6 +90,7 @@ class User {
         self.avatarUrl = avatarUrl
         self.totalXp = totalXp
         self.level = level
+        self.isPro = isPro
         self.timezone = timezone
         self.createdAt = createdAt
         self.habits = []

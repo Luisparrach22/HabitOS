@@ -13,14 +13,31 @@ struct HabitOSApp: App {
     
     // Estado persistido localmente para detectar primer inicio
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
+    @AppStorage("appThemeMode") private var appThemeMode: String = "system"
+    
+    private var colorScheme: ColorScheme? {
+        switch AppThemeMode(rawValue: appThemeMode) ?? .system {
+        case .system: return nil
+        case .light: return .light
+        case .dark: return .dark
+        }
+    }
     
     var body: some Scene {
         WindowGroup {
-            if hasCompletedOnboarding {
-                MainTabView()
-            } else {
-                OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
+            Group {
+                if hasCompletedOnboarding {
+                    MainTabView()
+                        .onAppear {
+                            Task {
+                                await StoreManager.shared.checkActiveSubscriptions(modelContext: ModelContainer.shared.mainContext)
+                            }
+                        }
+                } else {
+                    OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
+                }
             }
+            .preferredColorScheme(colorScheme)
         }
         // Registramos el contenedor de SwiftData unificado e integrado con CloudKit y App Groups.
         .modelContainer(ModelContainer.shared)
