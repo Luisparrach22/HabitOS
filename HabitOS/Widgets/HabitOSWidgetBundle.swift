@@ -10,5 +10,6 @@ struct HabitOSWidgetBundle: WidgetBundle {
     var body: some Widget {
         HabitDailyWidget()
         HabitStreakWidget()
+        HabitQuickAddWidget()
     }
 }

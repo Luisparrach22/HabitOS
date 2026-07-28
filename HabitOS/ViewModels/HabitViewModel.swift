@@ -29,7 +29,7 @@ final class HabitViewModel {
             email: "usuario@habitos.app",
             name: "Desarrollador",
             passwordHash: "local_hash",
-            avatarUrl: nil,
+            avatarUrl: "owl:0",
             totalXp: 0,
             level: 1,
             timezone: TimeZone.current.identifier

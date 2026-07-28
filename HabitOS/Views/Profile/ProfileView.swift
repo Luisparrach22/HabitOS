@@ -7,11 +7,33 @@
 import SwiftUI
 import SwiftData
 
+enum AchievementCategory: String, CaseIterable, Identifiable {
+    case all = "Todos"
+    case consistency = "Rachas"
+    case level = "Niveles"
+    case specials = "Especiales"
+    case routine = "Rutina"
+    
+    var id: String { self.rawValue }
+    
+    var iconName: String {
+        switch self {
+        case .all: return "square.grid.2x2.fill"
+        case .consistency: return "flame.fill"
+        case .level: return "crown.fill"
+        case .specials: return "star.fill"
+        case .routine: return "checklist"
+        }
+    }
+}
+
 struct Achievement: Identifiable {
     let id = UUID()
     let title: String
     let description: String
     let icon: String
+    let category: AchievementCategory
+    let color: Color
     let isUnlocked: Bool
 }
 
@@ -23,6 +45,9 @@ struct ProfileView: View {
     
     @AppStorage("areNotificationsEnabled") private var areNotificationsEnabled: Bool = false
     @State private var showingEditProfile = false
+    @State private var showingAvatarPicker = false
+    @State private var selectedCategory: AchievementCategory = .all
+    @State private var showingShieldShop = false
     
     private var currentUser: User? {
         users.first
@@ -35,15 +60,61 @@ struct ProfileView: View {
     // Lista de Insignias / Logros del Usuario
     private var achievements: [Achievement] {
         let totalXp = currentUser?.totalXp ?? 0
+        let currentLevel = currentUser?.level ?? 1
         let maxStreak = habits.map(\.maxStreak).max() ?? 0
+        let habitsCount = habits.count
+        
+        let logs = habits.flatMap { $0.logs ?? [] }
+        let totalShieldLogsCount = habits.reduce(0) { $0 + ($1.shieldLogs ?? []).count }
+        
+        let hasCompletedBefore8AM = logs.contains { log in
+            let hour = Calendar.current.component(.hour, from: log.completedAt)
+            return hour < 8
+        }
+        
+        let hasCompletedAfter10PM = logs.contains { log in
+            let hour = Calendar.current.component(.hour, from: log.completedAt)
+            return hour >= 22
+        }
+        
+        let hasTriggerHabit = habits.contains { $0.trigger != nil && !$0.trigger!.isEmpty }
         
         return [
-            Achievement(title: "Primer Paso", description: "Completa tu primer hábito", icon: "sparkles", isUnlocked: totalXp > 0),
-            Achievement(title: "Racha de 7 Días", description: "Mantén una racha de 1 semana", icon: "flame.fill", isUnlocked: maxStreak >= 7),
-            Achievement(title: "Escudo Protector", description: "Usa un escudo para salvar tu racha", icon: "shield.fill", isUnlocked: totalShieldsCount > 0 || totalXp > 100),
-            Achievement(title: "Nivel 5 Alcanzado", description: "Llega al nivel 5 de experiencia", icon: "crown.fill", isUnlocked: (currentUser?.level ?? 1) >= 5),
-            Achievement(title: "Centurión", description: "Acumula 1,000 XP totales", icon: "medal.fill", isUnlocked: totalXp >= 1000)
+            // ── CONSISTENCIA ──
+            Achievement(title: "La Chispa", description: "Completa un hábito 3 días seguidos", icon: "flame", category: .consistency, color: .orange, isUnlocked: maxStreak >= 3),
+            Achievement(title: "Ritmo Constante", description: "Mantén una racha de 7 días", icon: "calendar.badge.clock", category: .consistency, color: Color(hex: "#FF9F00"), isUnlocked: maxStreak >= 7),
+            Achievement(title: "Inquebrantable", description: "Mantén una racha de 30 días", icon: "bolt.shield.fill", category: .consistency, color: Color(hex: "#FF3B30"), isUnlocked: maxStreak >= 30),
+            Achievement(title: "Leyenda Disciplinada", description: "Mantén una racha de 90 días", icon: "crown.fill", category: .consistency, color: Color(hex: "#FFD60A"), isUnlocked: maxStreak >= 90),
+            
+            // ── PROGRESO Y XP ──
+            Achievement(title: "Primer Paso", description: "Completa tu primer hábito", icon: "sparkles", category: .level, color: Color(hex: "#00F5D4"), isUnlocked: totalXp > 0),
+            Achievement(title: "Guerrero Nivel 5", description: "Llega al nivel 5 de experiencia", icon: "shield.chevron", category: .level, color: Color(hex: "#30A2FF"), isUnlocked: currentLevel >= 5),
+            Achievement(title: "Centurión", description: "Acumula 1,000 XP totales", icon: "medal.fill", category: .level, color: Color(hex: "#BF5AF2"), isUnlocked: totalXp >= 1000),
+            Achievement(title: "Soberano de Hábitos", description: "Llega al nivel 10 de experiencia", icon: "trophy.fill", category: .level, color: Color(hex: "#FFCC00"), isUnlocked: currentLevel >= 10),
+            
+            // ── RECUPERACIÓN Y TIEMPOS ──
+            Achievement(title: "Escudo Protector", description: "Usa un escudo para salvar tu racha", icon: "shield.fill", category: .specials, color: Color(hex: "#018ABE"), isUnlocked: totalShieldLogsCount >= 1),
+            Achievement(title: "Resiliencia Fénix", description: "Usa 3 escudos en total", icon: "heart.text.square.fill", category: .specials, color: Color(hex: "#FF2D55"), isUnlocked: totalShieldLogsCount >= 3),
+            Achievement(title: "Madrugador", description: "Completa un hábito antes de las 8:00 AM", icon: "sunrise.fill", category: .specials, color: Color(hex: "#FF9F0A"), isUnlocked: hasCompletedBefore8AM),
+            Achievement(title: "Búho Nocturno", description: "Completa un hábito después de las 10:00 PM", icon: "moon.stars.fill", category: .specials, color: Color(hex: "#5856D6"), isUnlocked: hasCompletedAfter10PM),
+            
+            // ── DISEÑO DE RUTINAS ──
+            Achievement(title: "Creador de Hábitos", description: "Crea tu primer hábito personalizado", icon: "plus.circle.fill", category: .routine, color: Color(hex: "#34C759"), isUnlocked: habitsCount >= 1),
+            Achievement(title: "Arquitecto de Rutinas", description: "Ten 5 hábitos activos a la vez", icon: "square.grid.3x3.fill", category: .routine, color: Color(hex: "#30A2FF"), isUnlocked: habitsCount >= 5),
+            Achievement(title: "Stacker Maestro", description: "Configura un disparador de hábito", icon: "link", category: .routine, color: Color(hex: "#AF52DE"), isUnlocked: hasTriggerHabit)
         ]
+    }
+    
+    private var filteredAchievements: [Achievement] {
+        if selectedCategory == .all {
+            return achievements
+        } else {
+            return achievements.filter { $0.category == selectedCategory }
+        }
+    }
+    
+    private var unlockedCount: Int {
+        achievements.filter(\.isUnlocked).count
     }
     
     var body: some View {
@@ -57,22 +128,16 @@ struct ProfileView: View {
                         
                         // 1. Tarjeta Principal de Perfil y Nivel
                         VStack(spacing: Spacing.md) {
-                            // Avatar con Badge de Nivel
+                            // Avatar interactivo con Badge de Nivel
                             ZStack(alignment: .bottomTrailing) {
-                                Circle()
-                                    .fill(
-                                        LinearGradient(
-                                            colors: [Color(hex: "#7B2CBF"), Color(hex: "#00F5D4")],
-                                            startPoint: .topLeading,
-                                            endPoint: .bottomTrailing
-                                        )
-                                    )
-                                    .frame(width: 80, height: 80)
-                                    .overlay(
-                                        Text(currentUser?.name?.prefix(1).uppercased() ?? "H")
-                                            .font(.system(size: 32, weight: .bold, design: .rounded))
-                                            .foregroundStyle(Color.white)
-                                    )
+                                Button {
+                                    let generator = UIImpactFeedbackGenerator(style: .light)
+                                    generator.impactOccurred()
+                                    showingAvatarPicker = true
+                                } label: {
+                                    AvatarView(avatarString: currentUser?.avatarUrl, size: 80)
+                                }
+                                .buttonStyle(.plain)
                                 
                                 Text("Nv. \(currentUser?.level ?? 1)")
                                     .font(.system(size: 11, weight: .bold, design: .rounded))
@@ -168,71 +233,110 @@ struct ProfileView: View {
                             }
                             
                             Spacer()
+                            
+                            if let user = currentUser {
+                                let canAfford = user.totalXp >= GamificationEngine.shieldXPCost
+                                Button {
+                                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                                    generator.impactOccurred()
+                                    showingShieldShop = true
+                                } label: {
+                                    Text(canAfford ? "Comprar ⚡" : "Comprar")
+                                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                                        .foregroundStyle(canAfford ? Color.white : Color.secondary)
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(canAfford ? Color.habPrimary : Color.primary.opacity(0.04))
+                                        .cornerRadius(Radius.sm)
+                                }
+                                .buttonStyle(.plain)
+                                .disabled(!canAfford || habits.isEmpty)
+                            }
                         }
                         .padding(14)
                         .background(Color.habCard)
                         .cornerRadius(Radius.lg)
                         .shadow(color: Color.black.opacity(0.01), radius: 4, x: 0, y: 2)
                         
-                        // 3. Rejilla de Insignias y Logros
+                        // 3. Rejilla de Insignias y Logros (Rediseño Premium)
                         VStack(alignment: .leading, spacing: Spacing.md) {
-                            HStack {
-                                Image(systemName: "trophy.fill")
-                                    .foregroundStyle(Color.habWarning)
-                                    .font(.subheadline)
-                                Text("Insignias y Logros")
-                                    .font(.system(.subheadline, design: .rounded))
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(Color.primary)
-                                Spacer()
-                            }
-                            
-                            VStack(spacing: 0) {
-                                ForEach(achievements) { badge in
-                                    HStack(spacing: Spacing.md) {
-                                        ZStack {
-                                            Circle()
-                                                .fill(badge.isUnlocked ? Color.habWarning.opacity(0.12) : Color.primary.opacity(0.04))
-                                                .frame(width: 40, height: 40)
-                                            Image(systemName: badge.icon)
-                                                .font(.system(size: 18))
-                                                .foregroundStyle(badge.isUnlocked ? Color.habWarning : Color.secondary)
-                                        }
+                            // Cabecera e Indicador de Progreso
+                            VStack(alignment: .leading, spacing: Spacing.sm) {
+                                HStack {
+                                    Image(systemName: "trophy.fill")
+                                        .foregroundStyle(Color.habWarning)
+                                        .font(.subheadline)
+                                    Text("Insignias y Logros")
+                                        .font(.system(.subheadline, design: .rounded))
+                                        .fontWeight(.bold)
+                                        .foregroundStyle(Color.primary)
+                                    Spacer()
+                                    Text("\(unlockedCount) / \(achievements.count)")
+                                        .font(.system(.footnote, design: .rounded).bold())
+                                        .foregroundStyle(Color.secondary)
+                                }
+                                
+                                // Barra de Progreso de Logros
+                                let fraction = CGFloat(unlockedCount) / CGFloat(achievements.count)
+                                GeometryReader { geometry in
+                                    ZStack(alignment: .leading) {
+                                        Capsule()
+                                            .fill(Color.primary.opacity(0.04))
+                                            .frame(height: 6)
                                         
-                                        VStack(alignment: .leading, spacing: 2) {
-                                            Text(badge.title)
-                                                .font(.subheadline)
-                                                .fontWeight(.semibold)
-                                                .foregroundStyle(badge.isUnlocked ? Color.primary : Color.secondary)
-                                            Text(badge.description)
-                                                .font(.caption)
-                                                .foregroundStyle(Color.secondary)
-                                        }
-                                        
-                                        Spacer()
-                                        
-                                        if badge.isUnlocked {
-                                            Image(systemName: "checkmark.circle.fill")
-                                                .foregroundStyle(Color.habSuccess)
-                                        } else {
-                                            Image(systemName: "lock.fill")
-                                                .font(.caption2)
-                                                .foregroundStyle(Color.secondary)
-                                        }
-                                    }
-                                    .padding(.vertical, Spacing.sm)
-                                    
-                                    if badge.title != achievements.last?.title {
-                                        Divider()
-                                            .opacity(0.4)
+                                        Capsule()
+                                            .fill(Color.habWarning)
+                                            .frame(width: geometry.size.width * fraction, height: 6)
                                     }
                                 }
+                                .frame(height: 6)
                             }
+                            .padding(.horizontal, Spacing.xs)
+                            
+                            // Selector de Categoría (Chips Horizontales)
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: Spacing.sm) {
+                                    ForEach(AchievementCategory.allCases) { category in
+                                        let isSelected = selectedCategory == category
+                                        Button {
+                                            let generator = UIImpactFeedbackGenerator(style: .light)
+                                            generator.impactOccurred()
+                                            withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
+                                                selectedCategory = category
+                                            }
+                                        } label: {
+                                            HStack(spacing: 6) {
+                                                Image(systemName: category.iconName)
+                                                    .font(.system(size: 11))
+                                                Text(category.rawValue)
+                                                    .font(.system(size: 12, weight: .bold, design: .rounded))
+                                            }
+                                            .padding(.horizontal, 12)
+                                            .padding(.vertical, 6)
+                                            .background(isSelected ? Color.habPrimary : Color.habCard)
+                                            .foregroundStyle(isSelected ? Color.white : Color.secondary)
+                                            .cornerRadius(Radius.full)
+                                            .overlay(
+                                                RoundedRectangle(cornerRadius: Radius.full)
+                                                    .stroke(isSelected ? Color.clear : Color.habBorderLight, lineWidth: 1)
+                                            )
+                                        }
+                                        .buttonStyle(.plain)
+                                    }
+                                }
+                                .padding(.vertical, 2)
+                                .padding(.horizontal, 2)
+                            }
+                            
+                            // Rejilla de Logros Filtrados
+                            let columns = [GridItem(.flexible(), spacing: 12), GridItem(.flexible(), spacing: 12)]
+                            LazyVGrid(columns: columns, spacing: 12) {
+                                ForEach(filteredAchievements) { achievement in
+                                    AchievementCard(achievement: achievement)
+                                }
+                            }
+                            .padding(.top, Spacing.xs)
                         }
-                        .padding(18)
-                        .background(Color.habCard)
-                        .cornerRadius(Radius.xl2)
-                        .shadow(color: Color.black.opacity(0.01), radius: 6, x: 0, y: 3)
                         
                         // 4. Ajustes de la App
                         VStack(alignment: .leading, spacing: Spacing.sm) {
@@ -289,6 +393,16 @@ struct ProfileView: View {
                     EditProfileSheet(user: user)
                 }
             }
+            .sheet(isPresented: $showingAvatarPicker) {
+                if let user = currentUser {
+                    AvatarPickerSheet(user: user)
+                }
+            }
+            .sheet(isPresented: $showingShieldShop) {
+                if let user = currentUser {
+                    ShieldShopSheet(user: user, habits: habits)
+                }
+            }
         }
     }
 }
@@ -339,6 +453,68 @@ struct EditProfileSheet: View {
                 }
             }
         }
+    }
+}
+
+// ── Tarjeta de Logro Premium ──
+struct AchievementCard: View {
+    let achievement: Achievement
+    
+    var body: some View {
+        VStack(spacing: Spacing.sm) {
+            ZStack(alignment: .topTrailing) {
+                // Icono del logro con su color temático
+                ZStack {
+                    Circle()
+                        .fill(achievement.isUnlocked ? achievement.color.opacity(0.1) : Color.primary.opacity(0.04))
+                        .frame(width: 48, height: 48)
+                    
+                    Image(systemName: achievement.icon)
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(achievement.isUnlocked ? achievement.color : Color.secondary.opacity(0.5))
+                }
+                
+                // Indicador de estado (candado o checkmark)
+                if achievement.isUnlocked {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.caption2)
+                        .foregroundStyle(Color.habSuccess)
+                        .background(Circle().fill(Color.white))
+                        .offset(x: 2, y: -2)
+                } else {
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 8))
+                        .foregroundStyle(Color.secondary.opacity(0.6))
+                        .offset(x: 2, y: -2)
+                }
+            }
+            .padding(.top, Spacing.xs)
+            
+            VStack(spacing: 2) {
+                Text(achievement.title)
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundStyle(achievement.isUnlocked ? Color.primary : Color.secondary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(1)
+                
+                Text(achievement.description)
+                    .font(.system(size: 10))
+                    .foregroundStyle(Color.secondary)
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .frame(height: 28, alignment: .top)
+            }
+        }
+        .padding(12)
+        .frame(maxWidth: .infinity)
+        .background(Color.habCard)
+        .cornerRadius(Radius.md)
+        .shadow(color: Color.black.opacity(0.01), radius: 3, x: 0, y: 1.5)
+        .overlay(
+            RoundedRectangle(cornerRadius: Radius.md)
+                .stroke(achievement.isUnlocked ? achievement.color.opacity(0.15) : Color.primary.opacity(0.03), lineWidth: 1)
+        )
+        .opacity(achievement.isUnlocked ? 1.0 : 0.65)
     }
 }
 

@@ -11,6 +11,7 @@ import SwiftData
 struct MainTabView: View {
     // Estado para controlar la pestaña seleccionada actualmente
     @State private var selectedTab = 0
+    @State private var showingCreateHabitSheet = false
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -47,6 +48,15 @@ struct MainTabView: View {
         }
         // Aplicamos el tinte de color de tu design system
         .tint(Color.habPrimary)
+        .sheet(isPresented: $showingCreateHabitSheet) {
+            CreateHabitView()
+        }
+        .onOpenURL { url in
+            if url.scheme == "habitos" && (url.host == "create" || url.host == "nuevo" || url.absoluteString.contains("create")) {
+                selectedTab = 0
+                showingCreateHabitSheet = true
+            }
+        }
     }
 }
 

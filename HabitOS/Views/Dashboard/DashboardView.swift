@@ -91,15 +91,7 @@ struct DashboardView: View {
                                                 )
                                         }
                                         
-                                        Circle()
-                                            .fill(Color.habPrimary.opacity(0.1))
-                                            .frame(width: 36, height: 36)
-                                            .overlay(
-                                                Text(user.name?.prefix(1).uppercased() ?? "H")
-                                                    .font(.system(.body, design: .rounded))
-                                                    .fontWeight(.bold)
-                                                    .foregroundStyle(Color.habPrimary)
-                                            )
+                                        AvatarView(avatarString: user.avatarUrl, size: 36)
                                     }
                                 }
                                 .buttonStyle(.plain)

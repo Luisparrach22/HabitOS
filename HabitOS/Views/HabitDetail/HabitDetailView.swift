@@ -14,6 +14,13 @@ struct HabitDetailView: View {
     
     let habit: Habit
     
+    @Query private var users: [User]
+    @State private var showingPurchaseConfirmation = false
+    
+    private var currentUser: User? {
+        users.first
+    }
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -120,21 +127,29 @@ struct HabitDetailView: View {
                             
                             Spacer()
                             
-                            // Botón para añadir escudo
-                            Button {
-                                let generator = UIImpactFeedbackGenerator(style: .light)
-                                generator.impactOccurred()
-                                
-                                withAnimation(.spring(response: 0.3, dampingFraction: 0.6)) {
-                                    habit.shields += 1
-                                    try? modelContext.save()
+                            // Botón para comprar escudo
+                            if let user = currentUser {
+                                let canAfford = user.totalXp >= GamificationEngine.shieldXPCost
+                                Button {
+                                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                                    generator.impactOccurred()
+                                    showingPurchaseConfirmation = true
+                                } label: {
+                                    HStack(spacing: 4) {
+                                        Image(systemName: "plus.circle.fill")
+                                            .font(.title2)
+                                        Text("\(GamificationEngine.shieldXPCost) XP")
+                                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                                    }
+                                    .foregroundStyle(canAfford ? Color.habPrimary : Color.secondary)
+                                    .padding(.horizontal, 10)
+                                    .padding(.vertical, 6)
+                                    .background(canAfford ? Color.habPrimary.opacity(0.1) : Color.primary.opacity(0.04))
+                                    .cornerRadius(Radius.sm)
                                 }
-                            } label: {
-                                Image(systemName: "plus.circle.fill")
-                                    .font(.title2)
-                                    .foregroundStyle(Color.habPrimary)
+                                .buttonStyle(.plain)
+                                .disabled(!canAfford)
                             }
-                            .buttonStyle(.plain)
                         }
                         .padding(14)
                         .background(Color.habCard)
@@ -204,6 +219,22 @@ struct HabitDetailView: View {
                     .fontWeight(.bold)
                     .foregroundStyle(Color.habPrimary)
                 }
+            }
+            .alert("Comprar Escudo 🛡️", isPresented: $showingPurchaseConfirmation) {
+                Button("Cancelar", role: .cancel) {}
+                Button("Comprar", role: .none) {
+                    if let user = currentUser {
+                        let success = GamificationEngine.purchaseShield(for: habit, user: user, context: modelContext)
+                        let generator = UINotificationFeedbackGenerator()
+                        if success {
+                            generator.notificationOccurred(.success)
+                        } else {
+                            generator.notificationOccurred(.error)
+                        }
+                    }
+                }
+            } message: {
+                Text("Se descontarán \(GamificationEngine.shieldXPCost) XP de tu cuenta para añadir 1 escudo a este hábito.")
             }
         }
     }

@@ -29,9 +29,7 @@ struct WatchDashboardView: View {
                     // ── Cabecera de Perfil ──
                     if let user = currentUser {
                         HStack(spacing: 6) {
-                            Image(systemName: "person.circle.fill")
-                                .foregroundStyle(.purple)
-                                .font(.system(size: 16))
+                            AvatarView(avatarString: user.avatarUrl, size: 20)
                             
                             VStack(alignment: .leading) {
                                 Text(user.name ?? "Héroe")

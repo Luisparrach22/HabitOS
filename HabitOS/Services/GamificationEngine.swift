@@ -20,6 +20,7 @@ struct GamificationEngine {
     static let baseXPPerCompletion = 50
     static let streakBonusFactor = 5 // +5 XP por día de racha
     static let xpPerLevel = 200
+    static let shieldXPCost = 150
     
     // MARK: - Otorgar / Restar XP por Hábito
     
@@ -62,6 +63,19 @@ struct GamificationEngine {
         user.level = calculateLevel(fromXP: user.totalXp)
         
         try? context.save()
+    }
+    
+    /// Permite comprar un escudo para un hábito deduciendo XP al usuario y actualizando su nivel.
+    @discardableResult
+    static func purchaseShield(for habit: Habit, user: User, context: ModelContext) -> Bool {
+        guard user.totalXp >= shieldXPCost else { return false }
+        
+        user.totalXp -= shieldXPCost
+        user.level = calculateLevel(fromXP: user.totalXp)
+        habit.shields += 1
+        
+        try? context.save()
+        return true
     }
     
     // MARK: - Cálculos de Nivel y Progreso

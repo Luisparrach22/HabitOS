@@ -25,38 +25,70 @@ struct HabitStreakWidgetEntryView: View {
         }
     }
 
-    // MARK: - Pantalla de Bloqueo: Circular
+    // MARK: - Pantalla de Bloqueo: Circular (Progreso Diario)
     private var circularLockScreenView: some View {
-        ZStack {
+        let completedCount = entry.habits.filter(\.isCompletedToday).count
+        let totalCount = entry.habits.count
+        
+        return ZStack {
             AccessoryWidgetBackground()
-            VStack(spacing: 1) {
-                Image(systemName: "flame.fill")
-                    .font(.caption)
-                Text("\(entry.totalStreak)")
-                    .font(.system(size: 16, weight: .bold))
+            
+            Circle()
+                .stroke(Color.white.opacity(0.15), lineWidth: 3.5)
+            
+            Circle()
+                .trim(from: 0, to: CGFloat(min(1.0, Double(completedCount) / Double(max(1, totalCount)))))
+                .stroke(Color.white, style: StrokeStyle(lineWidth: 3.5, lineCap: .round))
+                .rotationEffect(.degrees(-90))
+            
+            VStack(spacing: 0) {
+                Image(systemName: "checkmark.circle")
+                    .font(.system(size: 9))
+                Text("\(completedCount)/\(totalCount)")
+                    .font(.system(size: 9, weight: .bold, design: .rounded))
             }
         }
     }
 
-    // MARK: - Pantalla de Bloqueo: Rectangular
+    // MARK: - Pantalla de Bloqueo: Rectangular (Lista de Pendientes)
     private var rectangularLockScreenView: some View {
-        VStack(alignment: .leading, spacing: 2) {
-            HStack {
-                Image(systemName: "flame.fill")
-                Text("HabitOS • Nivel \(entry.userLevel)")
-                    .font(.caption2.bold())
+        let pending = entry.habits.filter { !$0.isCompletedToday }
+        
+        return VStack(alignment: .leading, spacing: 3) {
+            HStack(spacing: 4) {
+                Image(systemName: "checklist")
+                    .font(.caption2)
+                Text("PENDIENTES")
+                    .font(.system(size: 8, weight: .black))
+                    .foregroundColor(.secondary)
             }
-            Text("Racha: \(entry.totalStreak) días")
-                .font(.headline)
-            Text("\(entry.activeShields) Escudos Activos")
-                .font(.caption2)
-                .foregroundColor(.secondary)
+            
+            if pending.isEmpty {
+                Text("🎉 ¡Al día!")
+                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .foregroundColor(.primary)
+                    .padding(.top, 1)
+            } else {
+                VStack(alignment: .leading, spacing: 2) {
+                    ForEach(Array(pending.prefix(2))) { habit in
+                        HStack(spacing: 4) {
+                            Image(systemName: "circle")
+                                .font(.system(size: 7))
+                            Text(habit.title)
+                                .font(.system(size: 10, weight: .semibold, design: .rounded))
+                                .lineLimit(1)
+                        }
+                    }
+                }
+            }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 
     // MARK: - Pantalla de Bloqueo: En línea (Inline)
     private var inlineLockScreenView: some View {
-        Label("\(entry.totalStreak) días de racha • Nivel \(entry.userLevel)", systemImage: "flame.fill")
+        let pendingCount = entry.habits.filter { !$0.isCompletedToday }.count
+        return Label("🔥 Racha: \(entry.totalStreak) • Pendientes: \(pendingCount)", systemImage: "flame.fill")
     }
 
     // MARK: - Vista Pequeña para Inicio

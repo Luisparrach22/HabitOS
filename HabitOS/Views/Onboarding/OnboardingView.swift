@@ -230,6 +230,7 @@ struct OnboardingView: View {
                 email: "usuario@habitos.app",
                 name: finalName,
                 passwordHash: "local",
+                avatarUrl: "owl:0",
                 totalXp: 0,
                 level: 1,
                 timezone: TimeZone.current.identifier

@@ -53,7 +53,7 @@ struct ToggleHabitIntent: AppIntent {
         if let existingUser = try context.fetch(userDescriptor).first {
             user = existingUser
         } else {
-            let newUser = User(email: "hero@habitos.app", name: "Héroe", passwordHash: "local")
+            let newUser = User(email: "hero@habitos.app", name: "Héroe", passwordHash: "local", avatarUrl: "owl:0")
             context.insert(newUser)
             user = newUser
         }

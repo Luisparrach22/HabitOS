@@ -9,5 +9,16 @@
 		<string>Outfit-SemiBold.ttf</string>
 		<string>Outfit-Bold.ttf</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>con.habitos.HabitOS</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>habitos</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

@@ -61,7 +61,7 @@ struct HabitWidgetTimelineProvider: TimelineProvider {
             let context = container.mainContext
             
             let userDescriptor = FetchDescriptor<User>()
-            let user = try context.fetch(userDescriptor).first ?? User(email: "hero@habitos.app", name: "Héroe", passwordHash: "local")
+            let user = try context.fetch(userDescriptor).first ?? User(email: "hero@habitos.app", name: "Héroe", passwordHash: "local", avatarUrl: "owl:0")
             
             let habitDescriptor = FetchDescriptor<Habit>()
             let allHabits = try context.fetch(habitDescriptor)
