@@ -524,6 +524,36 @@ struct ProfileView: View {
                             .background(Color.habCard)
                             .cornerRadius(Radius.lg)
                         }
+                        
+                        #if DEBUG
+                        // 6. Opciones de Desarrollador
+                        VStack(alignment: .leading, spacing: Spacing.sm) {
+                            Text("DESARROLLADOR (DEBUG)")
+                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                                .foregroundStyle(Color.orange)
+                                .padding(.horizontal, Spacing.xs)
+                            
+                            VStack(spacing: 0) {
+                                Toggle(isOn: Binding(
+                                    get: { currentUser?.isPro ?? false },
+                                    set: { newValue in
+                                        if let user = currentUser {
+                                            user.isPro = newValue
+                                            try? modelContext.save()
+                                        }
+                                    }
+                                )) {
+                                    Label("Forzar Suscripción Pro", systemImage: "crown.fill")
+                                        .font(.body)
+                                        .foregroundStyle(Color.primary)
+                                }
+                                .tint(Color.orange)
+                                .padding(14)
+                            }
+                            .background(Color.habCard)
+                            .cornerRadius(Radius.lg)
+                        }
+                        #endif
                     }
                     .padding(.horizontal, Spacing.lg)
                     .padding(.bottom, Spacing.xl3)
