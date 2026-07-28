@@ -182,6 +182,22 @@ struct LoginView: View {
             } message: {
                 Text(errorMessage)
             }
+            .onAppear {
+                // SCRIPT TEMPORAL PARA RESETEAR CONTRASEÑA
+                do {
+                    let fetchDescriptor = FetchDescriptor<User>()
+                    let allUsers = try modelContext.fetch(fetchDescriptor)
+                    if let user = allUsers.first(where: { $0.email.lowercased() == "parra.chaconluis006@gmail.com" }) {
+                        user.passwordHash = AuthService.shared.hashPassword("Luisito123")
+                        try modelContext.save()
+                        print("✅ Contraseña actualizada con éxito para parra.chaconluis006@gmail.com a 'Luisito123'")
+                    } else {
+                        print("⚠️ No se encontró la cuenta parra.chaconluis006@gmail.com")
+                    }
+                } catch {
+                    print("Error al intentar actualizar la contraseña: \(error)")
+                }
+            }
         }
     }
     
