@@ -13,6 +13,7 @@ struct HabitOSApp: App {
     
     // Estado persistido localmente para detectar primer inicio
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding: Bool = false
+    @AppStorage("currentUserId") private var currentUserId: String = ""
     @AppStorage("appThemeMode") private var appThemeMode: String = "system"
     
     private var colorScheme: ColorScheme? {
@@ -26,15 +27,17 @@ struct HabitOSApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if hasCompletedOnboarding {
+                if !hasCompletedOnboarding {
+                    OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
+                } else if currentUserId.isEmpty {
+                    LoginView()
+                } else {
                     MainTabView()
                         .onAppear {
                             Task {
                                 await StoreManager.shared.checkActiveSubscriptions(modelContext: ModelContainer.shared.mainContext)
                             }
                         }
-                } else {
-                    OnboardingView(hasCompletedOnboarding: $hasCompletedOnboarding)
                 }
             }
             .preferredColorScheme(colorScheme)

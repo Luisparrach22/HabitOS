@@ -63,8 +63,10 @@ struct ProfileView: View {
     @State private var showingImportErrorAlert = false
     @State private var importErrorMessage = ""
     
+    @AppStorage("currentUserId") private var currentUserId: String = ""
+    
     private var currentUser: User? {
-        users.first
+        users.first(where: { $0.id == currentUserId })
     }
     
     private var totalShieldsCount: Int {
@@ -551,6 +553,27 @@ struct ProfileView: View {
                                         .foregroundStyle(Color.secondary)
                                 }
                                 .padding(14)
+                                
+                                Divider()
+                                    .opacity(0.5)
+                                
+                                // Cerrar Sesión
+                                Button {
+                                    let generator = UIImpactFeedbackGenerator(style: .medium)
+                                    generator.impactOccurred()
+                                    withAnimation {
+                                        currentUserId = ""
+                                    }
+                                } label: {
+                                    HStack {
+                                        Label("Cerrar Sesión", systemImage: "arrow.right.square")
+                                            .font(.body)
+                                            .foregroundStyle(Color.habDanger)
+                                        Spacer()
+                                    }
+                                    .padding(14)
+                                }
+                                .buttonStyle(.plain)
                             }
                             .background(Color.habCard)
                             .cornerRadius(Radius.lg)
