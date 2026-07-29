@@ -272,9 +272,9 @@ struct RegisterView: View {
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+        Task {
             do {
-                let user = try AuthService.shared.register(
+                let user = try await AuthService.shared.registerWithSupabase(
                     name: name,
                     email: email,
                     password: password,

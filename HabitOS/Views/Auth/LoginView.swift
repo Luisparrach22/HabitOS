@@ -218,10 +218,16 @@ struct LoginView: View {
         let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
         
-        // Simular un retraso sutil de red/base de datos para el loading indicator
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+        Task {
             do {
-                let user = try AuthService.shared.login(email: email, password: password, modelContext: modelContext)
+                let user: User
+                do {
+                    user = try await AuthService.shared.loginWithSupabase(email: email, password: password, modelContext: modelContext)
+                } catch {
+                    // Fallback a login local si no hay internet o falla la red
+                    user = try AuthService.shared.login(email: email, password: password, modelContext: modelContext)
+                }
+                
                 hapticGenerator.notificationOccurred(.success)
                 withAnimation {
                     currentUserId = user.id

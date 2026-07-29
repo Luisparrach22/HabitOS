@@ -95,4 +95,87 @@ class AuthService {
             throw NSError(domain: "AuthService", code: 401, userInfo: [NSLocalizedDescriptionKey: "El correo electrónico o la contraseña son incorrectos."])
         }
     }
+    
+    // MARK: - Supabase Async Integration
+    
+    /// Registra al usuario en Supabase Auth y sincroniza el perfil y hábitos en SwiftData y Supabase SQL
+    func registerWithSupabase(name: String, email: String, password: String, modelContext: ModelContext) async throws -> User {
+        let cleanEmail = email.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // 1. Registrar en Supabase Auth
+        let supabaseUserId = try await SupabaseService.shared.signUp(email: cleanEmail, password: password, name: name)
+        
+        // 2. Registrar/Actualizar localmente en SwiftData
+        let localUser = try register(name: name, email: cleanEmail, password: password, modelContext: modelContext)
+        
+        // Sincronizar ID de Supabase si aplica
+        localUser.id = supabaseUserId
+        try modelContext.save()
+        
+        // 3. Sincronizar todos los hábitos del usuario con Supabase
+        if let habits = localUser.habits {
+            for habit in habits {
+                let habitDTO = HabitDTO(
+                    id: habit.id,
+                    userId: supabaseUserId,
+                    name: habit.name,
+                    description: habit.habitDescription,
+                    trigger: habit.trigger,
+                    frequency: habit.frequency.rawValue,
+                    color: habit.color,
+                    icon: habit.icon,
+                    currentStreak: habit.currentStreak,
+                    maxStreak: habit.maxStreak,
+                    shields: habit.shields,
+                    createdAt: habit.createdAt
+                )
+                try? await SupabaseService.shared.syncHabit(habitDTO)
+            }
+        }
+        
+        return localUser
+    }
+    
+    /// Inicia sesión con Supabase Auth y sincroniza los datos locales
+    func loginWithSupabase(email: String, password: String, modelContext: ModelContext) async throws -> User {
+        let cleanEmail = email.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        // 1. Iniciar sesión en Supabase Auth
+        let supabaseUserId = try await SupabaseService.shared.signIn(email: cleanEmail, password: password)
+        
+        // 2. Intentar buscar o crear localmente
+        let passwordHash = hashPassword(password)
+        let fetchDescriptor = FetchDescriptor<User>()
+        let allUsers = try modelContext.fetch(fetchDescriptor)
+        
+        let user: User
+        if let matchedUser = allUsers.first(where: { $0.email == cleanEmail }) {
+            matchedUser.passwordHash = passwordHash
+            matchedUser.id = supabaseUserId
+            user = matchedUser
+        } else {
+            let newUser = User(
+                id: supabaseUserId,
+                email: cleanEmail,
+                passwordHash: passwordHash,
+                timezone: TimeZone.current.identifier
+            )
+            modelContext.insert(newUser)
+            user = newUser
+        }
+        
+        try modelContext.save()
+        
+        // 3. Intentar obtener datos actualizados del perfil desde Supabase
+        if let remoteUser = try? await SupabaseService.shared.fetchUser(id: supabaseUserId) {
+            user.name = remoteUser.name
+            user.totalXp = remoteUser.totalXp
+            user.level = remoteUser.level
+            user.avatarUrl = remoteUser.avatarUrl
+            try modelContext.save()
+        }
+        
+        return user
+    }
 }
+

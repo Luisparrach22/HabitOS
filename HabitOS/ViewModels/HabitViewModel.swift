@@ -48,9 +48,14 @@ final class HabitViewModel {
         if habit.isCompletedToday {
             // Desmarcar: eliminar el log de hoy
             if let todayLog = (habit.logs ?? []).first(where: { calendar.isDateInToday($0.completedAt) }) {
+                let logIdToDelete = todayLog.id
                 context.delete(todayLog)
                 if let index = (habit.logs ?? []).firstIndex(where: { $0.id == todayLog.id }) {
                     habit.logs?.remove(at: index)
+                }
+                
+                Task {
+                    try? await SupabaseService.shared.deleteHabitLog(id: logIdToDelete)
                 }
             }
             
@@ -68,6 +73,17 @@ final class HabitViewModel {
             }
             habit.logs?.append(newLog)
             
+            let logDTO = HabitLogDTO(
+                id: newLog.id,
+                habitId: newLog.habitId,
+                completedAt: newLog.completedAt,
+                value: newLog.value,
+                notes: newLog.notes
+            )
+            Task {
+                try? await SupabaseService.shared.syncHabitLog(logDTO)
+            }
+            
             // Recalcular racha y otorgar XP
             StreakEngine.updateStreak(for: habit)
             if let currentUser = user {
@@ -80,6 +96,40 @@ final class HabitViewModel {
         }
         
         try? context.save()
+        
+        // Sincronizar actualización de racha del hábito y XP de usuario a Supabase
+        let habitDTO = HabitDTO(
+            id: habit.id,
+            userId: habit.userId,
+            name: habit.name,
+            description: habit.habitDescription,
+            trigger: habit.trigger,
+            frequency: habit.frequency.rawValue,
+            color: habit.color,
+            icon: habit.icon,
+            currentStreak: habit.currentStreak,
+            maxStreak: habit.maxStreak,
+            shields: habit.shields,
+            createdAt: habit.createdAt
+        )
+        
+        Task {
+            try? await SupabaseService.shared.syncHabit(habitDTO)
+            if let currentUser = user {
+                let userDTO = UserDTO(
+                    id: currentUser.id,
+                    email: currentUser.email,
+                    name: currentUser.name,
+                    passwordHash: currentUser.passwordHash,
+                    avatarUrl: currentUser.avatarUrl,
+                    totalXp: currentUser.totalXp,
+                    level: currentUser.level,
+                    timezone: currentUser.timezone,
+                    createdAt: currentUser.createdAt
+                )
+                try? await SupabaseService.shared.syncUser(userDTO)
+            }
+        }
     }
     
     // MARK: - Uso de Escudos

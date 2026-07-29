@@ -322,6 +322,25 @@ struct CreateHabitView: View {
         do {
             try modelContext.save()
             
+            // Sincronizar en la nube con Supabase
+            let dto = HabitDTO(
+                id: newHabit.id,
+                userId: ownerId,
+                name: newHabit.name,
+                description: newHabit.habitDescription,
+                trigger: newHabit.trigger,
+                frequency: newHabit.frequency.rawValue,
+                color: newHabit.color,
+                icon: newHabit.icon,
+                currentStreak: newHabit.currentStreak,
+                maxStreak: newHabit.maxStreak,
+                shields: newHabit.shields,
+                createdAt: newHabit.createdAt
+            )
+            Task {
+                try? await SupabaseService.shared.syncHabit(dto)
+            }
+            
             if enableReminder {
                 NotificationService.shared.requestAuthorization { granted in
                     if granted {
