@@ -183,19 +183,31 @@ struct LoginView: View {
                 Text(errorMessage)
             }
             .onAppear {
-                // SCRIPT TEMPORAL PARA RESETEAR CONTRASEÑA
+                // SCRIPT TEMPORAL PARA RESETEAR/CREAR USUARIO DE PRUEBA
                 do {
                     let fetchDescriptor = FetchDescriptor<User>()
                     let allUsers = try modelContext.fetch(fetchDescriptor)
-                    if let user = allUsers.first(where: { $0.email.lowercased() == "parra.chaconluis006@gmail.com" }) {
-                        user.passwordHash = AuthService.shared.hashPassword("Luisito123")
+                    let targetEmail = "parra.chaconluis006@gmail.com"
+                    let targetPassword = "Luisito123"
+                    let passwordHash = AuthService.shared.hashPassword(targetPassword)
+                    
+                    if let user = allUsers.first(where: { $0.email.lowercased() == targetEmail }) {
+                        user.passwordHash = passwordHash
                         try modelContext.save()
-                        print("✅ Contraseña actualizada con éxito para parra.chaconluis006@gmail.com a 'Luisito123'")
+                        print("✅ Contraseña actualizada con éxito para \(targetEmail) a '\(targetPassword)'")
                     } else {
-                        print("⚠️ No se encontró la cuenta parra.chaconluis006@gmail.com")
+                        let newUser = User(
+                            email: targetEmail,
+                            name: "Luis Parra",
+                            passwordHash: passwordHash,
+                            timezone: TimeZone.current.identifier
+                        )
+                        modelContext.insert(newUser)
+                        try modelContext.save()
+                        print("✅ Cuenta de prueba creada con éxito: \(targetEmail) / \(targetPassword)")
                     }
                 } catch {
-                    print("Error al intentar actualizar la contraseña: \(error)")
+                    print("Error al intentar actualizar/crear el usuario de prueba: \(error)")
                 }
             }
         }

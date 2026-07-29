@@ -65,6 +65,13 @@ struct GamificationEngine {
         try? context.save()
     }
     
+    /// Otorga una cantidad directa de XP de bonificación (ej. por misiones o pomodoro).
+    static func addBonusXP(amount: Int, to user: User, context: ModelContext) {
+        user.totalXp += amount
+        user.level = calculateLevel(fromXP: user.totalXp)
+        try? context.save()
+    }
+    
     /// Permite comprar un escudo para un hábito deduciendo XP al usuario y actualizando su nivel.
     @discardableResult
     static func purchaseShield(for habit: Habit, user: User, context: ModelContext) -> Bool {

@@ -41,34 +41,35 @@ Este documento sirve como hoja de ruta (roadmap) para el desarrollo nativo de **
   - Limitación de hasta 5 hábitos para usuarios básicos.
   - Bloqueo y desenfoque del Heatmap en estadísticas y 6 colores exclusivos para usuarios Pro.
 
+### 🟢 Sprint 11: Personalización Estética y Temas (Completado)
+* **Objetivo:** Permitir al usuario cambiar la interfaz visual de la app y desbloquear opciones avanzadas.
+* **Componentes:**
+  * **Selector de Temas:** Opciones en perfil/configuración para cambiar entre Modo Oscuro, Modo Claro y Sincronización con el sistema (`Theme.swift`).
+  * **Temas Premium (Pro):** Temas de color globales (*Cyberpunk*, *Minimal Dark*, *Sunset Warm*) que alteran dinámicamente fondos y acentos.
+  * **Icono de la App Alternativo:** Cambio de icono de la aplicación en tiempo de ejecución para usuarios Pro (`setAlternateIconName`).
+
+### 🟢 Sprint 12: Portabilidad de Datos (CSV/JSON Export) (Completado)
+* **Objetivo:** Ofrecer exportación e importación de datos al usuario.
+* **Componentes:**
+  * **Exportador de Datos:** Servicio `DataPortabilityService.swift` que serializa `User`, `Habit`, `HabitLog` y `ShieldUsage` a JSON (completo) y CSV (para hojas de cálculo).
+  * **Interfaz de Importación/Exportación:** Integración con `fileExporter` y `fileImporter` en `ProfileView.swift`.
+
+### 🟢 Sprint 13: Autenticación e Identidad (Completado)
+* **Objetivo:** Sistema de cuentas y gestión de sesiones de usuario.
+* **Componentes:**
+  * **Vistas de Autenticación:** Vistas nativas `LoginView.swift`, `RegisterView.swift` y `ForgotPasswordView.swift` en `Views/Auth`.
+  * **Servicio de Autenticación:** `AuthService.swift` con hashing seguro SHA-256 (CryptoKit), inicio y cierre de sesión persistiéndose en `SwiftData`.
+
+### 🟢 Sprint 14: Widgets de Pantalla de Inicio Avanzados (Completado)
+* **Objetivo:** Expandir la variedad de widgets en la pantalla de inicio de iOS.
+* **Componentes:**
+  * **Widget de Racha Semanal:** `WeeklyStreakWidget.swift` para visualización de los últimos 7 días.
+  * **Widget de Gamificación:** `GamificationWidget.swift` que muestra el nivel, barra de XP y escudos disponibles.
+  * **Widgets Adicionales:** `HabitStreakWidget.swift`, `HabitDailyWidget.swift` y `HabitQuickAddWidget.swift`.
+
 ---
 
 ## 🚀 Backlog de Sprints Pendientes
 
 > [!NOTE]
-> Los siguientes sprints están planificados para ser ejecutados a continuación. Puedes elegir cualquiera de ellos para comenzar a trabajar.
-
-### 🎨 Sprint 11: Personalización Estética y Temas
-* **Descripción:** Permitir al usuario cambiar la interfaz visual de la app y desbloquear opciones avanzadas.
-* **Lista de Tareas:**
-  * [ ] **Selector de Temas:** Añadir la opción en configuración para cambiar el tema de la aplicación (Modo Oscuro, Modo Claro, o sincronización con el sistema).
-  * [ ] **Temas Premium (Pro):** Crear al menos 3 temas de color globales (ej. *Cyberpunk*, *Minimal Dark*, *Sunset Warm*) que alteren los fondos y acentos principales.
-  * [ ] **Icono de la App Alternativo:** Permitir a usuarios premium cambiar el icono de la app en la pantalla de inicio del dispositivo.
-
-### 💾 Sprint 12: Portabilidad de Datos (CSV/JSON Export)
-* **Descripción:** Ofrecer exportación y control de datos al usuario (función Pro).
-* **Lista de Tareas:**
-  * [ ] **Exportador de Datos:** Crear un servicio que serialice todos los datos locales de `User`, `Habit` y `HabitLog` a archivos estándar (JSON o CSV).
-  * [ ] **Interfaz para Guardar:** Integrar `ShareLink` o `UIDocumentPickerViewController` para que el usuario guarde el archivo exportado en su app Archivos (Files) o lo envíe por correo.
-
-### 🔐 Sprint 13: Autenticación e Identidad
-* **Descripción:** Implementar sistema de cuentas propio si la sincronización silenciosa de CloudKit no es suficiente para futuras integraciones.
-* **Lista de Tareas:**
-  * [ ] **Vistas de Autenticación:** Diseñar la UI en la carpeta vacía `/Views/Auth` para Login, Registro y Recuperación de Contraseña.
-  * [ ] **Sincronización:** Acoplar la sincronización a un backend remoto si la aplicación se vuelve multiplataforma.
-
-### 📱 Sprint 14: Widgets de Pantalla de Inicio Avanzados
-* **Descripción:** Expandir la presencia de la app en el dispositivo del usuario con más variedad de widgets.
-* **Lista de Tareas:**
-  * [ ] **Widget de Racha Semanal:** Mostrar un gráfico visual del progreso de los últimos 7 días de un hábito en específico directamente en la pantalla de inicio.
-  * [ ] **Widget de Gamificación:** Mostrar el nivel actual del usuario, barra de XP y número de escudos disponibles en formato de widget pequeño/mediano.
+> Todos los sprints planificados actualmente en el roadmap han sido completados exitosamente.

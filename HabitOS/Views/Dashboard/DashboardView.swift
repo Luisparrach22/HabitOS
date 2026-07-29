@@ -107,6 +107,17 @@ struct DashboardView: View {
                             maxCurrentStreak: maxCurrentStreak
                         )
                         
+                        // 2b. Misión Boss Battle Semanal
+                        BossBattleCard(
+                            habits: habits,
+                            user: currentUser,
+                            onClaimReward: {
+                                if let user = currentUser {
+                                    GamificationEngine.addBonusXP(amount: 200, to: user, context: modelContext)
+                                }
+                            }
+                        )
+                        
                         // 3. Hábitos
                         if habits.isEmpty {
                             emptyStateView
@@ -114,9 +125,11 @@ struct DashboardView: View {
                             habitsListView
                         }
                     }
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, Spacing.lg)
                     .padding(.bottom, Spacing.xl3)
                 }
+                .scrollBounceBehavior(.basedOnSize, axes: .vertical)
             }
             .navigationTitle("Mi Día")
             .toolbar {

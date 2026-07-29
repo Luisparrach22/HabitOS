@@ -7,6 +7,7 @@
 
 import SwiftUI
 import StoreKit
+import SwiftData
 
 struct PaywallView: View {
     @Environment(\.dismiss) private var dismiss
@@ -22,10 +23,11 @@ struct PaywallView: View {
     
     // Lista de beneficios premium con iconos llamativos
     private let benefits = [
-        BenefitItem(icon: "infinity", color: "#8B5CF6", title: "Hábitos Ilimitados", desc: "Supera el límite de 5 hábitos activos y añade todos los que necesites."),
-        BenefitItem(icon: "paintpalette.fill", color: "#EC4899", title: "Colores Premium", desc: "Desbloquea 6 colores exclusivos para personalizar al máximo tus hábitos."),
-        BenefitItem(icon: "calendar.badge.clock", color: "#00F5D4", title: "Mapa de Calor Avanzado", desc: "Visualiza tu consistencia mensual con la rejilla completa en Estadísticas."),
-        BenefitItem(icon: "lock.shield.fill", color: "#F5A623", title: "Acceso Futuro Completo", desc: "Sé el primero en disfrutar de todos los nuevos complementos de personalización.")
+        BenefitItem(icon: "timer", color: "#00F5D4", title: "Modo Enfoque & Audio", desc: "Cronómetro Pomodoro de hasta 120 min con paisajes sonoros ambientales y 2X XP."),
+        BenefitItem(icon: "dragon.fill", color: "#FF3B30", title: "Misiones Boss Battles", desc: "Enfrenta al Monstruo de la Procrastinación semanalmente y reclama recompensas legendarias."),
+        BenefitItem(icon: "brain.head.profile", color: "#8B5CF6", title: "Diagnóstico Inteligente", desc: "Descubre tu Día de Oro, alertas de racha en riesgo y patrones de horario de alto rendimiento."),
+        BenefitItem(icon: "infinity", color: "#EC4899", title: "Hábitos Ilimitados", desc: "Supera el límite de 5 hábitos activos y añade todos los que necesites."),
+        BenefitItem(icon: "paintpalette.fill", color: "#F5A623", title: "Temas, Colores & Iconos", desc: "Desbloquea temas globales (Cyberpunk, Minimal Dark), 6 colores Pro e iconos alternativos.")
     ]
     
     var body: some View {
@@ -186,7 +188,9 @@ struct PaywallView: View {
                         .opacity(animateItems ? 1.0 : 0.0)
                         .animation(.easeOut(duration: 0.5).delay(0.6), value: animateItems)
                     }
+                    .frame(maxWidth: .infinity)
                 }
+                .scrollBounceBehavior(.basedOnSize, axes: .vertical)
                 
                 // Botón de Compra + Enlaces Legales en la base
                 VStack(spacing: Spacing.md) {

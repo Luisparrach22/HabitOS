@@ -6,7 +6,6 @@
 
 import SwiftUI
 import SwiftData
-import UniformTypeIdentifiers
 
 enum AchievementCategory: String, CaseIterable, Identifiable {
     case all = "Todos"
@@ -43,8 +42,6 @@ struct ProfileView: View {
     
     @Query private var users: [User]
     @Query private var habits: [Habit]
-    
-    @AppStorage("areNotificationsEnabled") private var areNotificationsEnabled: Bool = false
     @AppStorage("appThemeMode") private var appThemeMode: String = "system"
     @AppStorage("selectedGlobalTheme") private var selectedGlobalTheme: String = "Original"
     
@@ -55,13 +52,6 @@ struct ProfileView: View {
     @State private var showingShieldShop = false
     @State private var showingPaywall = false
     @State private var showingAllAchievements = false
-    
-    @State private var showingExportPicker = false
-    @State private var showingImportPicker = false
-    @State private var exportDocument: JSONDocument? = nil
-    @State private var showingImportSuccessAlert = false
-    @State private var showingImportErrorAlert = false
-    @State private var importErrorMessage = ""
     
     @AppStorage("currentUserId") private var currentUserId: String = ""
     
@@ -447,73 +437,7 @@ struct ProfileView: View {
                             .cornerRadius(Radius.lg)
                         }
                         
-                        // 5. Copia de Seguridad
-                        VStack(alignment: .leading, spacing: Spacing.sm) {
-                            Text("COPIA DE SEGURIDAD (PRO)")
-                                .font(.system(size: 10, weight: .bold, design: .rounded))
-                                .foregroundStyle(Color.secondary)
-                                .padding(.horizontal, Spacing.xs)
-                            
-                            VStack(spacing: 0) {
-                                // 1. Exportar Datos
-                                Button {
-                                    let isPro = currentUser?.isPro ?? false
-                                    if !isPro {
-                                        showingPaywall = true
-                                    } else if let user = currentUser {
-                                        do {
-                                            let data = try DataPortabilityService.shared.exportBackup(user: user, habits: habits)
-                                            exportDocument = JSONDocument(data: data)
-                                            showingExportPicker = true
-                                        } catch {
-                                            importErrorMessage = error.localizedDescription
-                                            showingImportErrorAlert = true
-                                        }
-                                    }
-                                } label: {
-                                    HStack {
-                                        Label("Exportar Copia de Seguridad", systemImage: "doc.badge.arrow.up")
-                                            .font(.body)
-                                            .foregroundStyle(Color.primary)
-                                        Spacer()
-                                        Image(systemName: "chevron.right")
-                                            .font(.footnote)
-                                            .foregroundStyle(Color.secondary)
-                                    }
-                                    .padding(14)
-                                }
-                                .buttonStyle(.plain)
-                                
-                                Divider()
-                                    .opacity(0.5)
-                                
-                                // 2. Importar Datos
-                                Button {
-                                    let isPro = currentUser?.isPro ?? false
-                                    if !isPro {
-                                        showingPaywall = true
-                                    } else {
-                                        showingImportPicker = true
-                                    }
-                                } label: {
-                                    HStack {
-                                        Label("Importar Copia de Seguridad", systemImage: "doc.badge.arrow.down")
-                                            .font(.body)
-                                            .foregroundStyle(Color.primary)
-                                        Spacer()
-                                        Image(systemName: "chevron.right")
-                                            .font(.footnote)
-                                            .foregroundStyle(Color.secondary)
-                                    }
-                                    .padding(14)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                            .background(Color.habCard)
-                            .cornerRadius(Radius.lg)
-                        }
-                        
-                        // 6. Ajustes de la App
+                        // 5. Ajustes de la App
                         VStack(alignment: .leading, spacing: Spacing.sm) {
                             Text("AJUSTES")
                                 .font(.system(size: 10, weight: .bold, design: .rounded))
@@ -521,28 +445,6 @@ struct ProfileView: View {
                                 .padding(.horizontal, Spacing.xs)
                             
                             VStack(spacing: 0) {
-                                Toggle(isOn: Binding(
-                                    get: { areNotificationsEnabled },
-                                    set: { newValue in
-                                        if newValue {
-                                            NotificationService.shared.requestAuthorization { granted in
-                                                areNotificationsEnabled = granted
-                                            }
-                                        } else {
-                                            areNotificationsEnabled = false
-                                        }
-                                    }
-                                )) {
-                                    Label("Notificaciones locales", systemImage: "bell.fill")
-                                        .font(.body)
-                                        .foregroundStyle(Color.primary)
-                                }
-                                .tint(Color.habPrimary)
-                                .padding(14)
-                                
-                                Divider()
-                                    .opacity(0.5)
-                                
                                 HStack {
                                     Label("Zona Horaria", systemImage: "globe")
                                         .font(.body)
@@ -609,9 +511,11 @@ struct ProfileView: View {
                         }
                         #endif
                     }
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, Spacing.lg)
                     .padding(.bottom, Spacing.xl3)
                 }
+                .scrollBounceBehavior(.basedOnSize, axes: .vertical)
             }
             .navigationTitle("Perfil")
             .sheet(isPresented: $showingEditProfile) {
@@ -639,62 +543,6 @@ struct ProfileView: View {
                     filteredAchievements: filteredAchievements,
                     unlockedCount: unlockedCount
                 )
-            }
-            .fileExporter(
-                isPresented: $showingExportPicker,
-                document: exportDocument,
-                contentType: .json,
-                defaultFilename: "HabitOS-Backup"
-            ) { result in
-                switch result {
-                case .success(let url):
-                    print("Copia de seguridad exportada con éxito en: \(url)")
-                case .failure(let error):
-                    print("Error al exportar copia de seguridad: \(error.localizedDescription)")
-                }
-            }
-            .fileImporter(
-                isPresented: $showingImportPicker,
-                allowedContentTypes: [.json],
-                allowsMultipleSelection: false
-            ) { result in
-                switch result {
-                case .success(let urls):
-                    guard let selectedURL = urls.first else { return }
-                    
-                    guard selectedURL.startAccessingSecurityScopedResource() else {
-                        importErrorMessage = "No se pudo acceder al archivo seleccionado debido a restricciones de seguridad de iOS."
-                        showingImportErrorAlert = true
-                        return
-                    }
-                    
-                    defer {
-                        selectedURL.stopAccessingSecurityScopedResource()
-                    }
-                    
-                    do {
-                        let data = try Data(contentsOf: selectedURL)
-                        try DataPortabilityService.shared.importBackup(data: data, modelContext: modelContext)
-                        showingImportSuccessAlert = true
-                    } catch {
-                        importErrorMessage = error.localizedDescription
-                        showingImportErrorAlert = true
-                    }
-                    
-                case .failure(let error):
-                    importErrorMessage = error.localizedDescription
-                    showingImportErrorAlert = true
-                }
-            }
-            .alert("Copia de seguridad restaurada", isPresented: $showingImportSuccessAlert) {
-                Button("Entendido", role: .cancel) { }
-            } message: {
-                Text("Tus datos de usuario, hábitos e historial se han restaurado correctamente.")
-            }
-            .alert("Error en la restauración", isPresented: $showingImportErrorAlert) {
-                Button("Aceptar", role: .cancel) { }
-            } message: {
-                Text(importErrorMessage)
             }
             .onAppear {
                 currentAppIcon = UIApplication.shared.alternateIconName ?? "default"

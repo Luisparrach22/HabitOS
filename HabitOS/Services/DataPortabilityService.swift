@@ -255,4 +255,23 @@ class DataPortabilityService {
         
         try modelContext.save()
     }
+    
+    /// Exporta la lista de hábitos y su estado actual en formato CSV para hojas de cálculo
+    func exportCSV(user: User, habits: [Habit]) -> String {
+        var csvString = "Hábito,Descripción,Frecuencia,Racha Actual,Racha Máxima,Escudos,Fecha Creación,Registros Completados\n"
+        
+        let dateFormatter = ISO8601DateFormatter()
+        for habit in habits {
+            let logsCount = habit.logs?.count ?? 0
+            let nameClean = "\"\(habit.name.replacingOccurrences(of: "\"", with: "\"\""))\""
+            let descClean = "\"\( (habit.habitDescription ?? "").replacingOccurrences(of: "\"", with: "\"\"") )\""
+            let freq = habit.frequency.rawValue
+            let created = dateFormatter.string(from: habit.createdAt)
+            
+            let row = "\(nameClean),\(descClean),\(freq),\(habit.currentStreak),\(habit.maxStreak),\(habit.shields),\(created),\(logsCount)\n"
+            csvString.append(row)
+        }
+        
+        return csvString
+    }
 }

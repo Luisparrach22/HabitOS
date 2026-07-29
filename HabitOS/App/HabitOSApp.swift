@@ -41,6 +41,9 @@ struct HabitOSApp: App {
                 }
             }
             .preferredColorScheme(colorScheme)
+            .onAppear {
+                NotificationService.shared.requestAuthorization()
+            }
         }
         // Registramos el contenedor de SwiftData unificado e integrado con CloudKit y App Groups.
         .modelContainer(ModelContainer.shared)

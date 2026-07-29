@@ -16,6 +16,7 @@ struct HabitDetailView: View {
     
     @Query private var users: [User]
     @State private var showingPurchaseConfirmation = false
+    @State private var showingFocusTimer = false
     
     private var currentUser: User? {
         users.first
@@ -186,9 +187,33 @@ struct HabitDetailView: View {
                         .padding(.horizontal, Spacing.lg)
                     }
                     
-                    Spacer()
+                    // 4. Botón Iniciar Modo Enfoque
+                    Button {
+                        showingFocusTimer = true
+                    } label: {
+                        HStack {
+                            Image(systemName: "timer")
+                            Text("Iniciar Modo Enfoque")
+                                .fontWeight(.bold)
+                        }
+                        .font(.system(.body, design: .rounded))
+                        .foregroundStyle(.white)
+                        .frame(maxWidth: .infinity)
+                        .frame(height: 50)
+                        .background(
+                            LinearGradient(
+                                colors: [habit.swiftUIColor, Color(hex: "#00F5D4")],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                        )
+                        .cornerRadius(Radius.xl)
+                        .shadow(color: habit.swiftUIColor.opacity(0.3), radius: 8, y: 4)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, Spacing.lg)
                     
-                    // 4. Botón de Eliminar Hábito
+                    // 5. Botón de Eliminar Hábito
                     Button {
                         deleteHabit()
                     } label: {
@@ -208,6 +233,9 @@ struct HabitDetailView: View {
                     .padding(.horizontal, Spacing.lg)
                     .padding(.bottom, Spacing.xl)
                 }
+            }
+            .sheet(isPresented: $showingFocusTimer) {
+                FocusTimerSheet(habit: habit, isPro: currentUser?.isPro ?? false)
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {

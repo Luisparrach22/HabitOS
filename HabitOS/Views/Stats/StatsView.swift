@@ -151,6 +151,15 @@ struct StatsView: View {
                         .cornerRadius(Radius.xl2)
                         .shadow(color: Color.black.opacity(0.01), radius: 6, x: 0, y: 3)
                         
+                        // 2b. Diagnóstico Inteligente de Consistencia
+                        SmartInsightsCard(
+                            habits: habits,
+                            isPro: isUserPro,
+                            onOpenPaywall: {
+                                showingPaywall = true
+                            }
+                        )
+                        
                         // 3. Mapa de Calor (Heatmap / Calendario de Consistencia)
                         VStack(alignment: .leading, spacing: Spacing.md) {
                             HStack {
@@ -209,9 +218,11 @@ struct StatsView: View {
                         .cornerRadius(Radius.xl2)
                         .shadow(color: Color.black.opacity(0.01), radius: 6, x: 0, y: 3)
                     }
+                    .frame(maxWidth: .infinity)
                     .padding(.horizontal, Spacing.lg)
                     .padding(.bottom, Spacing.xl3)
                 }
+                .scrollBounceBehavior(.basedOnSize, axes: .vertical)
             }
             .navigationTitle("Estadísticas")
             .sheet(isPresented: $showingPaywall) {
