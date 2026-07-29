@@ -1,13 +1,14 @@
 // ──────────────────────────────────────────────
-// main.dart — Punto de Entrada de HabitOS en Flutter
+// main.dart — Punto de Entrada de HabitOS en Flutter (Clean Architecture)
 // ──────────────────────────────────────────────
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'config/supabase_config.dart';
-import 'services/supabase_service.dart';
-import 'models/user_model.dart';
-import 'models/habit_model.dart';
+import 'app/theme/app_theme.dart';
+import 'core/config/supabase_config.dart';
+import 'core/network/supabase_service.dart';
+import 'features/auth/data/user_model.dart';
+import 'features/habits/data/habit_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,15 +24,7 @@ class HabitOSApp extends StatelessWidget {
     return MaterialApp(
       title: 'HabitOS',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
-        scaffoldBackgroundColor: const Color(0xFF0F111A),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF8B5CF6),
-          secondary: Color(0xFFEC4899),
-          surface: Color(0xFF1A1D2B),
-        ),
-        textTheme: GoogleFonts.outfitTextTheme(ThemeData.dark().textTheme),
-      ),
+      theme: AppTheme.darkTheme,
       home: const MainTabScreen(),
     );
   }
@@ -71,7 +64,9 @@ class _MainTabScreenState extends State<MainTabScreen> {
     } catch (e) {
       debugPrint('Error cargando datos en Flutter: $e');
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -80,7 +75,7 @@ class _MainTabScreenState extends State<MainTabScreen> {
     if (_isLoading) {
       return const Scaffold(
         body: Center(
-          child: CircularProgressIndicator(color: Color(0xFF8B5CF6)),
+          child: CircularProgressIndicator(color: AppTheme.primary),
         ),
       );
     }
@@ -108,21 +103,21 @@ class _MainTabScreenState extends State<MainTabScreen> {
           setState(() => _selectedIndex = index);
         },
         backgroundColor: const Color(0xFF141724),
-        indicatorColor: const Color(0xFF8B5CF6).withOpacity(0.3),
+        indicatorColor: AppTheme.primary.withValues(alpha: 0.3),
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.check_circle_outline),
-            selectedIcon: Icon(Icons.check_circle, color: Color(0xFF8B5CF6)),
+            selectedIcon: Icon(Icons.check_circle, color: AppTheme.primary),
             label: 'Mi Día',
           ),
           NavigationDestination(
             icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart, color: Color(0xFF8B5CF6)),
+            selectedIcon: Icon(Icons.bar_chart, color: AppTheme.primary),
             label: 'Estadísticas',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person, color: Color(0xFF8B5CF6)),
+            selectedIcon: Icon(Icons.person, color: AppTheme.primary),
             label: 'Perfil',
           ),
         ],
@@ -164,13 +159,19 @@ class _AuthScreenState extends State<AuthScreen> {
         user = await SupabaseService.instance.signIn(email: email, password: password);
       }
 
-      widget.onLoginSuccess(user);
+      if (mounted) {
+        widget.onLoginSuccess(user);
+      }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.toString()), backgroundColor: Colors.redAccent),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.toString()), backgroundColor: Colors.redAccent),
+        );
+      }
     } finally {
-      setState(() => _isLoading = false);
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
@@ -183,7 +184,7 @@ class _AuthScreenState extends State<AuthScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.verified_sharp, size: 64, color: Color(0xFF8B5CF6)),
+              const Icon(Icons.verified_sharp, size: 64, color: AppTheme.primary),
               const SizedBox(height: 16),
               Text(
                 'HabitOS Flutter',
@@ -211,7 +212,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 width: double.infinity,
                 height: 50,
                 child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF8B5CF6)),
+                  style: ElevatedButton.styleFrom(backgroundColor: AppTheme.primary),
                   onPressed: _isLoading ? null : _submit,
                   child: _isLoading
                       ? const CircularProgressIndicator(color: Colors.white)
@@ -246,8 +247,6 @@ class DashboardTab extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('HabitOS (Nivel ${user.level})'),
-        backgroundColor: Colors.transparent,
-        elevation: 0,
       ),
       body: RefreshIndicator(
         onRefresh: () async => onRefresh(),
@@ -258,13 +257,13 @@ class DashboardTab extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: const Color(0xFF181B2B),
+                color: AppTheme.cardBackground,
                 borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFFF3B30).withOpacity(0.4)),
+                border: Border.all(color: AppTheme.danger.withValues(alpha: 0.4)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.bug_report, size: 40, color: Color(0xFFFF3B30)),
+                  const Icon(Icons.bug_report, size: 40, color: AppTheme.danger),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -273,7 +272,7 @@ class DashboardTab extends StatelessWidget {
                         Text('Jefe Semanal: Monstruo Procrastinación',
                             style: GoogleFonts.outfit(fontWeight: FontWeight.bold, color: Colors.white)),
                         const SizedBox(height: 4),
-                        LinearProgressIndicator(value: 0.7, color: const Color(0xFFFF3B30), backgroundColor: Colors.white10),
+                        const LinearProgressIndicator(value: 0.7, color: AppTheme.danger, backgroundColor: Colors.white10),
                       ],
                     ),
                   )
@@ -288,7 +287,7 @@ class DashboardTab extends StatelessWidget {
             ...habits.map((habit) => Card(
                   margin: const EdgeInsets.only(bottom: 8),
                   child: ListTile(
-                    leading: const Icon(Icons.fitness_center, color: Color(0xFF8B5CF6)),
+                    leading: const Icon(Icons.fitness_center, color: AppTheme.primary),
                     title: Text(habit.name),
                     subtitle: Text('Racha: ${habit.currentStreak} días'),
                     trailing: Checkbox(value: false, onChanged: (v) {}),
@@ -298,9 +297,9 @@ class DashboardTab extends StatelessWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: const Color(0xFF8B5CF6),
+        backgroundColor: AppTheme.primary,
         onPressed: () {
-          // Abrir dialogo crear habito
+          // Crear hábito
         },
         child: const Icon(Icons.add),
       ),
@@ -326,7 +325,7 @@ class StatsTab extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.analytics, size: 64, color: Color(0xFF8B5CF6)),
+            const Icon(Icons.analytics, size: 64, color: AppTheme.primary),
             const SizedBox(height: 16),
             Text('Tasa de Consistencia Pro', style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
@@ -355,10 +354,10 @@ class ProfileTab extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            const CircleAvatar(radius: 40, backgroundColor: Color(0xFF8B5CF6), child: Icon(Icons.person, size: 40)),
+            const CircleAvatar(radius: 40, backgroundColor: AppTheme.primary, child: Icon(Icons.person, size: 40)),
             const SizedBox(height: 12),
             Text(user.name ?? 'Usuario HabitOS', style: GoogleFonts.outfit(fontSize: 22, fontWeight: FontWeight.bold)),
-            Text(user.email, style: TextStyle(color: Colors.white70)),
+            Text(user.email, style: const TextStyle(color: Colors.white70)),
             const SizedBox(height: 24),
             ListTile(
               leading: const Icon(Icons.star, color: Colors.amber),
@@ -366,7 +365,7 @@ class ProfileTab extends StatelessWidget {
               trailing: Text('${user.totalXp} XP', style: const TextStyle(fontWeight: FontWeight.bold)),
             ),
             ListTile(
-              leading: const Icon(Icons.verified_user, color: Color(0xFF8B5CF6)),
+              leading: const Icon(Icons.verified_user, color: AppTheme.primary),
               title: const Text('Estado de la Cuenta'),
               trailing: Text(user.isPro ? 'PRO 👑' : 'GRATIS', style: const TextStyle(fontWeight: FontWeight.bold)),
             ),

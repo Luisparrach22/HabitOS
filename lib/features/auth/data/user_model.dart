@@ -1,5 +1,5 @@
 // ──────────────────────────────────────────────
-// user_model.dart — Modelo de Usuario en Dart
+// user_model.dart — Modelo de Dominio de Usuario
 // ──────────────────────────────────────────────
 
 class UserModel {

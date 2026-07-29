@@ -1,11 +1,11 @@
 // ──────────────────────────────────────────────
-// supabase_service.dart — Servicio de Supabase en Dart
+// supabase_service.dart — Capa de Red y Servicios Supabase
 // ──────────────────────────────────────────────
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../config/supabase_config.dart';
-import '../models/user_model.dart';
-import '../models/habit_model.dart';
+import '../../features/auth/data/user_model.dart';
+import '../../features/habits/data/habit_model.dart';
 
 class SupabaseService {
   static final SupabaseService instance = SupabaseService._internal();

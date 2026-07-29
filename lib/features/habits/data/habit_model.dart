@@ -1,5 +1,5 @@
 // ──────────────────────────────────────────────
-// habit_model.dart — Modelo de Hábito en Dart
+// habit_model.dart — Modelo de Dominio de Hábito
 // ──────────────────────────────────────────────
 
 class HabitModel {
