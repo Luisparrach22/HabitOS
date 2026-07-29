@@ -115,7 +115,7 @@ class AuthService {
         // 3. Sincronizar todos los hábitos del usuario con Supabase
         if let habits = localUser.habits {
             for habit in habits {
-                let habitDTO = HabitDTO(
+                let habitDTO = SupabaseHabitDTO(
                     id: habit.id,
                     userId: supabaseUserId,
                     name: habit.name,
@@ -172,6 +172,7 @@ class AuthService {
             user.totalXp = remoteUser.totalXp
             user.level = remoteUser.level
             user.avatarUrl = remoteUser.avatarUrl
+            user.isPro = remoteUser.isPro
             try modelContext.save()
         }
         

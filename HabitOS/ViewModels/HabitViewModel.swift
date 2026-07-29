@@ -73,7 +73,7 @@ final class HabitViewModel {
             }
             habit.logs?.append(newLog)
             
-            let logDTO = HabitLogDTO(
+            let logDTO = SupabaseHabitLogDTO(
                 id: newLog.id,
                 habitId: newLog.habitId,
                 completedAt: newLog.completedAt,
@@ -98,7 +98,7 @@ final class HabitViewModel {
         try? context.save()
         
         // Sincronizar actualización de racha del hábito y XP de usuario a Supabase
-        let habitDTO = HabitDTO(
+        let habitDTO = SupabaseHabitDTO(
             id: habit.id,
             userId: habit.userId,
             name: habit.name,
@@ -116,7 +116,7 @@ final class HabitViewModel {
         Task {
             try? await SupabaseService.shared.syncHabit(habitDTO)
             if let currentUser = user {
-                let userDTO = UserDTO(
+                let userDTO = SupabaseUserDTO(
                     id: currentUser.id,
                     email: currentUser.email,
                     name: currentUser.name,
@@ -124,6 +124,7 @@ final class HabitViewModel {
                     avatarUrl: currentUser.avatarUrl,
                     totalXp: currentUser.totalXp,
                     level: currentUser.level,
+                    isPro: currentUser.isPro,
                     timezone: currentUser.timezone,
                     createdAt: currentUser.createdAt
                 )

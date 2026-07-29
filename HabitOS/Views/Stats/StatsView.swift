@@ -23,9 +23,13 @@ struct StatsView: View {
     @Query private var users: [User]
     
     @State private var showingPaywall = false
+    @AppStorage("currentUserId") private var currentUserId: String = ""
     
     private var currentUser: User? {
-        users.first
+        if let matched = users.first(where: { $0.id == currentUserId }) {
+            return matched
+        }
+        return users.first(where: { $0.isPro }) ?? users.first
     }
     
     private var isUserPro: Bool {

@@ -7,7 +7,7 @@ import Supabase
 
 // MARK: - DTOs (Data Transfer Objects) para Supabase SQL
 
-struct UserDTO: Codable {
+struct SupabaseUserDTO: Codable {
     let id: String
     let email: String
     let name: String?
@@ -15,16 +15,17 @@ struct UserDTO: Codable {
     let avatarUrl: String?
     let totalXp: Int
     let level: Int
+    let isPro: Bool
     let timezone: String
     let createdAt: Date
     
     enum CodingKeys: String, CodingKey {
-        case id, email, name, avatarUrl, totalXp, level, timezone, createdAt
+        case id, email, name, avatarUrl, totalXp, level, isPro, timezone, createdAt
         case passwordHash = "passwordHash"
     }
 }
 
-struct HabitDTO: Codable {
+struct SupabaseHabitDTO: Codable {
     let id: String
     let userId: String
     let name: String
@@ -44,7 +45,7 @@ struct HabitDTO: Codable {
     }
 }
 
-struct HabitLogDTO: Codable {
+struct SupabaseHabitLogDTO: Codable {
     let id: String
     let habitId: String
     let completedAt: Date
@@ -52,7 +53,7 @@ struct HabitLogDTO: Codable {
     let notes: String?
 }
 
-struct ShieldUsageDTO: Codable {
+struct SupabaseShieldUsageDTO: Codable {
     let id: String
     let habitId: String
     let usedAt: Date
@@ -76,9 +77,10 @@ class SupabaseService {
         )
         
         let userId = authResponse.user.id.uuidString.lowercased()
+        let isPro = email.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) == "parra.chaconluis006@gmail.com"
         
         // Crear perfil en la tabla publica User
-        let userDTO = UserDTO(
+        let userDTO = SupabaseUserDTO(
             id: userId,
             email: email,
             name: name,
@@ -86,6 +88,7 @@ class SupabaseService {
             avatarUrl: nil,
             totalXp: 0,
             level: 1,
+            isPro: isPro,
             timezone: TimeZone.current.identifier,
             createdAt: Date()
         )
@@ -105,15 +108,15 @@ class SupabaseService {
     
     // MARK: - Operaciones de Usuario
     
-    func syncUser(_ userDTO: UserDTO) async throws {
+    func syncUser(_ userDTO: SupabaseUserDTO) async throws {
         try await supabase
             .from("User")
             .upsert(userDTO)
             .execute()
     }
     
-    func fetchUser(id: String) async throws -> UserDTO? {
-        let response: [UserDTO] = try await supabase
+    func fetchUser(id: String) async throws -> SupabaseUserDTO? {
+        let response: [SupabaseUserDTO] = try await supabase
             .from("User")
             .select()
             .eq("id", value: id)
@@ -124,14 +127,14 @@ class SupabaseService {
     
     // MARK: - Operaciones de Hábitos
     
-    func syncHabit(_ habitDTO: HabitDTO) async throws {
+    func syncHabit(_ habitDTO: SupabaseHabitDTO) async throws {
         try await supabase
             .from("Habit")
             .upsert(habitDTO)
             .execute()
     }
     
-    func fetchHabits(userId: String) async throws -> [HabitDTO] {
+    func fetchHabits(userId: String) async throws -> [SupabaseHabitDTO] {
         return try await supabase
             .from("Habit")
             .select()
@@ -150,7 +153,7 @@ class SupabaseService {
     
     // MARK: - Operaciones de Logs de Hábitos
     
-    func syncHabitLog(_ logDTO: HabitLogDTO) async throws {
+    func syncHabitLog(_ logDTO: SupabaseHabitLogDTO) async throws {
         try await supabase
             .from("HabitLog")
             .upsert(logDTO)
@@ -167,7 +170,7 @@ class SupabaseService {
     
     // MARK: - Operaciones de Escudos
     
-    func syncShieldUsage(_ shieldDTO: ShieldUsageDTO) async throws {
+    func syncShieldUsage(_ shieldDTO: SupabaseShieldUsageDTO) async throws {
         try await supabase
             .from("ShieldUsage")
             .upsert(shieldDTO)

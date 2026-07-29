@@ -13,6 +13,7 @@ CREATE TABLE "User" (
     "avatarUrl" TEXT,
     "totalXp" INTEGER NOT NULL DEFAULT 0,
     "level" INTEGER NOT NULL DEFAULT 1,
+    "isPro" BOOLEAN NOT NULL DEFAULT false,
     "timezone" TEXT NOT NULL DEFAULT 'UTC',
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,

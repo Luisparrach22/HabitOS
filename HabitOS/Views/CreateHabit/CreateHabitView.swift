@@ -17,8 +17,13 @@ struct CreateHabitView: View {
     
     @State private var showingPaywall = false
     
+    @AppStorage("currentUserId") private var currentUserId: String = ""
+    
     private var isUserPro: Bool {
-        users.first?.isPro ?? false
+        if let user = users.first(where: { $0.id == currentUserId }) {
+            return user.isPro
+        }
+        return users.first?.isPro ?? false
     }
     
     private func isPremiumColor(_ hex: String) -> Bool {
@@ -323,7 +328,7 @@ struct CreateHabitView: View {
             try modelContext.save()
             
             // Sincronizar en la nube con Supabase
-            let dto = HabitDTO(
+            let dto = SupabaseHabitDTO(
                 id: newHabit.id,
                 userId: ownerId,
                 name: newHabit.name,

@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		50740D10301A6BA100549D88 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 50740D0F301A6BA100549D88 /* Supabase */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		5008D356300BE1D8007C3488 /* HabitOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HabitOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +40,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				50740D10301A6BA100549D88 /* Supabase in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -46,6 +51,7 @@
 			isa = PBXGroup;
 			children = (
 				5008D358300BE1D8007C3488 /* HabitOS */,
+				50740D0E301A6BA100549D88 /* Frameworks */,
 				5008D357300BE1D8007C3488 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,6 +62,13 @@
 				5008D356300BE1D8007C3488 /* HabitOS.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		50740D0E301A6BA100549D88 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -78,6 +91,7 @@
 			);
 			name = HabitOS;
 			packageProductDependencies = (
+				50740D0F301A6BA100549D88 /* Supabase */,
 			);
 			productName = HabitOS;
 			productReference = 5008D356300BE1D8007C3488 /* HabitOS.app */;
@@ -359,6 +373,14 @@
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		50740D0F301A6BA100549D88 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 50740C7B301A665D00549D88 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 5008D34E300BE1D8007C3488 /* Project object */;
 }

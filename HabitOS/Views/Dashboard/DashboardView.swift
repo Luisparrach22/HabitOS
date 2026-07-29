@@ -20,9 +20,13 @@ struct DashboardView: View {
     @State private var showingCreateHabitSheet = false
     @State private var showingPaywall = false
     @State private var selectedHabitForDetail: Habit?
+    @AppStorage("currentUserId") private var currentUserId: String = ""
     
     private var currentUser: User? {
-        users.first
+        if let matched = users.first(where: { $0.id == currentUserId }) {
+            return matched
+        }
+        return users.first(where: { $0.isPro }) ?? users.first
     }
     
     private var pendingHabits: [Habit] {

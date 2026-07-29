@@ -2,8 +2,7 @@
 // BossBattleCard.swift — Misión Semanal Boss Battle
 // ──────────────────────────────────────────────
 // Tarjeta interactiva de gamificación que presenta al "Jefe de la Procrastinación".
-// El daño al Jefe (100 HP) se calcula dinámicamente según los hábitos completados
-// en la semana actual.
+// Muestra el avatar 3D del monstruo y permite abrir el visualizador 360° al tocarlo.
 
 import SwiftUI
 import SwiftData
@@ -14,6 +13,7 @@ struct BossBattleCard: View {
     let onClaimReward: () -> Void
     
     @State private var showingPaywall = false
+    @State private var showingBossViewer = false
     
     // Cálculo de daño semanal (10 HP por cada hábito completado en la semana)
     private var completedThisWeekCount: Int {
@@ -31,69 +31,89 @@ struct BossBattleCard: View {
     private var damageDealt: Int { min(completedThisWeekCount * 10, totalBossHp) }
     private var currentBossHp: Int { max(totalBossHp - damageDealt, 0) }
     private var isBossDefeated: Bool { currentBossHp == 0 }
-    
     private var isPro: Bool { user?.isPro ?? false }
     
     var body: some View {
         VStack(spacing: Spacing.md) {
-            // Header del Boss
-            HStack(spacing: Spacing.sm) {
-                ZStack {
-                    Circle()
-                        .fill(LinearGradient(colors: [Color(hex: "#FF3B30"), Color(hex: "#8B5CF6")], startPoint: .topLeading, endPoint: .bottomTrailing))
-                        .frame(width: 48, height: 48)
-                        .shadow(color: Color(hex: "#FF3B30").opacity(0.5), radius: 8)
-                    
-                    Image(systemName: "dragon.fill")
-                        .font(.system(size: 24))
-                        .foregroundStyle(.white)
-                }
-                
-                VStack(alignment: .leading, spacing: 2) {
-                    HStack {
-                        Text("Jefe Semanal")
-                            .font(.system(.caption, design: .rounded, weight: .bold))
-                            .foregroundStyle(Color(hex: "#FF3B30"))
+            // Header del Boss (Tocar para ver 360°)
+            Button {
+                let generator = UIImpactFeedbackGenerator(style: .medium)
+                generator.impactOccurred()
+                showingBossViewer = true
+            } label: {
+                HStack(spacing: Spacing.md) {
+                    // Avatar Renderizado 3D del Monstruo con Aura
+                    ZStack {
+                        Circle()
+                            .fill(LinearGradient(colors: [Color(hex: "#FF3B30"), Color(hex: "#8B5CF6")], startPoint: .topLeading, endPoint: .bottomTrailing))
+                            .frame(width: 52, height: 52)
+                            .shadow(color: Color(hex: "#FF3B30").opacity(0.5), radius: 8)
                         
-                        Spacer()
-                        
-                        Text("\(currentBossHp) / \(totalBossHp) HP")
-                            .font(.system(.caption, design: .rounded, weight: .bold))
-                            .foregroundStyle(.white.opacity(0.8))
+                        Image("boss_procrastination_monster")
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 48, height: 48)
+                            .clipShape(Circle())
                     }
                     
-                    Text("El Monstruo de la Procrastinación")
-                        .font(.system(.subheadline, design: .rounded, weight: .bold))
-                        .foregroundStyle(.white)
+                    VStack(alignment: .leading, spacing: 2) {
+                        HStack {
+                            Text("Jefe Semanal")
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                .foregroundStyle(Color(hex: "#FF3B30"))
+                            
+                            Spacer()
+                            
+                            HStack(spacing: 4) {
+                                Text("\(currentBossHp) / \(totalBossHp) HP")
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                                    .foregroundStyle(.white.opacity(0.9))
+                                Image(systemName: "cube.transparent")
+                                    .font(.caption2)
+                                    .foregroundStyle(Color(hex: "#30A2FF"))
+                            }
+                        }
+                        
+                        Text("El Monstruo de la Procrastinación")
+                            .font(.system(.subheadline, design: .rounded, weight: .bold))
+                            .foregroundStyle(.white)
+                    }
                 }
             }
+            .buttonStyle(.plain)
             
-            // Barra de Vida Animada
-            GeometryReader { geometry in
-                ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: Radius.sm)
-                        .fill(Color.white.opacity(0.1))
-                        .frame(height: 12)
-                    
-                    RoundedRectangle(cornerRadius: Radius.sm)
-                        .fill(
-                            LinearGradient(
-                                colors: isBossDefeated ? [Color(hex: "#00F5D4"), Color(hex: "#2DD4A8")] : [Color(hex: "#FF3B30"), Color(hex: "#FF9F0A")],
-                                startPoint: .leading,
-                                endPoint: .trailing
+            // Barra de Vida Animada (También abre la vista 360° al tocarla)
+            Button {
+                showingBossViewer = true
+            } label: {
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: Radius.sm)
+                            .fill(Color.white.opacity(0.1))
+                            .frame(height: 12)
+                        
+                        RoundedRectangle(cornerRadius: Radius.sm)
+                            .fill(
+                                LinearGradient(
+                                    colors: isBossDefeated ? [Color(hex: "#00F5D4"), Color(hex: "#2DD4A8")] : [Color(hex: "#FF3B30"), Color(hex: "#FF9F0A")],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
                             )
-                        )
-                        .frame(width: geometry.size.width * CGFloat(damageDealt) / CGFloat(totalBossHp), height: 12)
-                        .animation(.spring(response: 0.6, dampingFraction: 0.7), value: damageDealt)
+                            .frame(width: geometry.size.width * CGFloat(currentBossHp) / CGFloat(totalBossHp), height: 12)
+                            .animation(.spring(response: 0.6, dampingFraction: 0.7), value: currentBossHp)
+                    }
                 }
+                .frame(height: 12)
             }
-            .frame(height: 12)
+            .buttonStyle(.plain)
             
             // Pie de tarjeta y Estado
             HStack {
-                Text(isBossDefeated ? "🎉 ¡Jefe Derrotado!" : "Completa hábitos para hacer 10 de daño")
-                    .font(.system(size: 12, weight: .medium, design: .rounded))
+                Text(isBossDefeated ? "🎉 ¡Jefe Derrotado!" : "Toca para ver en 360° • Completa hábitos para hacer 10 HP de daño")
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
                     .foregroundStyle(.white.opacity(0.6))
+                    .lineLimit(1)
                 
                 Spacer()
                 
@@ -146,6 +166,9 @@ struct BossBattleCard: View {
         )
         .sheet(isPresented: $showingPaywall) {
             PaywallView()
+        }
+        .sheet(isPresented: $showingBossViewer) {
+            BossViewerSheet(habits: habits, user: user, onClaimReward: onClaimReward)
         }
     }
 }
