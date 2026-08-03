@@ -16,7 +16,7 @@ class HabitModel {
   final int shields;
   final DateTime createdAt;
 
-  HabitModel({
+  const HabitModel({
     required this.id,
     required this.userId,
     required this.name,
@@ -63,5 +63,36 @@ class HabitModel {
       'shields': shields,
       'createdAt': createdAt.toIso8601String(),
     };
+  }
+
+  /// Crea una copia del hábito con campos modificados.
+  HabitModel copyWith({
+    String? id,
+    String? userId,
+    String? name,
+    String? description,
+    String? trigger,
+    String? frequency,
+    String? color,
+    String? icon,
+    int? currentStreak,
+    int? maxStreak,
+    int? shields,
+    DateTime? createdAt,
+  }) {
+    return HabitModel(
+      id: id ?? this.id,
+      userId: userId ?? this.userId,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      trigger: trigger ?? this.trigger,
+      frequency: frequency ?? this.frequency,
+      color: color ?? this.color,
+      icon: icon ?? this.icon,
+      currentStreak: currentStreak ?? this.currentStreak,
+      maxStreak: maxStreak ?? this.maxStreak,
+      shields: shields ?? this.shields,
+      createdAt: createdAt ?? this.createdAt,
+    );
   }
 }

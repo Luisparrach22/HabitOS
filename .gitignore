@@ -1,5 +1,40 @@
-node_modules/
-.env
+# ──────────────────────────────────
+# General
+# ──────────────────────────────────
 .DS_Store
+.env
+.env.*
+!.env.example
+node_modules/
 dist/
 bun.lockb
+
+# ──────────────────────────────────
+# Flutter / Dart
+# ──────────────────────────────────
+**/build/
+**/.dart_tool/
+**/.flutter-plugins
+**/.flutter-plugins-dependencies
+**/.packages
+*.iml
+*.lock
+!pubspec.lock
+
+# ──────────────────────────────────
+# IDE
+# ──────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ──────────────────────────────────
+# macOS / iOS / Android build caches
+# ──────────────────────────────────
+**/ios/Pods/
+**/ios/.symlinks/
+**/android/.gradle/
+**/android/local.properties
+**/android/key.properties
+**/*.jks

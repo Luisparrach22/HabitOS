@@ -6,7 +6,6 @@ class UserModel {
   final String id;
   final String email;
   final String? name;
-  final String passwordHash;
   final String? avatarUrl;
   final int totalXp;
   final int level;
@@ -14,11 +13,10 @@ class UserModel {
   final String timezone;
   final DateTime createdAt;
 
-  UserModel({
+  const UserModel({
     required this.id,
     required this.email,
     this.name,
-    this.passwordHash = 'managed_by_supabase_auth',
     this.avatarUrl,
     this.totalXp = 0,
     this.level = 1,
@@ -32,7 +30,6 @@ class UserModel {
       id: json['id'] as String,
       email: json['email'] as String,
       name: json['name'] as String?,
-      passwordHash: json['passwordHash'] as String? ?? 'managed_by_supabase_auth',
       avatarUrl: json['avatarUrl'] as String?,
       totalXp: json['totalXp'] as int? ?? 0,
       level: json['level'] as int? ?? 1,
@@ -47,7 +44,6 @@ class UserModel {
       'id': id,
       'email': email,
       'name': name,
-      'passwordHash': passwordHash,
       'avatarUrl': avatarUrl,
       'totalXp': totalXp,
       'level': level,
@@ -55,5 +51,30 @@ class UserModel {
       'timezone': timezone,
       'createdAt': createdAt.toIso8601String(),
     };
+  }
+
+  /// Crea una copia del usuario con campos modificados.
+  UserModel copyWith({
+    String? id,
+    String? email,
+    String? name,
+    String? avatarUrl,
+    int? totalXp,
+    int? level,
+    bool? isPro,
+    String? timezone,
+    DateTime? createdAt,
+  }) {
+    return UserModel(
+      id: id ?? this.id,
+      email: email ?? this.email,
+      name: name ?? this.name,
+      avatarUrl: avatarUrl ?? this.avatarUrl,
+      totalXp: totalXp ?? this.totalXp,
+      level: level ?? this.level,
+      isPro: isPro ?? this.isPro,
+      timezone: timezone ?? this.timezone,
+      createdAt: createdAt ?? this.createdAt,
+    );
   }
 }
