@@ -163,13 +163,24 @@ class StoreManager {
         let descriptor = FetchDescriptor<User>()
         do {
             if let user = try context.fetch(descriptor).first {
-                // Comparar contra isProValue para evitar conflictos con la computed property
-                if (user.isProValue ?? false) != isPro {
-                    user.isPro = isPro
-                    try context.save()
-                    #if DEBUG
-                    print("SwiftData: Estado Pro del usuario actualizado a \(isPro)")
-                    #endif
+                let dbIsPro = user.isProValue ?? false
+                
+                // Si la base de datos (Supabase) dice que es Pro, respetamos ese estado
+                // y marcamos hasPro en el StoreManager como true
+                if dbIsPro {
+                    self.hasPro = true
+                }
+                
+                // Si StoreKit confirma la compra de la suscripción Pro, la activamos en la DB local
+                if isPro {
+                    self.hasPro = true
+                    if !dbIsPro {
+                        user.isPro = true
+                        try context.save()
+                        #if DEBUG
+                        print("SwiftData: Estado Pro del usuario actualizado a true por StoreKit")
+                        #endif
+                    }
                 }
             }
         } catch {
