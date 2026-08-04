@@ -5,10 +5,10 @@
 /* ── CSS Custom Properties (Design Tokens) ──────── */
 :root {
   /* Colors — Primary */
-  --primary: #018ABE;
-  --primary-deep: #02457A;
-  --primary-light: #97CADB;
-  --primary-glow: rgba(1, 138, 190, 0.25);
+  --primary: #1A96C5;
+  --primary-deep: #0D6B90;
+  --primary-light: #7BCCEB;
+  --primary-glow: rgba(26, 150, 197, 0.25);
 
   /* Colors — Background & Surface */
   --bg-dark: #0A0E1A;
@@ -34,8 +34,8 @@
   --emerald: #10B981;
 
   /* Colors — Gradients */
-  --gradient-hero: linear-gradient(135deg, #02457A 0%, #018ABE 50%, #2DD4A8 100%);
-  --gradient-primary: linear-gradient(135deg, #018ABE, #02457A);
+  --gradient-hero: linear-gradient(135deg, #0D6B90 0%, #1A96C5 50%, #2DD4A8 100%);
+  --gradient-primary: linear-gradient(135deg, #1A96C5, #0D6B90);
   --gradient-accent: linear-gradient(135deg, #8B5CF6, #EC4899);
   --gradient-card: linear-gradient(160deg, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0.02) 100%);
 
