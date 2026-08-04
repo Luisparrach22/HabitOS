@@ -245,6 +245,13 @@ ul, ol {
   color: white;
 }
 
+.brand-logo {
+  height: 36px;
+  width: auto;
+  border-radius: var(--radius-md);
+  object-fit: contain;
+}
+
 .navbar-links {
   display: flex;
   align-items: center;
