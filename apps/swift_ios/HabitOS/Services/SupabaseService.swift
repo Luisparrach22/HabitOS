@@ -5,6 +5,63 @@
 import Foundation
 import Supabase
 
+// MARK: - Soporte de Fechas Flexibles para PostgreSQL
+// PostgreSQL utiliza timestamps sin zona horaria, lo que a veces confunde al decoder ISO8601 por defecto de Swift.
+// Este wrapper analiza de forma robusta cualquier formato de fecha recibido.
+struct FlexibleDate: Codable, Hashable {
+    let date: Date
+    
+    init(_ date: Date) {
+        self.date = date
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        
+        // 1. Intentar decodificar como Date estándar
+        if let decodedDate = try? container.decode(Date.self) {
+            self.date = decodedDate
+            return
+        }
+        
+        // 2. Intentar decodificar como String y parsear formatos comunes de PostgreSQL/ISO8601
+        let dateString = try container.decode(String.self)
+        
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .iso8601)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        
+        let formats = [
+            "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX",
+            "yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ",
+            "yyyy-MM-dd'T'HH:mm:ss.SSS",
+            "yyyy-MM-dd'T'HH:mm:ssXXXXX",
+            "yyyy-MM-dd HH:mm:ss.SSS",
+            "yyyy-MM-dd HH:mm:ss",
+            "yyyy-MM-dd"
+        ]
+        
+        for format in formats {
+            formatter.dateFormat = format
+            if let parsedDate = formatter.date(from: dateString) {
+                self.date = parsedDate
+                return
+            }
+        }
+        
+        throw DecodingError.dataCorruptedError(
+            in: container,
+            debugDescription: "Formato de fecha de Supabase inválido: \(dateString)"
+        )
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(date)
+    }
+}
+
 // MARK: - DTOs (Data Transfer Objects) para Supabase SQL
 
 struct SupabaseUserDTO: Codable {
@@ -17,7 +74,7 @@ struct SupabaseUserDTO: Codable {
     let level: Int
     let isPro: Bool
     let timezone: String
-    let createdAt: Date
+    let createdAt: FlexibleDate
     
     enum CodingKeys: String, CodingKey {
         case id, email, name, avatarUrl, totalXp, level, isPro, timezone, createdAt
@@ -37,7 +94,7 @@ struct SupabaseHabitDTO: Codable {
     let currentStreak: Int
     let maxStreak: Int
     let shields: Int
-    let createdAt: Date
+    let createdAt: FlexibleDate
     
     enum CodingKeys: String, CodingKey {
         case id, userId, name, trigger, frequency, color, icon, currentStreak, maxStreak, shields, createdAt
@@ -48,7 +105,7 @@ struct SupabaseHabitDTO: Codable {
 struct SupabaseHabitLogDTO: Codable {
     let id: String
     let habitId: String
-    let completedAt: Date
+    let completedAt: FlexibleDate
     let value: Int
     let notes: String?
 }
@@ -56,7 +113,7 @@ struct SupabaseHabitLogDTO: Codable {
 struct SupabaseShieldUsageDTO: Codable {
     let id: String
     let habitId: String
-    let usedAt: Date
+    let usedAt: FlexibleDate
     let reason: String?
 }
 
@@ -92,7 +149,7 @@ class SupabaseService {
             level: 1,
             isPro: isPro,
             timezone: TimeZone.current.identifier,
-            createdAt: Date()
+            createdAt: FlexibleDate(Date())
         )
         
         try await syncUser(userDTO)

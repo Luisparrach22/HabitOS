@@ -128,7 +128,7 @@ class AuthService {
                     currentStreak: habit.currentStreak,
                     maxStreak: habit.maxStreak,
                     shields: habit.shields,
-                    createdAt: habit.createdAt
+                    createdAt: FlexibleDate(habit.createdAt)
                 )
                 try? await SupabaseService.shared.syncHabit(habitDTO)
             }
@@ -168,13 +168,19 @@ class AuthService {
         try modelContext.save()
         
         // 3. Intentar obtener datos actualizados del perfil desde Supabase
-        if let remoteUser = try? await SupabaseService.shared.fetchUser(id: supabaseUserId) {
-            user.name = remoteUser.name
-            user.totalXp = remoteUser.totalXp
-            user.level = remoteUser.level
-            user.avatarUrl = remoteUser.avatarUrl
-            user.isPro = remoteUser.isPro
-            try modelContext.save()
+        do {
+            if let remoteUser = try await SupabaseService.shared.fetchUser(id: supabaseUserId) {
+                user.name = remoteUser.name
+                user.totalXp = remoteUser.totalXp
+                user.level = remoteUser.level
+                user.avatarUrl = remoteUser.avatarUrl
+                user.isPro = remoteUser.isPro
+                try modelContext.save()
+            }
+        } catch {
+            #if DEBUG
+            print("❌ Error fetching user profile from Supabase: \(error)")
+            #endif
         }
         
         return user

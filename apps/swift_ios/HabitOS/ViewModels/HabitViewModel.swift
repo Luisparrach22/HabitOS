@@ -77,7 +77,7 @@ final class HabitViewModel {
             let logDTO = SupabaseHabitLogDTO(
                 id: newLog.id,
                 habitId: newLog.habitId,
-                completedAt: newLog.completedAt,
+                completedAt: FlexibleDate(newLog.completedAt),
                 value: newLog.value,
                 notes: newLog.notes
             )
@@ -111,7 +111,7 @@ final class HabitViewModel {
             currentStreak: habit.currentStreak,
             maxStreak: habit.maxStreak,
             shields: habit.shields,
-            createdAt: habit.createdAt
+            createdAt: FlexibleDate(habit.createdAt)
         )
         
         Task {
@@ -127,7 +127,7 @@ final class HabitViewModel {
                     level: currentUser.level,
                     isPro: currentUser.isPro,
                     timezone: currentUser.timezone,
-                    createdAt: currentUser.createdAt
+                    createdAt: FlexibleDate(currentUser.createdAt)
                 )
                 try? await SupabaseService.shared.syncUser(userDTO)
             }

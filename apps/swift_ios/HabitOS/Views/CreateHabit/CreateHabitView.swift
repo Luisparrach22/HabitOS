@@ -340,7 +340,7 @@ struct CreateHabitView: View {
                 currentStreak: newHabit.currentStreak,
                 maxStreak: newHabit.maxStreak,
                 shields: newHabit.shields,
-                createdAt: newHabit.createdAt
+                createdAt: FlexibleDate(newHabit.createdAt)
             )
             Task {
                 try? await SupabaseService.shared.syncHabit(dto)
