@@ -35,17 +35,26 @@ struct StatsView: View {
     
     // ── Datos Derivados ───────────────────────────
     
+    private var userHabits: [Habit] {
+        habits.filter { $0.userId == currentUser?.id }
+    }
+    
+    private var userHabitsLogs: [HabitLog] {
+        let userHabitIds = Set(userHabits.map(\.id))
+        return habitsLogs.filter { userHabitIds.contains($0.habitId) }
+    }
+    
     private var totalCompletedLogs: Int {
-        habitsLogs.count
+        userHabitsLogs.count
     }
     
     private var maxStreak: Int {
-        habits.map(\.maxStreak).max() ?? 0
+        userHabits.map(\.maxStreak).max() ?? 0
     }
     
     private var globalCompletionRate: Int {
-        guard !habits.isEmpty else { return 0 }
-        let totalPossibleDays = max(1, habits.count * 30)
+        guard !userHabits.isEmpty else { return 0 }
+        let totalPossibleDays = max(1, userHabits.count * 30)
         let rate = Double(totalCompletedLogs) / Double(totalPossibleDays) * 100
         return min(100, max(0, Int(rate)))
     }
@@ -63,7 +72,7 @@ struct StatsView: View {
         for dayOffset in (0..<7).reversed() {
             guard let date = calendar.date(byAdding: .day, value: -dayOffset, to: today) else { continue }
             let dayName = dayFormatter.string(from: date).capitalized
-            let logsCount = habitsLogs.filter { calendar.isDate($0.completedAt, inSameDayAs: date) }.count
+            let logsCount = userHabitsLogs.filter { calendar.isDate($0.completedAt, inSameDayAs: date) }.count
             stats.append(DailyStat(dayName: dayName, date: date, count: logsCount))
         }
         
@@ -154,7 +163,7 @@ struct StatsView: View {
                         
                         // 2b. Diagnóstico Inteligente de Consistencia
                         SmartInsightsCard(
-                            habits: habits,
+                            habits: userHabits,
                             isPro: isUserPro,
                             onOpenPaywall: {
                                 showingPaywall = true
@@ -175,7 +184,7 @@ struct StatsView: View {
                             }
                             
                             ZStack {
-                                MonthHeatmapGrid(logs: habitsLogs, habitsCount: habits.count)
+                                MonthHeatmapGrid(logs: userHabitsLogs, habitsCount: userHabits.count)
                                     .blur(radius: isUserPro ? 0 : 5)
                                     .disabled(!isUserPro)
                                 

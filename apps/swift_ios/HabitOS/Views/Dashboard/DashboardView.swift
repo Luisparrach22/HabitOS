@@ -26,16 +26,20 @@ struct DashboardView: View {
         users.first(where: { $0.id == currentUserId }) ?? users.first
     }
     
+    private var userHabits: [Habit] {
+        habits.filter { $0.userId == currentUser?.id }
+    }
+    
     private var pendingHabits: [Habit] {
-        habits.filter { !$0.isCompletedToday }
+        userHabits.filter { !$0.isCompletedToday }
     }
     
     private var completedHabits: [Habit] {
-        habits.filter { $0.isCompletedToday }
+        userHabits.filter { $0.isCompletedToday }
     }
     
     private var maxCurrentStreak: Int {
-        habits.map(\.currentStreak).max() ?? 0
+        userHabits.map(\.currentStreak).max() ?? 0
     }
     
     private var greeting: String {
@@ -104,13 +108,13 @@ struct DashboardView: View {
                         // 2. Tarjeta de progreso diario
                         ProgressBar(
                             completedCount: completedHabits.count,
-                            totalCount: habits.count,
+                            totalCount: userHabits.count,
                             maxCurrentStreak: maxCurrentStreak
                         )
                         
                         // 2b. Misión Boss Battle Semanal
                         BossBattleCard(
-                            habits: habits,
+                            habits: userHabits,
                             user: currentUser,
                             onClaimReward: {
                                 if let user = currentUser {
@@ -120,7 +124,7 @@ struct DashboardView: View {
                         )
                         
                         // 3. Hábitos
-                        if habits.isEmpty {
+                        if userHabits.isEmpty {
                             emptyStateView
                         } else {
                             habitsListView
@@ -140,7 +144,7 @@ struct DashboardView: View {
                         generator.impactOccurred()
                         
                         let isPro = currentUser?.isPro ?? false
-                        if !isPro && habits.count >= 5 {
+                        if !isPro && userHabits.count >= 5 {
                             showingPaywall = true
                         } else {
                             showingCreateHabitSheet = true

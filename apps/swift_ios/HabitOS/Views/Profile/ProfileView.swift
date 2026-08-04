@@ -59,19 +59,23 @@ struct ProfileView: View {
         users.first(where: { $0.id == currentUserId })
     }
     
+    private var userHabits: [Habit] {
+        habits.filter { $0.userId == currentUser?.id }
+    }
+    
     private var totalShieldsCount: Int {
-        habits.reduce(0) { $0 + $1.shields }
+        userHabits.reduce(0) { $0 + $1.shields }
     }
     
     // Lista de Insignias / Logros del Usuario
     private var achievements: [Achievement] {
         let totalXp = currentUser?.totalXp ?? 0
         let currentLevel = currentUser?.level ?? 1
-        let maxStreak = habits.map(\.maxStreak).max() ?? 0
-        let habitsCount = habits.count
+        let maxStreak = userHabits.map(\.maxStreak).max() ?? 0
+        let habitsCount = userHabits.count
         
-        let logs = habits.flatMap { $0.logs ?? [] }
-        let totalShieldLogsCount = habits.reduce(0) { $0 + ($1.shieldLogs ?? []).count }
+        let logs = userHabits.flatMap { $0.logs ?? [] }
+        let totalShieldLogsCount = userHabits.reduce(0) { $0 + ($1.shieldLogs ?? []).count }
         
         let hasCompletedBefore8AM = logs.contains { log in
             let hour = Calendar.current.component(.hour, from: log.completedAt)
@@ -83,7 +87,7 @@ struct ProfileView: View {
             return hour >= 22
         }
         
-        let hasTriggerHabit = habits.contains { $0.trigger != nil && !$0.trigger!.isEmpty }
+        let hasTriggerHabit = userHabits.contains { $0.trigger != nil && !$0.trigger!.isEmpty }
         
         return [
             // ── CONSISTENCIA ──

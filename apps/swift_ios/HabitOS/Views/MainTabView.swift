@@ -62,8 +62,12 @@ struct MainTabView: View {
             if url.scheme == "habitos" && (url.host == "create" || url.host == "nuevo" || url.absoluteString.contains("create")) {
                 selectedTab = 0
                 
-                let isPro = users.first?.isPro ?? false
-                if !isPro && habits.count >= 5 {
+                let currentUserId = UserDefaults.standard.string(forKey: "currentUserId") ?? ""
+                let currentUser = users.first(where: { $0.id == currentUserId }) ?? users.first
+                let isPro = currentUser?.isPro ?? false
+                let userHabitsCount = habits.filter { $0.userId == currentUser?.id }.count
+                
+                if !isPro && userHabitsCount >= 5 {
                     showingPaywall = true
                 } else {
                     showingCreateHabitSheet = true
