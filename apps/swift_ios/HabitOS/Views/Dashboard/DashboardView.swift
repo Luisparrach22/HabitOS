@@ -23,10 +23,7 @@ struct DashboardView: View {
     @AppStorage("currentUserId") private var currentUserId: String = ""
     
     private var currentUser: User? {
-        if let matched = users.first(where: { $0.id == currentUserId }) {
-            return matched
-        }
-        return users.first(where: { $0.isPro }) ?? users.first
+        users.first(where: { $0.id == currentUserId }) ?? users.first
     }
     
     private var pendingHabits: [Habit] {

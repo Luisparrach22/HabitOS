@@ -38,3 +38,14 @@ bun.lockb
 **/android/local.properties
 **/android/key.properties
 **/*.jks
+
+# ──────────────────────────────────
+# Xcode
+# ──────────────────────────────────
+**/xcuserdata/
+**/*.xcuserstate
+**/DerivedData/
+**/*.xcworkspace/xcshareddata/swiftpm/
+**/*.moved-aside
+**/*.hmap
+**/*.ipa

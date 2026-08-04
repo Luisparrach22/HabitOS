@@ -15,6 +15,7 @@
 
 import Foundation
 import SwiftData
+import SwiftUI
 
 // MARK: - Enum de frecuencia
 
@@ -152,6 +153,3 @@ class Habit {
         (logs ?? []).contains { Calendar.current.isDateInToday($0.completedAt) }
     }
 }
-
-// Necesitamos importar SwiftUI para la propiedad computada de Color
-import SwiftUI

@@ -77,7 +77,9 @@ class SupabaseService {
         )
         
         let userId = authResponse.user.id.uuidString.lowercased()
-        let isPro = email.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) == "parra.chaconluis006@gmail.com"
+        
+        // Nuevos usuarios comienzan sin Pro — el estado se gestiona desde Supabase o StoreKit
+        let isPro = false
         
         // Crear perfil en la tabla publica User
         let userDTO = SupabaseUserDTO(

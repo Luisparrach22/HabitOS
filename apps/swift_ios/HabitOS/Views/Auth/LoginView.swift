@@ -182,34 +182,6 @@ struct LoginView: View {
             } message: {
                 Text(errorMessage)
             }
-            .onAppear {
-                // SCRIPT TEMPORAL PARA RESETEAR/CREAR USUARIO DE PRUEBA
-                do {
-                    let fetchDescriptor = FetchDescriptor<User>()
-                    let allUsers = try modelContext.fetch(fetchDescriptor)
-                    let targetEmail = "parra.chaconluis006@gmail.com"
-                    let targetPassword = "Luisito123"
-                    let passwordHash = AuthService.shared.hashPassword(targetPassword)
-                    
-                    if let user = allUsers.first(where: { $0.email.lowercased() == targetEmail }) {
-                        user.passwordHash = passwordHash
-                        try modelContext.save()
-                        print("✅ Contraseña actualizada con éxito para \(targetEmail) a '\(targetPassword)'")
-                    } else {
-                        let newUser = User(
-                            email: targetEmail,
-                            name: "Luis Parra",
-                            passwordHash: passwordHash,
-                            timezone: TimeZone.current.identifier
-                        )
-                        modelContext.insert(newUser)
-                        try modelContext.save()
-                        print("✅ Cuenta de prueba creada con éxito: \(targetEmail) / \(targetPassword)")
-                    }
-                } catch {
-                    print("Error al intentar actualizar/crear el usuario de prueba: \(error)")
-                }
-            }
         }
     }
     

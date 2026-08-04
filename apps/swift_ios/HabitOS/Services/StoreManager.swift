@@ -50,7 +50,9 @@ class StoreManager {
                 self.isLoadingProducts = false
             }
         } catch {
+            #if DEBUG
             print("Error al cargar productos de StoreKit: \(error)")
+            #endif
             await MainActor.run { isLoadingProducts = false }
         }
     }
@@ -99,16 +101,22 @@ class StoreManager {
                 return true
                 
             case .pending:
+                #if DEBUG
                 print("Compra pendiente de aprobación paterna o bancaria.")
+                #endif
                 
             case .userCancelled:
+                #if DEBUG
                 print("Compra cancelada por el usuario.")
+                #endif
                 
             @unknown default:
                 break
             }
         } catch {
+            #if DEBUG
             print("Error al realizar la compra: \(error)")
+            #endif
         }
         
         await MainActor.run { isPurchasing = false }
@@ -121,7 +129,9 @@ class StoreManager {
             try await AppStore.sync()
             await checkActiveSubscriptions(modelContext: modelContext)
         } catch {
+            #if DEBUG
             print("Error al sincronizar/restaurar compras: \(error)")
+            #endif
         }
     }
     
@@ -141,7 +151,9 @@ class StoreManager {
                 }
             }
         case .unverified(let transaction, let error):
+            #if DEBUG
             print("Transacción sin verificar para \(transaction.productID): \(error)")
+            #endif
         }
     }
     
@@ -151,14 +163,19 @@ class StoreManager {
         let descriptor = FetchDescriptor<User>()
         do {
             if let user = try context.fetch(descriptor).first {
-                if user.isPro != isPro {
+                // Comparar contra isProValue para evitar conflictos con la computed property
+                if (user.isProValue ?? false) != isPro {
                     user.isPro = isPro
                     try context.save()
+                    #if DEBUG
                     print("SwiftData: Estado Pro del usuario actualizado a \(isPro)")
+                    #endif
                 }
             }
         } catch {
+            #if DEBUG
             print("Error al actualizar SwiftData User.isPro: \(error)")
+            #endif
         }
     }
 }

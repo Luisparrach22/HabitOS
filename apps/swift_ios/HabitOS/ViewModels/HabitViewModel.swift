@@ -49,8 +49,9 @@ final class HabitViewModel {
             // Desmarcar: eliminar el log de hoy
             if let todayLog = (habit.logs ?? []).first(where: { calendar.isDateInToday($0.completedAt) }) {
                 let logIdToDelete = todayLog.id
+                let logIndex = (habit.logs ?? []).firstIndex(where: { $0.id == logIdToDelete })
                 context.delete(todayLog)
-                if let index = (habit.logs ?? []).firstIndex(where: { $0.id == todayLog.id }) {
+                if let index = logIndex {
                     habit.logs?.remove(at: index)
                 }
                 

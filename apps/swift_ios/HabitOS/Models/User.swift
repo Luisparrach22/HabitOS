@@ -51,12 +51,7 @@ class User {
     var isProValue: Bool?
     
     var isPro: Bool {
-        get { 
-            if email.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) == "parra.chaconluis006@gmail.com" {
-                return true
-            }
-            return isProValue ?? false 
-        }
+        get { isProValue ?? false }
         set { isProValue = newValue }
     }
     

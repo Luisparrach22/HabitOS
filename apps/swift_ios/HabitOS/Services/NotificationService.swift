@@ -19,9 +19,11 @@ class NotificationService {
     func requestAuthorization(completion: ((Bool) -> Void)? = nil) {
         UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
             DispatchQueue.main.async {
+                #if DEBUG
                 if let error = error {
                     print("❌ Error al solicitar permisos de notificación: \(error.localizedDescription)")
                 }
+                #endif
                 completion?(granted)
             }
         }
@@ -46,11 +48,13 @@ class NotificationService {
         let request = UNNotificationRequest(identifier: "habit_\(habit.id)", content: content, trigger: trigger)
         
         UNUserNotificationCenter.current().add(request) { error in
+            #if DEBUG
             if let error = error {
                 print("❌ Error al programar notificación para '\(habit.name)': \(error.localizedDescription)")
             } else {
                 print("🔔 Notificación programada correctamente para '\(habit.name)' a las \(components.hour ?? 0):\(components.minute ?? 0)")
             }
+            #endif
         }
     }
     

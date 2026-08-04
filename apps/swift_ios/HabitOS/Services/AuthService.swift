@@ -59,11 +59,12 @@ class AuthService {
             user = newUser
         }
         
-        // 4. Vincular todos los hábitos existentes en la base de datos a este usuario (por seguridad)
+        // 4. Vincular hábitos huérfanos del onboarding (no reasignar hábitos de otros usuarios)
         let habitsFetch = FetchDescriptor<Habit>()
         let allHabits = try modelContext.fetch(habitsFetch)
         for habit in allHabits {
-            if habit.userId != user.id {
+            // Solo vincular hábitos sin dueño asignado o del usuario temporal de onboarding
+            if habit.user == nil || habit.userId.isEmpty {
                 habit.userId = user.id
                 habit.user = user
             }
