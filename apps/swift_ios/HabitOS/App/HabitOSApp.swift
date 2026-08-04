@@ -35,7 +35,9 @@ struct HabitOSApp: App {
                     MainTabView()
                         .onAppear {
                             Task {
-                                await StoreManager.shared.checkActiveSubscriptions(modelContext: ModelContainer.shared.mainContext)
+                                let context = ModelContainer.shared.mainContext
+                                await StoreManager.shared.checkActiveSubscriptions(modelContext: context)
+                                await AuthService.shared.syncProfile(userId: currentUserId, modelContext: context)
                             }
                         }
                 }

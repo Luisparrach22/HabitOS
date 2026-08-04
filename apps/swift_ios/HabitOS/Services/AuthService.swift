@@ -185,5 +185,42 @@ class AuthService {
         
         return user
     }
+    
+    /// Sincroniza el perfil del usuario actual desde Supabase a la base de datos local
+    func syncProfile(userId: String, modelContext: ModelContext) async {
+        let cleanUserId = userId.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanUserId.isEmpty else { return }
+        
+        do {
+            if let remoteUser = try await SupabaseService.shared.fetchUser(id: cleanUserId) {
+                let fetchDescriptor = FetchDescriptor<User>()
+                let allUsers = try modelContext.fetch(fetchDescriptor)
+                if let user = allUsers.first(where: { $0.id == cleanUserId }) {
+                    // Solo guardar si hay cambios para evitar escrituras innecesarias
+                    if user.name != remoteUser.name ||
+                        user.totalXp != remoteUser.totalXp ||
+                        user.level != remoteUser.level ||
+                        user.avatarUrl != remoteUser.avatarUrl ||
+                        (user.isProValue ?? false) != remoteUser.isPro {
+                        
+                        user.name = remoteUser.name
+                        user.totalXp = remoteUser.totalXp
+                        user.level = remoteUser.level
+                        user.avatarUrl = remoteUser.avatarUrl
+                        user.isPro = remoteUser.isPro
+                        try modelContext.save()
+                        
+                        #if DEBUG
+                        print("✅ Perfil sincronizado con Supabase. Pro: \(remoteUser.isPro)")
+                        #endif
+                    }
+                }
+            }
+        } catch {
+            #if DEBUG
+            print("❌ Fallo al sincronizar el perfil con Supabase: \(error)")
+            #endif
+        }
+    }
 }
 
