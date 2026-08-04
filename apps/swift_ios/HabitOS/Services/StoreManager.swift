@@ -175,7 +175,7 @@ class StoreManager {
                 if isPro {
                     self.hasPro = true
                     if !dbIsPro {
-                        user.isPro = true
+                        user.isProValue = true
                         try context.save()
                         #if DEBUG
                         print("SwiftData: Estado Pro del usuario actualizado a true por StoreKit")

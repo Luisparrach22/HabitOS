@@ -174,7 +174,7 @@ class AuthService {
                 user.totalXp = remoteUser.totalXp
                 user.level = remoteUser.level
                 user.avatarUrl = remoteUser.avatarUrl
-                user.isPro = remoteUser.isPro
+                user.isProValue = remoteUser.isPro
                 try modelContext.save()
             }
         } catch {
@@ -207,7 +207,7 @@ class AuthService {
                         user.totalXp = remoteUser.totalXp
                         user.level = remoteUser.level
                         user.avatarUrl = remoteUser.avatarUrl
-                        user.isPro = remoteUser.isPro
+                        user.isProValue = remoteUser.isPro
                         try modelContext.save()
                         
                         #if DEBUG
