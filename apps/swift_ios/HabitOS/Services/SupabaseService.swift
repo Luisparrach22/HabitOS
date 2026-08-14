@@ -174,6 +174,10 @@ class SupabaseService {
             .execute()
     }
     
+    func syncUser(_ user: User) async throws {
+        try await syncUser(SupabaseUserDTO(user: user))
+    }
+    
     func fetchUser(id: String) async throws -> SupabaseUserDTO? {
         let response: [SupabaseUserDTO] = try await supabase
             .from("User")
@@ -191,6 +195,10 @@ class SupabaseService {
             .from("Habit")
             .upsert(habitDTO)
             .execute()
+    }
+    
+    func syncHabit(_ habit: Habit) async throws {
+        try await syncHabit(SupabaseHabitDTO(habit: habit))
     }
     
     func fetchHabits(userId: String) async throws -> [SupabaseHabitDTO] {
@@ -219,6 +227,10 @@ class SupabaseService {
             .execute()
     }
     
+    func syncHabitLog(_ log: HabitLog) async throws {
+        try await syncHabitLog(SupabaseHabitLogDTO(log: log))
+    }
+    
     func deleteHabitLog(id: String) async throws {
         try await supabase
             .from("HabitLog")
@@ -235,4 +247,70 @@ class SupabaseService {
             .upsert(shieldDTO)
             .execute()
     }
+    
+    func syncShieldUsage(_ shield: ShieldUsage) async throws {
+        try await syncShieldUsage(SupabaseShieldUsageDTO(shield: shield))
+    }
 }
+
+// MARK: - Extensiones para mapear @Model a DTOs de Supabase
+
+extension SupabaseUserDTO {
+    init(user: User) {
+        self.init(
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            passwordHash: user.passwordHash,
+            avatarUrl: user.avatarUrl,
+            totalXp: user.totalXp,
+            level: user.level,
+            isPro: user.isPro,
+            timezone: user.timezone,
+            createdAt: FlexibleDate(user.createdAt)
+        )
+    }
+}
+
+extension SupabaseHabitDTO {
+    init(habit: Habit) {
+        self.init(
+            id: habit.id,
+            userId: habit.userId,
+            name: habit.name,
+            description: habit.habitDescription,
+            trigger: habit.trigger,
+            frequency: habit.frequency.rawValue,
+            color: habit.color,
+            icon: habit.icon,
+            currentStreak: habit.currentStreak,
+            maxStreak: habit.maxStreak,
+            shields: habit.shields,
+            createdAt: FlexibleDate(habit.createdAt)
+        )
+    }
+}
+
+extension SupabaseHabitLogDTO {
+    init(log: HabitLog) {
+        self.init(
+            id: log.id,
+            habitId: log.habitId,
+            completedAt: FlexibleDate(log.completedAt),
+            value: log.value,
+            notes: log.notes
+        )
+    }
+}
+
+extension SupabaseShieldUsageDTO {
+    init(shield: ShieldUsage) {
+        self.init(
+            id: shield.id,
+            habitId: shield.habitId,
+            usedAt: FlexibleDate(shield.usedAt),
+            reason: shield.reason
+        )
+    }
+}
+

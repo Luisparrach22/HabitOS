@@ -10,10 +10,15 @@ import SwiftData
 
 struct BossViewerSheet: View {
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.modelContext) private var modelContext
     
     let habits: [Habit]
     let user: User?
     let onClaimReward: () -> Void
+    
+    @AppStorage("currentBossLevel") private var currentBossLevel: Int = 1
+    @AppStorage("damageMultiplier") private var damageMultiplier: Int = 1
+    @AppStorage("extraDamageBomb") private var extraDamageBomb: Int = 0
     
     // ── Estado 3D y Gestos ──
     @State private var rotationY: Double = 0.0
@@ -27,8 +32,13 @@ struct BossViewerSheet: View {
     @State private var floatingDamageOffset: CGFloat = 0.0
     
     @State private var showingPaywall = false
+    @State private var showingShop = false
     
-    // Cálculo de daño semanal (10 HP por cada hábito completado en la semana)
+    private var currentEnemy: BossEnemy {
+        BossSystem.enemy(forLevel: currentBossLevel)
+    }
+    
+    // Cálculo de daño semanal (10 HP base por hábito completado * multiplicador + bombas de XP)
     private var completedThisWeekCount: Int {
         let calendar = Calendar.current
         let now = Date()
@@ -40,8 +50,9 @@ struct BossViewerSheet: View {
         }
     }
     
-    private var totalBossHp: Int { 100 }
-    private var damageDealt: Int { min(completedThisWeekCount * 10, totalBossHp) }
+    private var totalBossHp: Int { currentEnemy.maxHp }
+    private var habitDamage: Int { completedThisWeekCount * 10 * max(1, damageMultiplier) }
+    private var damageDealt: Int { min(habitDamage + extraDamageBomb, totalBossHp) }
     private var currentBossHp: Int { max(totalBossHp - damageDealt, 0) }
     private var isBossDefeated: Bool { currentBossHp == 0 }
     private var isPro: Bool { user?.isPro ?? false }
@@ -54,7 +65,7 @@ struct BossViewerSheet: View {
             
             RadialGradient(
                 colors: [
-                    Color(hex: "#1E1B38"),
+                    currentEnemy.swiftUIColor.opacity(0.3),
                     Color(hex: "#0F0B18"),
                     Color.black
                 ],
@@ -67,8 +78,8 @@ struct BossViewerSheet: View {
             // Aura de Fuego y Luz del Boss
             RadialGradient(
                 colors: [
-                    Color(hex: "#FF3B30").opacity(isBossDefeated ? 0.05 : 0.35),
-                    Color(hex: "#8B5CF6").opacity(0.15),
+                    currentEnemy.swiftUIColor.opacity(isBossDefeated ? 0.05 : 0.4),
+                    currentEnemy.swiftUIAccentColor.opacity(0.2),
                     Color.clear
                 ],
                 center: .center,
@@ -84,15 +95,15 @@ struct BossViewerSheet: View {
                     VStack(alignment: .leading, spacing: 2) {
                         HStack(spacing: 6) {
                             Circle()
-                                .fill(Color(hex: "#FF3B30"))
+                                .fill(currentEnemy.swiftUIAccentColor)
                                 .frame(width: 8, height: 8)
-                            Text("BATALLA EN VIVO 3D")
+                            Text("ENEMIGO FASE \(currentBossLevel) DE 6")
                                 .font(.system(size: 11, weight: .black, design: .rounded))
-                                .foregroundStyle(Color(hex: "#FF3B30"))
+                                .foregroundStyle(currentEnemy.swiftUIAccentColor)
                                 .kerning(1.2)
                         }
                         
-                        Text("Monstruo de la Procrastinación")
+                        Text(currentEnemy.name)
                             .font(.system(.title3, design: .rounded, weight: .bold))
                             .foregroundStyle(Color.white)
                     }
@@ -121,8 +132,8 @@ struct BossViewerSheet: View {
                             .fill(
                                 RadialGradient(
                                     colors: [
-                                        Color(hex: "#FF3B30").opacity(0.4),
-                                        Color(hex: "#8B5CF6").opacity(0.2),
+                                        currentEnemy.swiftUIColor.opacity(0.5),
+                                        currentEnemy.swiftUIAccentColor.opacity(0.3),
                                         Color.clear
                                     ],
                                     center: .center,
@@ -134,19 +145,18 @@ struct BossViewerSheet: View {
                             .blur(radius: 6)
                         
                         Ellipse()
-                            .stroke(Color(hex: "#FF3B30").opacity(0.5), lineWidth: 1.5)
+                            .stroke(currentEnemy.swiftUIColor.opacity(0.6), lineWidth: 1.5)
                             .frame(width: 190, height: 34)
                     }
                     .offset(y: 135)
                     .scaleEffect(isFloatingUp ? 0.95 : 1.05)
                     
-                    // Modelo 3D del Monstruo (Integrado sin marco de tarjeta)
+                    // Modelo 3D del Monstruo (Integrado transparente sin distorsión)
                     ZStack {
-                        Image("boss_procrastination_monster")
+                        Image(currentEnemy.imageName)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(height: 310)
-                            .blendMode(.screen) // Elimina cualquier fondo oscuro y deja solo al personaje 3D
+                            .frame(maxWidth: 320, maxHeight: 290)
                             .scaleEffect(isAttacking ? 0.93 : 1.0)
                             .offset(y: isFloatingUp ? -8 : 2)
                             .rotation3DEffect(
@@ -158,13 +168,13 @@ struct BossViewerSheet: View {
                                 triggerAttackImpact()
                             }
                         
-                        // Texto Flotante de Daño al Tocar
+                        // Texto Flotante al Tocar
                         if let damageText = floatingDamageText {
                             Text(damageText)
-                                .font(.system(size: 28, weight: .black, design: .rounded))
+                                .font(.system(size: 20, weight: .black, design: .rounded))
                                 .foregroundStyle(
                                     LinearGradient(
-                                        colors: [Color(hex: "#FF3B30"), Color(hex: "#FF9F0A")],
+                                        colors: [currentEnemy.swiftUIAccentColor, Color(hex: "#FF9F0A")],
                                         startPoint: .top,
                                         endPoint: .bottom
                                     )
@@ -186,14 +196,34 @@ struct BossViewerSheet: View {
                 }
                 .frame(height: 320)
                 
-                // Instrucción de interacción
-                HStack(spacing: 6) {
-                    Image(systemName: "hand.draw.fill")
-                        .font(.caption)
-                    Text("Gira el personaje 360°  •  Toca el modelo 3D para atacar")
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
+                // Instrucción de interacción + Tienda de XP
+                VStack(spacing: 6) {
+                    HStack(spacing: 6) {
+                        Image(systemName: "hand.draw.fill")
+                            .font(.caption)
+                        Text("Gira 360° • Completa hábitos para ganar Puntos de Ataque")
+                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                    }
+                    .foregroundStyle(Color.white.opacity(0.6))
+                    
+                    if let user = user {
+                        Button {
+                            showingShop = true
+                        } label: {
+                            HStack(spacing: 6) {
+                                Image(systemName: "cart.fill")
+                                Text("Tienda XP (Escudos & Potenciadores ⚡)")
+                                    .font(.system(size: 11, weight: .bold, design: .rounded))
+                            }
+                            .foregroundStyle(Color(hex: "#00F5D4"))
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 5)
+                            .background(Color.white.opacity(0.08))
+                            .cornerRadius(Radius.sm)
+                        }
+                        .buttonStyle(.plain)
+                    }
                 }
-                .foregroundStyle(Color.white.opacity(0.6))
                 .padding(.vertical, 4)
                 
                 Spacer()
@@ -204,7 +234,7 @@ struct BossViewerSheet: View {
                     // Barra de Vida HP Grande
                     VStack(alignment: .leading, spacing: Spacing.xs) {
                         HStack {
-                            Text("SALUD DEL JEFE (HP)")
+                            Text("SALUD DE \(currentEnemy.name.uppercased())")
                                 .font(.system(size: 10, weight: .black, design: .rounded))
                                 .foregroundStyle(Color.white.opacity(0.6))
                             
@@ -212,7 +242,7 @@ struct BossViewerSheet: View {
                             
                             Text("\(currentBossHp) / \(totalBossHp) HP")
                                 .font(.system(size: 13, weight: .black, design: .rounded))
-                                .foregroundStyle(isBossDefeated ? Color(hex: "#00F5D4") : Color(hex: "#FF3B30"))
+                                .foregroundStyle(isBossDefeated ? Color(hex: "#00F5D4") : currentEnemy.swiftUIColor)
                         }
                         
                         GeometryReader { geometry in
@@ -224,7 +254,7 @@ struct BossViewerSheet: View {
                                 RoundedRectangle(cornerRadius: Radius.sm)
                                     .fill(
                                         LinearGradient(
-                                            colors: isBossDefeated ? [Color(hex: "#00F5D4"), Color(hex: "#2DD4A8")] : [Color(hex: "#FF3B30"), Color(hex: "#FF9F0A")],
+                                            colors: isBossDefeated ? [Color(hex: "#00F5D4"), Color(hex: "#2DD4A8")] : [currentEnemy.swiftUIColor, currentEnemy.swiftUIAccentColor],
                                             startPoint: .leading,
                                             endPoint: .trailing
                                         )
@@ -240,7 +270,7 @@ struct BossViewerSheet: View {
                     HStack(spacing: Spacing.sm) {
                         // Daño infligido
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Daño Realizado")
+                            Text("Daño Infligido")
                                 .font(.system(size: 10, weight: .bold, design: .rounded))
                                 .foregroundStyle(Color.white.opacity(0.5))
                             Text("-\(damageDealt) HP")
@@ -252,14 +282,14 @@ struct BossViewerSheet: View {
                         .background(Color.white.opacity(0.05))
                         .cornerRadius(Radius.md)
                         
-                        // Debilidad
+                        // Recompensa en XP
                         VStack(alignment: .leading, spacing: 2) {
-                            Text("Debilidad Principal")
+                            Text("Recompensa de Fase")
                                 .font(.system(size: 10, weight: .bold, design: .rounded))
                                 .foregroundStyle(Color.white.opacity(0.5))
-                            Text("Hábitos Diarios")
-                                .font(.system(size: 14, weight: .bold, design: .rounded))
-                                .foregroundStyle(Color(hex: "#30A2FF"))
+                            Text("+\(currentEnemy.rewardXP) XP")
+                                .font(.system(size: 15, weight: .bold, design: .rounded))
+                                .foregroundStyle(Color(hex: "#00F5D4"))
                         }
                         .padding(12)
                         .frame(maxWidth: .infinity, alignment: .leading)
@@ -267,19 +297,18 @@ struct BossViewerSheet: View {
                         .cornerRadius(Radius.md)
                     }
                     
-                    // Botón de Recompensa
+                    // Botón de Recompensa y Siguiente Enemigo
                     if isBossDefeated {
                         Button {
                             if !isPro {
                                 showingPaywall = true
                             } else {
-                                onClaimReward()
-                                dismiss()
+                                advanceToNextBoss()
                             }
                         } label: {
                             HStack {
-                                Image(systemName: isPro ? "gift.fill" : "crown.fill")
-                                Text(isPro ? "¡Reclamar Recompensa Semanal!" : "Recompensas Exclusivas Pro")
+                                Image(systemName: isPro ? "bolt.fill" : "crown.fill")
+                                Text(isPro ? (currentBossLevel < 6 ? "¡Reclamar y Desbloquear Enemigo \(currentBossLevel + 1)!" : "¡Victoria Final! Reclamar +1000 XP") : "Desbloquear Recompensas Pro")
                                     .font(.system(.body, design: .rounded).bold())
                             }
                             .frame(maxWidth: .infinity)
@@ -319,18 +348,23 @@ struct BossViewerSheet: View {
         .sheet(isPresented: $showingPaywall) {
             PaywallView()
         }
+        .sheet(isPresented: $showingShop) {
+            if let user = user {
+                ShieldShopSheet(user: user, habits: habits)
+            }
+        }
     }
     
     // MARK: - Efecto de Impacto al Tocar
     private func triggerAttackImpact() {
-        let generator = UIImpactFeedbackGenerator(style: .heavy)
+        let generator = UIImpactFeedbackGenerator(style: .medium)
         generator.impactOccurred()
         
         withAnimation(.spring(response: 0.15, dampingFraction: 0.5)) {
             isAttacking = true
         }
         
-        floatingDamageText = "-10 HP!"
+        floatingDamageText = "¡Completa Hábitos! ⚡"
         floatingDamageOpacity = 1.0
         floatingDamageOffset = 0
         
@@ -342,6 +376,26 @@ struct BossViewerSheet: View {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
             withAnimation(.spring(response: 0.25, dampingFraction: 0.6)) {
                 isAttacking = false
+            }
+        }
+    }
+    
+    private func advanceToNextBoss() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+        
+        // Otorgar bonificación de XP
+        if let user = user {
+            GamificationEngine.addBonusXP(amount: currentEnemy.rewardXP, to: user, context: modelContext)
+        }
+        onClaimReward()
+        
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+            extraDamageBomb = 0
+            if currentBossLevel < 6 {
+                currentBossLevel += 1
+            } else {
+                currentBossLevel = 1
             }
         }
     }

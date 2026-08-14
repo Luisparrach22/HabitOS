@@ -17,6 +17,7 @@ struct HabitDetailView: View {
     @Query private var users: [User]
     @State private var showingPurchaseConfirmation = false
     @State private var showingFocusTimer = false
+    @State private var showingEditSheet = false
     
     private var currentUser: User? {
         users.first
@@ -237,8 +238,18 @@ struct HabitDetailView: View {
             .sheet(isPresented: $showingFocusTimer) {
                 FocusTimerSheet(habit: habit, isPro: currentUser?.isPro ?? false)
             }
+            .sheet(isPresented: $showingEditSheet) {
+                CreateHabitView(habitToEdit: habit)
+            }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button("Editar") {
+                        showingEditSheet = true
+                    }
+                    .font(.system(.body, design: .rounded))
+                    .foregroundStyle(Color.habPrimary)
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Cerrar") {
                         dismiss()
@@ -272,10 +283,14 @@ struct HabitDetailView: View {
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.warning)
         
+        let habitId = habit.id
         modelContext.delete(habit)
         
         do {
             try modelContext.save()
+            Task {
+                try? await SupabaseService.shared.deleteHabit(id: habitId)
+            }
             dismiss()
         } catch {
             print("Error al borrar hábito: \(error)")

@@ -578,6 +578,9 @@ struct EditProfileSheet: View {
                         user.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
                         user.email = email.trimmingCharacters(in: .whitespacesAndNewlines)
                         try? modelContext.save()
+                        Task {
+                            try? await SupabaseService.shared.syncUser(user)
+                        }
                         dismiss()
                     }
                     .fontWeight(.bold)

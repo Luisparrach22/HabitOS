@@ -15,6 +15,8 @@ struct CreateHabitView: View {
     @Query private var users: [User]
     @Query private var habits: [Habit]
     
+    var habitToEdit: Habit?
+    
     @State private var showingPaywall = false
     
     @AppStorage("currentUserId") private var currentUserId: String = ""
@@ -49,6 +51,18 @@ struct CreateHabitView: View {
     
     // Modales State
     @State private var showingIconPicker = false
+    
+    init(habitToEdit: Habit? = nil) {
+        self.habitToEdit = habitToEdit
+        if let h = habitToEdit {
+            _name = State(initialValue: h.name)
+            _habitDescription = State(initialValue: h.habitDescription ?? "")
+            _selectedIcon = State(initialValue: h.icon ?? "heart")
+            _selectedColorHex = State(initialValue: h.color ?? habitColors[0].value)
+            _selectedFrequency = State(initialValue: h.frequency)
+            _trigger = State(initialValue: h.trigger ?? "")
+        }
+    }
     
     // Convertir el string Hex a Color de SwiftUI de forma reactiva
     private var themeColor: Color {
@@ -265,7 +279,7 @@ struct CreateHabitView: View {
             }
             .scrollContentBackground(.hidden)
             .background(Color.habBackground)
-            .navigationTitle("Nuevo Hábito")
+            .navigationTitle(habitToEdit != nil ? "Editar Hábito" : "Nuevo Hábito")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
@@ -277,7 +291,7 @@ struct CreateHabitView: View {
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Crear") {
+                    Button(habitToEdit != nil ? "Guardar" : "Crear") {
                         let generator = UIImpactFeedbackGenerator(style: .medium)
                         generator.impactOccurred()
                         saveHabit()
@@ -297,7 +311,7 @@ struct CreateHabitView: View {
         }
     }
     
-    // Lógica para guardar en SwiftData
+    // Lógica para guardar en SwiftData y sincronizar en Supabase
     private func saveHabit() {
         let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedName.isEmpty else { return }
@@ -305,51 +319,51 @@ struct CreateHabitView: View {
         let trimmedDesc = habitDescription.trimmingCharacters(in: .whitespacesAndNewlines)
         var finalTrigger = trigger.trimmingCharacters(in: .whitespacesAndNewlines)
         
-        if selectedFrequency == .custom {
+        if selectedFrequency == .custom && !customDays.isEmpty {
             let daysStr = customDays.joined(separator: ", ")
-            finalTrigger = finalTrigger.isEmpty ? "Días: \(daysStr)" : "\(finalTrigger) (Días: \(daysStr))"
+            if !finalTrigger.contains("Días:") {
+                finalTrigger = finalTrigger.isEmpty ? "Días: \(daysStr)" : "\(finalTrigger) (Días: \(daysStr))"
+            }
         }
         
-        let ownerId = users.first?.id ?? "local_user_id"
+        let currentUser = users.first(where: { $0.id == currentUserId }) ?? users.first
+        let ownerId = currentUser?.id ?? "local_user_id"
         
-        let newHabit = Habit(
-            userId: ownerId,
-            name: trimmedName,
-            habitDescription: trimmedDesc.isEmpty ? nil : trimmedDesc,
-            trigger: finalTrigger.isEmpty ? nil : finalTrigger,
-            frequency: selectedFrequency,
-            color: selectedColorHex,
-            icon: selectedIcon
-        )
-        
-        modelContext.insert(newHabit)
+        let targetHabit: Habit
+        if let existing = habitToEdit {
+            existing.name = trimmedName
+            existing.habitDescription = trimmedDesc.isEmpty ? nil : trimmedDesc
+            existing.trigger = finalTrigger.isEmpty ? nil : finalTrigger
+            existing.frequency = selectedFrequency
+            existing.color = selectedColorHex
+            existing.icon = selectedIcon
+            targetHabit = existing
+        } else {
+            let newHabit = Habit(
+                userId: ownerId,
+                name: trimmedName,
+                habitDescription: trimmedDesc.isEmpty ? nil : trimmedDesc,
+                trigger: finalTrigger.isEmpty ? nil : finalTrigger,
+                frequency: selectedFrequency,
+                color: selectedColorHex,
+                icon: selectedIcon
+            )
+            modelContext.insert(newHabit)
+            targetHabit = newHabit
+        }
         
         do {
             try modelContext.save()
             
             // Sincronizar en la nube con Supabase
-            let dto = SupabaseHabitDTO(
-                id: newHabit.id,
-                userId: ownerId,
-                name: newHabit.name,
-                description: newHabit.habitDescription,
-                trigger: newHabit.trigger,
-                frequency: newHabit.frequency.rawValue,
-                color: newHabit.color,
-                icon: newHabit.icon,
-                currentStreak: newHabit.currentStreak,
-                maxStreak: newHabit.maxStreak,
-                shields: newHabit.shields,
-                createdAt: FlexibleDate(newHabit.createdAt)
-            )
             Task {
-                try? await SupabaseService.shared.syncHabit(dto)
+                try? await SupabaseService.shared.syncHabit(targetHabit)
             }
             
             if enableReminder {
                 NotificationService.shared.requestAuthorization { granted in
                     if granted {
-                        NotificationService.shared.scheduleReminder(for: newHabit, at: reminderTime)
+                        NotificationService.shared.scheduleReminder(for: targetHabit, at: reminderTime)
                     }
                 }
             }

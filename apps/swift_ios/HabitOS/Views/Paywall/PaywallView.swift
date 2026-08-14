@@ -24,7 +24,7 @@ struct PaywallView: View {
     // Lista de beneficios premium con iconos llamativos
     private let benefits = [
         BenefitItem(icon: "timer", color: "#00F5D4", title: "Modo Enfoque & Audio", desc: "Cronómetro Pomodoro de hasta 120 min con paisajes sonoros ambientales y 2X XP."),
-        BenefitItem(icon: "dragon.fill", color: "#FF3B30", title: "Misiones Boss Battles", desc: "Enfrenta al Monstruo de la Procrastinación semanalmente y reclama recompensas legendarias."),
+        BenefitItem(icon: "dragon.fill", color: "#8B5CF6", title: "Misiones Boss Battles", desc: "Enfrenta al Monstruo de la Procrastinación semanalmente y reclama recompensas legendarias."),
         BenefitItem(icon: "brain.head.profile", color: "#8B5CF6", title: "Diagnóstico Inteligente", desc: "Descubre tu Día de Oro, alertas de racha en riesgo y patrones de horario de alto rendimiento."),
         BenefitItem(icon: "infinity", color: "#EC4899", title: "Hábitos Ilimitados", desc: "Supera el límite de 5 hábitos activos y añade todos los que necesites."),
         BenefitItem(icon: "paintpalette.fill", color: "#F5A623", title: "Temas, Colores & Iconos", desc: "Desbloquea temas globales (Cyberpunk, Minimal Dark), 6 colores Pro e iconos alternativos.")

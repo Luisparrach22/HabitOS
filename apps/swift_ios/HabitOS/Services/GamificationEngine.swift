@@ -21,6 +21,8 @@ struct GamificationEngine {
     static let streakBonusFactor = 5 // +5 XP por día de racha
     static let xpPerLevel = 200
     static let shieldXPCost = 150
+    static let booster2XCost = 200
+    static let bombCost = 300
     
     // MARK: - Otorgar / Restar XP por Hábito
     
@@ -46,6 +48,13 @@ struct GamificationEngine {
         
         try? context.save()
         
+        Task {
+            try? await SupabaseService.shared.syncUser(user)
+            if didLevelUp {
+                try? await SupabaseService.shared.syncHabit(habit)
+            }
+        }
+        
         return LevelUpResult(
             didLevelUp: didLevelUp,
             oldLevel: oldLevel,
@@ -63,6 +72,10 @@ struct GamificationEngine {
         user.level = calculateLevel(fromXP: user.totalXp)
         
         try? context.save()
+        
+        Task {
+            try? await SupabaseService.shared.syncUser(user)
+        }
     }
     
     /// Otorga una cantidad directa de XP de bonificación (ej. por misiones o pomodoro).
@@ -70,6 +83,10 @@ struct GamificationEngine {
         user.totalXp += amount
         user.level = calculateLevel(fromXP: user.totalXp)
         try? context.save()
+        
+        Task {
+            try? await SupabaseService.shared.syncUser(user)
+        }
     }
     
     /// Permite comprar un escudo para un hábito deduciendo XP al usuario y actualizando su nivel.
@@ -82,6 +99,48 @@ struct GamificationEngine {
         habit.shields += 1
         
         try? context.save()
+        
+        Task {
+            try? await SupabaseService.shared.syncUser(user)
+            try? await SupabaseService.shared.syncHabit(habit)
+        }
+        return true
+    }
+    
+    /// Compra un multiplicador de daño 2X reduciendo XP al usuario.
+    @discardableResult
+    static func purchaseDamageMultiplier(user: User, context: ModelContext) -> Bool {
+        guard user.totalXp >= booster2XCost else { return false }
+        
+        user.totalXp -= booster2XCost
+        user.level = calculateLevel(fromXP: user.totalXp)
+        
+        UserDefaults.standard.set(2, forKey: "damageMultiplier")
+        
+        try? context.save()
+        
+        Task {
+            try? await SupabaseService.shared.syncUser(user)
+        }
+        return true
+    }
+    
+    /// Compra una bomba de daño directo (50 HP) reduciendo XP al usuario.
+    @discardableResult
+    static func purchaseDamageBomb(user: User, context: ModelContext) -> Bool {
+        guard user.totalXp >= bombCost else { return false }
+        
+        user.totalXp -= bombCost
+        user.level = calculateLevel(fromXP: user.totalXp)
+        
+        let currentBombDamage = UserDefaults.standard.integer(forKey: "extraDamageBomb")
+        UserDefaults.standard.set(currentBombDamage + 50, forKey: "extraDamageBomb")
+        
+        try? context.save()
+        
+        Task {
+            try? await SupabaseService.shared.syncUser(user)
+        }
         return true
     }
     

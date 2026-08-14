@@ -151,6 +151,9 @@ struct AvatarPickerSheet: View {
                         
                         user.avatarUrl = currentAvatarString
                         try? modelContext.save()
+                        Task {
+                            try? await SupabaseService.shared.syncUser(user)
+                        }
                         dismiss()
                     }
                     .font(.body.bold())

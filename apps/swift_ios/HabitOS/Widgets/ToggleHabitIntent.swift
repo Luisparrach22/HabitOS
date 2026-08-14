@@ -62,11 +62,15 @@ struct ToggleHabitIntent: AppIntent {
         let today = calendar.startOfDay(for: Date())
         let isAlreadyCompleted = (habit.logs ?? []).contains { calendar.isDate($0.completedAt, inSameDayAs: today) }
         
+        var deletedLogId: String? = nil
+        var createdLog: HabitLog? = nil
+        
         if isAlreadyCompleted {
             // Desmarcar hábito del día
             if let logIndex = (habit.logs ?? []).firstIndex(where: { calendar.isDate($0.completedAt, inSameDayAs: today) }) {
                 if habit.logs != nil {
                     let log = habit.logs!.remove(at: logIndex)
+                    deletedLogId = log.id
                     context.delete(log)
                 }
                 
@@ -82,6 +86,7 @@ struct ToggleHabitIntent: AppIntent {
             }
             habit.logs?.append(newLog)
             context.insert(newLog)
+            createdLog = newLog
             
             // Recalcular racha y recompensar XP
             StreakEngine.updateStreak(for: habit)
@@ -89,6 +94,23 @@ struct ToggleHabitIntent: AppIntent {
         }
         
         try context.save()
+        
+        let targetLogIdToDelete = deletedLogId
+        let targetCreatedLog = createdLog
+        let targetHabit = habit
+        let targetUser = user
+        
+        Task {
+            if let deletedId = targetLogIdToDelete {
+                try? await SupabaseService.shared.deleteHabitLog(id: deletedId)
+            }
+            if let log = targetCreatedLog {
+                try? await SupabaseService.shared.syncHabitLog(log)
+            }
+            try? await SupabaseService.shared.syncHabit(targetHabit)
+            try? await SupabaseService.shared.syncUser(targetUser)
+        }
+        
         return .result()
     }
 }

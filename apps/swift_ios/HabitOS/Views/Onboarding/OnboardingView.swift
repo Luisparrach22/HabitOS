@@ -242,6 +242,7 @@ struct OnboardingView: View {
         // Evitar insertar hábitos semilla si ya existen hábitos en la base de datos
         let habitFetch = FetchDescriptor<Habit>()
         let existingHabitsCount = (try? modelContext.fetchCount(habitFetch)) ?? 0
+        var createdHabits: [Habit] = []
         
         if existingHabitsCount == 0 {
             for seed in seedHabits where seed.isSelected {
@@ -254,10 +255,18 @@ struct OnboardingView: View {
                     icon: seed.icon
                 )
                 modelContext.insert(habit)
+                createdHabits.append(habit)
             }
         }
         
         try? modelContext.save()
+        
+        Task {
+            try? await SupabaseService.shared.syncUser(user)
+            for h in createdHabits {
+                try? await SupabaseService.shared.syncHabit(h)
+            }
+        }
         
         withAnimation {
             hasCompletedOnboarding = true

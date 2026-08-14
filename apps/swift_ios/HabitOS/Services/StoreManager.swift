@@ -177,8 +177,11 @@ class StoreManager {
                     if !dbIsPro {
                         user.isProValue = true
                         try context.save()
+                        Task {
+                            try? await SupabaseService.shared.syncUser(user)
+                        }
                         #if DEBUG
-                        print("SwiftData: Estado Pro del usuario actualizado a true por StoreKit")
+                        print("SwiftData & Supabase: Estado Pro del usuario actualizado a true por StoreKit")
                         #endif
                     }
                 }

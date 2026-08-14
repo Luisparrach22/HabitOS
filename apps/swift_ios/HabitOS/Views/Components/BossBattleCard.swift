@@ -12,10 +12,18 @@ struct BossBattleCard: View {
     let user: User?
     let onClaimReward: () -> Void
     
+    @AppStorage("currentBossLevel") private var currentBossLevel: Int = 1
+    @AppStorage("damageMultiplier") private var damageMultiplier: Int = 1
+    @AppStorage("extraDamageBomb") private var extraDamageBomb: Int = 0
+    
     @State private var showingPaywall = false
     @State private var showingBossViewer = false
     
-    // Cálculo de daño semanal (10 HP por cada hábito completado en la semana)
+    private var currentEnemy: BossEnemy {
+        BossSystem.enemy(forLevel: currentBossLevel)
+    }
+    
+    // Cálculo de daño semanal (10 HP base por cada hábito completado en la semana * multiplicador + bombas compradas)
     private var completedThisWeekCount: Int {
         let calendar = Calendar.current
         let now = Date()
@@ -27,9 +35,10 @@ struct BossBattleCard: View {
         }
     }
     
-    private var totalBossHp: Int { 100 }
-    private var damageDealt: Int { min(completedThisWeekCount * 10, totalBossHp) }
-    private var currentBossHp: Int { max(totalBossHp - damageDealt, 0) }
+    private var totalBossHp: Int { currentEnemy.maxHp }
+    private var habitDamage: Int { completedThisWeekCount * 10 * max(1, damageMultiplier) }
+    private var totalDamage: Int { min(habitDamage + extraDamageBomb, totalBossHp) }
+    private var currentBossHp: Int { max(totalBossHp - totalDamage, 0) }
     private var isBossDefeated: Bool { currentBossHp == 0 }
     private var isPro: Bool { user?.isPro ?? false }
     
@@ -42,25 +51,32 @@ struct BossBattleCard: View {
                 showingBossViewer = true
             } label: {
                 HStack(spacing: Spacing.md) {
-                    // Avatar Renderizado 3D del Monstruo con Aura
+                    // Avatar Renderizado 3D del Monstruo con Aspect Ratio Perfecto
                     ZStack {
                         Circle()
-                            .fill(LinearGradient(colors: [Color(hex: "#FF3B30"), Color(hex: "#8B5CF6")], startPoint: .topLeading, endPoint: .bottomTrailing))
-                            .frame(width: 52, height: 52)
-                            .shadow(color: Color(hex: "#FF3B30").opacity(0.5), radius: 8)
+                            .fill(
+                                LinearGradient(
+                                    colors: [currentEnemy.swiftUIColor, currentEnemy.swiftUIAccentColor],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                            .frame(width: 56, height: 56)
+                            .shadow(color: currentEnemy.swiftUIColor.opacity(0.5), radius: 8)
                         
-                        Image("boss_procrastination_monster")
+                        Image(currentEnemy.imageName)
                             .resizable()
-                            .scaledToFill()
-                            .frame(width: 48, height: 48)
-                            .clipShape(Circle())
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 44, height: 44)
+                            .padding(2)
                     }
                     
                     VStack(alignment: .leading, spacing: 2) {
                         HStack {
-                            Text("Jefe Semanal")
+                            Text("Enemigo \(currentBossLevel)/6 • \(currentEnemy.phaseTitle)")
                                 .font(.system(size: 11, weight: .bold, design: .rounded))
-                                .foregroundStyle(Color(hex: "#FF3B30"))
+                                .foregroundStyle(currentEnemy.swiftUIColor)
+                                .lineLimit(1)
                             
                             Spacer()
                             
@@ -74,7 +90,7 @@ struct BossBattleCard: View {
                             }
                         }
                         
-                        Text("El Monstruo de la Procrastinación")
+                        Text(currentEnemy.name)
                             .font(.system(.subheadline, design: .rounded, weight: .bold))
                             .foregroundStyle(.white)
                     }
@@ -95,7 +111,7 @@ struct BossBattleCard: View {
                         RoundedRectangle(cornerRadius: Radius.sm)
                             .fill(
                                 LinearGradient(
-                                    colors: isBossDefeated ? [Color(hex: "#00F5D4"), Color(hex: "#2DD4A8")] : [Color(hex: "#FF3B30"), Color(hex: "#FF9F0A")],
+                                    colors: isBossDefeated ? [Color(hex: "#00F5D4"), Color(hex: "#2DD4A8")] : [currentEnemy.swiftUIColor, currentEnemy.swiftUIAccentColor],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
@@ -110,7 +126,7 @@ struct BossBattleCard: View {
             
             // Pie de tarjeta y Estado
             HStack {
-                Text(isBossDefeated ? "🎉 ¡Jefe Derrotado!" : "Toca para ver en 360° • Completa hábitos para hacer 10 HP de daño")
+                Text(isBossDefeated ? "🎉 ¡\(currentEnemy.name) Derrotado!" : "Toca para ver en 360° • Completa hábitos para infligir daño")
                     .font(.system(size: 11, weight: .medium, design: .rounded))
                     .foregroundStyle(.white.opacity(0.6))
                     .lineLimit(1)
@@ -122,12 +138,12 @@ struct BossBattleCard: View {
                         if !isPro {
                             showingPaywall = true
                         } else {
-                            onClaimReward()
+                            advanceToNextBoss()
                         }
                     } label: {
                         HStack(spacing: 4) {
-                            Text("Recompensas Pro")
-                                .font(.system(size: 12, weight: .bold, design: .rounded))
+                            Text(currentBossLevel < 6 ? "¡Reclamar y Siguiente ⚔️!" : "¡Reclamar Victoria Final 🏆!")
+                                .font(.system(size: 11, weight: .bold, design: .rounded))
                             Image(systemName: isPro ? "gift.fill" : "crown.fill")
                                 .font(.caption2)
                         }
@@ -156,7 +172,7 @@ struct BossBattleCard: View {
                     RoundedRectangle(cornerRadius: Radius.xl)
                         .stroke(
                             LinearGradient(
-                                colors: isBossDefeated ? [Color(hex: "#00F5D4").opacity(0.6), Color(hex: "#8B5CF6").opacity(0.6)] : [Color(hex: "#FF3B30").opacity(0.3), Color.white.opacity(0.08)],
+                                colors: isBossDefeated ? [Color(hex: "#00F5D4").opacity(0.6), Color(hex: "#8B5CF6").opacity(0.6)] : [Color(hex: "#8B5CF6").opacity(0.4), Color.white.opacity(0.08)],
                                 startPoint: .topLeading,
                                 endPoint: .bottomTrailing
                             ),
@@ -169,6 +185,22 @@ struct BossBattleCard: View {
         }
         .sheet(isPresented: $showingBossViewer) {
             BossViewerSheet(habits: habits, user: user, onClaimReward: onClaimReward)
+        }
+    }
+    
+    private func advanceToNextBoss() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+        
+        onClaimReward()
+        
+        withAnimation(.spring(response: 0.6, dampingFraction: 0.7)) {
+            extraDamageBomb = 0
+            if currentBossLevel < 6 {
+                currentBossLevel += 1
+            } else {
+                currentBossLevel = 1
+            }
         }
     }
 }

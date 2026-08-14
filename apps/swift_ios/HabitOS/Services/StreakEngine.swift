@@ -105,6 +105,11 @@ struct StreakEngine {
         updateStreak(for: habit)
         
         try? context.save()
+        
+        Task {
+            try? await SupabaseService.shared.syncHabit(habit)
+            try? await SupabaseService.shared.syncShieldUsage(shieldUsage)
+        }
         return true
     }
 }

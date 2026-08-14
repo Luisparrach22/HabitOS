@@ -267,14 +267,18 @@ struct FocusTimerSheet: View {
         AudioServicesPlaySystemSound(1054)
         
         // 1. Marcar hábito como completado si aún no lo estaba
+        var newlyCreatedLog: HabitLog? = nil
         if !habit.isCompletedToday {
             let log = HabitLog(habitId: habit.id)
             log.habit = habit
             modelContext.insert(log)
+            if habit.logs == nil { habit.logs = [] }
+            habit.logs?.append(log)
             habit.currentStreak += 1
             if habit.currentStreak > habit.maxStreak {
                 habit.maxStreak = habit.currentStreak
             }
+            newlyCreatedLog = log
         }
         
         // 2. Otorgar +50 XP de bonificación de enfoque al usuario
@@ -285,6 +289,13 @@ struct FocusTimerSheet: View {
         }
         
         try? modelContext.save()
+        
+        Task {
+            if let log = newlyCreatedLog {
+                try? await SupabaseService.shared.syncHabitLog(log)
+            }
+            try? await SupabaseService.shared.syncHabit(habit)
+        }
     }
     
     private func formatTime(_ seconds: Int) -> String {
