@@ -75,9 +75,10 @@ struct SupabaseUserDTO: Codable {
     let isPro: Bool
     let timezone: String
     let createdAt: FlexibleDate
+    let updatedAt: FlexibleDate
     
     enum CodingKeys: String, CodingKey {
-        case id, email, name, avatarUrl, totalXp, level, isPro, timezone, createdAt
+        case id, email, name, avatarUrl, totalXp, level, isPro, timezone, createdAt, updatedAt
         case passwordHash = "passwordHash"
     }
 }
@@ -95,9 +96,10 @@ struct SupabaseHabitDTO: Codable {
     let maxStreak: Int
     let shields: Int
     let createdAt: FlexibleDate
+    let updatedAt: FlexibleDate
     
     enum CodingKeys: String, CodingKey {
-        case id, userId, name, trigger, frequency, color, icon, currentStreak, maxStreak, shields, createdAt
+        case id, userId, name, trigger, frequency, color, icon, currentStreak, maxStreak, shields, createdAt, updatedAt
         case description = "description"
     }
 }
@@ -149,7 +151,8 @@ class SupabaseService {
             level: 1,
             isPro: isPro,
             timezone: TimeZone.current.identifier,
-            createdAt: FlexibleDate(Date())
+            createdAt: FlexibleDate(Date()),
+            updatedAt: FlexibleDate(Date())
         )
         
         try await syncUser(userDTO)
@@ -267,7 +270,8 @@ extension SupabaseUserDTO {
             level: user.level,
             isPro: user.isPro,
             timezone: user.timezone,
-            createdAt: FlexibleDate(user.createdAt)
+            createdAt: FlexibleDate(user.createdAt),
+            updatedAt: FlexibleDate(Date())
         )
     }
 }
@@ -286,7 +290,8 @@ extension SupabaseHabitDTO {
             currentStreak: habit.currentStreak,
             maxStreak: habit.maxStreak,
             shields: habit.shields,
-            createdAt: FlexibleDate(habit.createdAt)
+            createdAt: FlexibleDate(habit.createdAt),
+            updatedAt: FlexibleDate(Date())
         )
     }
 }

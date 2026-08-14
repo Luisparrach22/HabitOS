@@ -128,7 +128,8 @@ class AuthService {
                     currentStreak: habit.currentStreak,
                     maxStreak: habit.maxStreak,
                     shields: habit.shields,
-                    createdAt: FlexibleDate(habit.createdAt)
+                    createdAt: FlexibleDate(habit.createdAt),
+                    updatedAt: FlexibleDate(Date())
                 )
                 try? await SupabaseService.shared.syncHabit(habitDTO)
             }
