@@ -23,246 +23,74 @@ struct ShieldShopSheet: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color.habBackground
-                    .ignoresSafeArea()
-                
-                VStack(spacing: 0) {
-                    // Cabecera informativa de la tienda
-                    VStack(spacing: Spacing.xs) {
-                        HStack(spacing: 4) {
-                            Text("Tu saldo disponible:")
-                                .font(.subheadline)
-                                .foregroundStyle(Color.secondary)
-                            Text("\(user.totalXp) XP")
-                                .font(.title3.bold())
-                                .foregroundStyle(Color.habWarning)
-                        }
-                        .padding(.top, Spacing.md)
-                        
-                        // Selector de Categoría (Escudos vs Potenciadores)
-                        Picker("Categoría", selection: $selectedTab) {
-                            Text("🛡️ Escudos de Racha").tag(0)
-                            Text("⚡ Potenciadores Boss").tag(1)
-                        }
-                        .pickerStyle(.segmented)
-                        .padding(.horizontal, Spacing.lg)
-                        .padding(.top, Spacing.sm)
+            List {
+                Section {
+                    Picker("Categoría", selection: $selectedTab) {
+                        Text("Escudos").tag(0)
+                        Text("Potenciadores").tag(1)
                     }
-                    .padding(.bottom, Spacing.md)
-                    .frame(maxWidth: .infinity)
-                    .background(Color.habCard)
-                    
-                    Divider()
-                    
-                    ScrollView(.vertical, showsIndicators: false) {
-                        VStack(spacing: Spacing.lg) {
-                            if selectedTab == 0 {
-                                // ── SECCIÓN 1: ESCUDOS DE RACHA ──
-                                VStack(alignment: .leading, spacing: Spacing.sm) {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("Protección de Racha")
-                                            .font(.headline)
-                                            .foregroundStyle(Color.primary)
-                                        Text("Un escudo evita que pierdas tu racha activa si olvidas completar el hábito un día. Costo: \(GamificationEngine.shieldXPCost) XP.")
-                                            .font(.caption)
-                                            .foregroundStyle(Color.secondary)
-                                    }
-                                    .padding(.horizontal, Spacing.lg)
-                                    .padding(.top, Spacing.md)
-                                    
-                                    if habits.isEmpty {
-                                        VStack(spacing: Spacing.md) {
-                                            Image(systemName: "exclamationmark.triangle.fill")
-                                                .font(.title)
-                                                .foregroundStyle(Color.habWarning)
-                                            Text("No tienes hábitos activos")
-                                                .font(.headline)
-                                        }
-                                        .padding(.vertical, 40)
-                                        .frame(maxWidth: .infinity)
-                                    } else {
-                                        ForEach(habits) { habit in
-                                            Button {
-                                                purchaseShield(for: habit)
-                                            } label: {
-                                                HStack(spacing: Spacing.md) {
-                                                    ZStack {
-                                                        Circle()
-                                                            .fill(habit.swiftUIColor.opacity(0.12))
-                                                            .frame(width: 44, height: 44)
-                                                        Image(systemName: habit.icon ?? "star.fill")
-                                                            .foregroundStyle(habit.swiftUIColor)
-                                                            .font(.system(size: 18, weight: .semibold))
-                                                    }
-                                                    
-                                                    VStack(alignment: .leading, spacing: 2) {
-                                                        Text(habit.name)
-                                                            .font(.subheadline.bold())
-                                                            .foregroundStyle(Color.primary)
-                                                        
-                                                        Text("Escudos activos: \(habit.shields)")
-                                                            .font(.caption)
-                                                            .foregroundStyle(Color.secondary)
-                                                    }
-                                                    
-                                                    Spacer()
-                                                    
-                                                    HStack(spacing: 4) {
-                                                        Text("\(GamificationEngine.shieldXPCost) XP")
-                                                            .font(.caption.bold())
-                                                        Image(systemName: "shield.fill")
-                                                            .font(.caption2)
-                                                    }
-                                                    .foregroundStyle(Color.white)
-                                                    .padding(.horizontal, 12)
-                                                    .padding(.vertical, 6)
-                                                    .background(user.totalXp >= GamificationEngine.shieldXPCost ? Color.habPrimary : Color.gray.opacity(0.4))
-                                                    .cornerRadius(Radius.md)
-                                                }
-                                                .padding(14)
-                                                .background(Color.habCard)
-                                                .cornerRadius(Radius.lg)
-                                                .padding(.horizontal, Spacing.lg)
-                                            }
-                                            .disabled(user.totalXp < GamificationEngine.shieldXPCost)
-                                            .buttonStyle(.plain)
-                                        }
-                                    }
-                                }
-                            } else {
-                                // ── SECCIÓN 2: POTENCIADORES DE DAÑO AL MONSTRUO ──
-                                VStack(alignment: .leading, spacing: Spacing.md) {
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("Potenciadores de Ataque al Boss")
-                                            .font(.headline)
-                                            .foregroundStyle(Color.primary)
-                                        Text("Aumenta el daño que infliges al Monstruo de la Procrastinación para avanzar de fase más rápido.")
-                                            .font(.caption)
-                                            .foregroundStyle(Color.secondary)
-                                    }
-                                    .padding(.horizontal, Spacing.lg)
-                                    .padding(.top, Spacing.md)
-                                    
-                                    // Tarjeta 1: Multiplicador 2X
-                                    Button {
-                                        purchase2XBooster()
-                                    } label: {
-                                        HStack(spacing: Spacing.md) {
-                                            ZStack {
-                                                Circle()
-                                                    .fill(Color(hex: "#8B5CF6").opacity(0.15))
-                                                    .frame(width: 48, height: 48)
-                                                Image(systemName: "bolt.shield.fill")
-                                                    .font(.system(size: 22))
-                                                    .foregroundStyle(Color(hex: "#8B5CF6"))
-                                            }
-                                            
-                                            VStack(alignment: .leading, spacing: 3) {
-                                                HStack {
-                                                    Text("Multiplicador 2X de Daño")
-                                                        .font(.subheadline.bold())
-                                                        .foregroundStyle(Color.primary)
-                                                    
-                                                    if damageMultiplier > 1 {
-                                                        Text("ACTIVO")
-                                                            .font(.system(size: 9, weight: .black))
-                                                            .foregroundStyle(Color.white)
-                                                            .padding(.horizontal, 6)
-                                                            .padding(.vertical, 2)
-                                                            .background(Color(hex: "#00F5D4"))
-                                                            .cornerRadius(4)
-                                                    }
-                                                }
-                                                
-                                                Text("Cada hábito completado inflige 20 HP de daño (en vez de 10 HP).")
-                                                    .font(.caption)
-                                                    .foregroundStyle(Color.secondary)
-                                                    .lineLimit(2)
-                                            }
-                                            
-                                            Spacer()
-                                            
-                                            HStack(spacing: 4) {
-                                                Text("\(GamificationEngine.booster2XCost) XP")
-                                                    .font(.caption.bold())
-                                            }
-                                            .foregroundStyle(Color.white)
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 8)
-                                            .background(
-                                                damageMultiplier > 1 ? Color.gray.opacity(0.4) : (user.totalXp >= GamificationEngine.booster2XCost ? Color(hex: "#8B5CF6") : Color.gray.opacity(0.4))
-                                            )
-                                            .cornerRadius(Radius.md)
-                                        }
-                                        .padding(14)
-                                        .background(Color.habCard)
-                                        .cornerRadius(Radius.lg)
-                                        .padding(.horizontal, Spacing.lg)
-                                    }
-                                    .disabled(damageMultiplier > 1 || user.totalXp < GamificationEngine.booster2XCost)
-                                    .buttonStyle(.plain)
-                                    
-                                    // Tarjeta 2: Bomba de Daño Directo (50 HP)
-                                    Button {
-                                        purchaseDamageBomb()
-                                    } label: {
-                                        HStack(spacing: Spacing.md) {
-                                            ZStack {
-                                                Circle()
-                                                    .fill(Color(hex: "#FF3B30").opacity(0.15))
-                                                    .frame(width: 48, height: 48)
-                                                Image(systemName: "flame.fill")
-                                                    .font(.system(size: 22))
-                                                    .foregroundStyle(Color(hex: "#FF3B30"))
-                                            }
-                                            
-                                            VStack(alignment: .leading, spacing: 3) {
-                                                Text("Bomba Explosiva (+50 HP)")
-                                                    .font(.subheadline.bold())
-                                                    .foregroundStyle(Color.primary)
-                                                
-                                                Text("Inflige un impacto instantáneo de 50 HP de daño directo al enemigo actual.")
-                                                    .font(.caption)
-                                                    .foregroundStyle(Color.secondary)
-                                                    .lineLimit(2)
-                                            }
-                                            
-                                            Spacer()
-                                            
-                                            HStack(spacing: 4) {
-                                                Text("\(GamificationEngine.bombCost) XP")
-                                                    .font(.caption.bold())
-                                            }
-                                            .foregroundStyle(Color.white)
-                                            .padding(.horizontal, 12)
-                                            .padding(.vertical, 8)
-                                            .background(user.totalXp >= GamificationEngine.bombCost ? Color(hex: "#FF3B30") : Color.gray.opacity(0.4))
-                                            .cornerRadius(Radius.md)
-                                        }
-                                        .padding(14)
-                                        .background(Color.habCard)
-                                        .cornerRadius(Radius.lg)
-                                        .padding(.horizontal, Spacing.lg)
-                                    }
-                                    .disabled(user.totalXp < GamificationEngine.bombCost)
-                                    .buttonStyle(.plain)
-                                }
+                    .pickerStyle(.segmented)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
+                } footer: {
+                    Text("Saldo disponible: \(user.totalXp) XP")
+                }
+
+                if selectedTab == 0 {
+                    Section {
+                        if habits.isEmpty {
+                            ContentUnavailableView("Sin hábitos activos", systemImage: "shield")
+                        } else {
+                            ForEach(habits) { habit in
+                                shopRow(
+                                    icon: habit.icon ?? "star.fill",
+                                    color: habit.swiftUIColor,
+                                    title: habit.name,
+                                    subtitle: "Escudos activos: \(habit.shields)",
+                                    cost: GamificationEngine.shieldXPCost,
+                                    enabled: user.totalXp >= GamificationEngine.shieldXPCost
+                                ) { purchaseShield(for: habit) }
                             }
                         }
-                        .padding(.bottom, Spacing.xl)
+                    } footer: {
+                        Text("Un escudo evita que pierdas tu racha si olvidas completar el hábito un día.")
                     }
+                    .glassListRow()
+                } else {
+                    Section {
+                        shopRow(
+                            icon: "bolt.fill",
+                            color: .habPrimary,
+                            title: damageMultiplier > 1 ? "Multiplicador 2X · Activo" : "Multiplicador 2X",
+                            subtitle: "Cada hábito inflige 20 HP en vez de 10.",
+                            cost: GamificationEngine.booster2XCost,
+                            enabled: damageMultiplier <= 1 && user.totalXp >= GamificationEngine.booster2XCost
+                        ) { purchase2XBooster() }
+
+                        shopRow(
+                            icon: "flame.fill",
+                            color: .habDanger,
+                            title: "Bomba (+50 HP)",
+                            subtitle: "Daño directo e instantáneo al enemigo actual.",
+                            cost: GamificationEngine.bombCost,
+                            enabled: user.totalXp >= GamificationEngine.bombCost
+                        ) { purchaseDamageBomb() }
+                    } footer: {
+                        Text("Avanza de fase más rápido contra el jefe semanal.")
+                    }
+                    .glassListRow()
                 }
             }
-            .navigationTitle("Tienda de Recompensas XP")
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background { AuroraBackground() }
+            .tint(Color.habPrimary)
+            .navigationTitle("Tienda XP")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cerrar") {
-                        dismiss()
-                    }
-                    .font(.body)
-                    .foregroundStyle(Color.habDanger)
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Listo") { dismiss() }
+                        .fontWeight(.semibold)
                 }
             }
             .alert("Tienda XP", isPresented: $showAlert) {
@@ -272,13 +100,41 @@ struct ShieldShopSheet: View {
             }
         }
     }
+
+    private func shopRow(icon: String, color: Color, title: String, subtitle: String, cost: Int, enabled: Bool, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack(spacing: Spacing.md) {
+                Image(systemName: icon)
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 32, height: 32)
+                    .glassEffect(.regular.tint(color.opacity(0.75)), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+                    .accessibilityHidden(true)
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(title)
+                        .foregroundStyle(Color.primary)
+                    Text(subtitle)
+                        .font(.footnote)
+                        .foregroundStyle(Color.secondary)
+                }
+
+                Spacer(minLength: Spacing.sm)
+
+                Text("\(cost) XP")
+                    .font(.subheadline.monospacedDigit())
+                    .foregroundStyle(enabled ? Color.habPrimary : Color.secondary)
+            }
+        }
+        .disabled(!enabled)
+    }
     
     private func purchaseShield(for habit: Habit) {
         let success = GamificationEngine.purchaseShield(for: habit, user: user, context: modelContext)
         let generator = UINotificationFeedbackGenerator()
         if success {
             generator.notificationOccurred(.success)
-            alertMessage = "¡Escudo protector asignado exitosamente a '\(habit.name)'!"
+            alertMessage = "Escudo asignado a «\(habit.name)»."
             showAlert = true
         } else {
             generator.notificationOccurred(.error)
@@ -290,7 +146,7 @@ struct ShieldShopSheet: View {
         let generator = UINotificationFeedbackGenerator()
         if success {
             generator.notificationOccurred(.success)
-            alertMessage = "¡Potenciador 2X de Daño activado! Ahora tus hábitos infligen el doble de daño."
+            alertMessage = "Potenciador 2X activado."
             showAlert = true
         } else {
             generator.notificationOccurred(.error)
@@ -302,7 +158,7 @@ struct ShieldShopSheet: View {
         let generator = UINotificationFeedbackGenerator()
         if success {
             generator.notificationOccurred(.success)
-            alertMessage = "¡Bomba Explosiva detonada! Infligiste 50 HP de daño directo al enemigo."
+            alertMessage = "Bomba lanzada: 50 HP de daño directo."
             showAlert = true
         } else {
             generator.notificationOccurred(.error)

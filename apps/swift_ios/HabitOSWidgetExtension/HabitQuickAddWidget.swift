@@ -24,37 +24,22 @@ struct HabitQuickAddEntryView: View {
     
     // MARK: - Pantalla de Inicio (systemSmall)
     private var homeScreenView: some View {
-        VStack(spacing: 8) {
-            Spacer()
-            
-            ZStack {
-                Circle()
-                    .fill(LinearGradient(
-                        colors: [Color(hex: "#7B2CBF"), Color(hex: "#00F5D4")],
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    ))
-                    .frame(width: 52, height: 52)
-                    .shadow(color: Color(hex: "#00F5D4").opacity(0.3), radius: 6)
-                
-                Image(systemName: "plus")
-                    .font(.system(size: 24, weight: .bold))
-                    .foregroundColor(.white)
+        VStack(spacing: 10) {
+            Image(systemName: "plus")
+                .font(.system(size: 26, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 64, height: 64)
+                .glassEffect(.regular.tint(Color(hex: "#3B82F6").opacity(0.8)), in: Circle())
+
+            VStack(spacing: 1) {
+                Text("Nuevo hábito")
+                    .font(.system(.subheadline, design: .rounded, weight: .semibold))
+                Text("Crear rutina")
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
             }
-            
-            Spacer()
-            
-            Text("Nuevo Hábito")
-                .font(.system(size: 13, weight: .bold, design: .rounded))
-                .foregroundColor(.white)
-            
-            Text("Crear rutina rápida")
-                .font(.system(size: 9))
-                .foregroundColor(.gray)
-                .padding(.bottom, 4)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(Color(hex: "#0D0F14"))
         .widgetURL(URL(string: "habitos://create"))
     }
     
@@ -82,7 +67,7 @@ struct HabitQuickAddEntryView: View {
             VStack(alignment: .leading, spacing: 1) {
                 Text("HabitOS")
                     .font(.system(size: 10, weight: .bold))
-                Text("Nuevo Hábito")
+                Text("Nuevo hábito")
                     .font(.system(size: 12, weight: .bold))
             }
         }
@@ -97,6 +82,7 @@ struct HabitQuickAddWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: HabitWidgetTimelineProvider()) { entry in
             HabitQuickAddEntryView(entry: entry)
+                .containerBackground(for: .widget) { WidgetAurora() }
         }
         .configurationDisplayName("HabitOS — Acceso Rápido")
         .description("Añade un hábito rápidamente desde tu pantalla de inicio o de bloqueo.")

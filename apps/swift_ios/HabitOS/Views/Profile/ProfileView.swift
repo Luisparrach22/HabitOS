@@ -129,368 +129,185 @@ struct ProfileView: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color.habBackground
-                    .ignoresSafeArea()
-                
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: Spacing.lg) {
-                        
-                        // 1. Tarjeta Principal de Perfil y Nivel
-                        VStack(spacing: Spacing.md) {
-                            // Avatar interactivo con Badge de Nivel
-                            ZStack(alignment: .bottomTrailing) {
-                                Button {
-                                    let generator = UIImpactFeedbackGenerator(style: .light)
-                                    generator.impactOccurred()
-                                    showingAvatarPicker = true
-                                } label: {
-                                    AvatarView(avatarString: currentUser?.avatarUrl, size: 80)
-                                }
-                                .buttonStyle(.plain)
-                                
-                                Text("Nv. \(currentUser?.level ?? 1)")
-                                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                                    .foregroundStyle(Color.white)
-                                    .padding(.horizontal, 8)
-                                    .padding(.vertical, 3)
-                                    .background(Color.habWarning)
-                                    .cornerRadius(Radius.full)
-                            }
-                            
-                            VStack(spacing: 2) {
-                                HStack(spacing: 8) {
-                                    Text(currentUser?.name ?? "Desarrollador HabitOS")
-                                        .font(.system(.title3, design: .rounded))
-                                        .fontWeight(.bold)
-                                        .foregroundStyle(Color.primary)
-                                    
-                                    if currentUser?.isPro ?? false {
-                                        Text("PRO")
-                                            .font(.system(size: 10, weight: .black, design: .rounded))
-                                            .foregroundStyle(Color.white)
-                                            .padding(.horizontal, 6)
-                                            .padding(.vertical, 2)
-                                            .background(
-                                                LinearGradient(
-                                                    colors: [Color(hex: "#8B5CF6"), Color(hex: "#EC4899")],
-                                                    startPoint: .leading,
-                                                    endPoint: .trailing
-                                                )
-                                            )
-                                            .cornerRadius(6)
-                                    } else {
-                                        Text("GRATIS")
-                                            .font(.system(size: 10, weight: .bold, design: .rounded))
-                                            .foregroundStyle(Color.secondary)
-                                            .padding(.horizontal, 6)
-                                            .padding(.vertical, 2)
-                                            .background(Color.primary.opacity(0.06))
-                                            .cornerRadius(6)
-                                    }
-                                }
-                                
-                                Text(currentUser?.email ?? "usuario@habitos.app")
-                                    .font(.footnote)
-                                    .foregroundStyle(Color.secondary)
-                            }
-                            
-                            if let user = currentUser {
-                                HStack(spacing: 12) {
-                                    Button {
-                                        showingEditProfile = true
-                                    } label: {
-                                        Text("Editar Perfil")
-                                            .font(.system(size: 11, weight: .bold, design: .rounded))
-                                            .foregroundStyle(Color.habPrimary)
-                                            .padding(.horizontal, 10)
-                                            .padding(.vertical, 4)
-                                            .background(Color.habPrimary.opacity(0.1))
-                                            .cornerRadius(Radius.full)
-                                    }
-                                    .buttonStyle(.plain)
-                                    
-                                    if !user.isPro {
-                                        Button {
-                                            showingPaywall = true
-                                        } label: {
-                                            Text("Obtener Pro ✨")
-                                                .font(.system(size: 11, weight: .bold, design: .rounded))
-                                                .foregroundStyle(Color.white)
-                                                .padding(.horizontal, 10)
-                                                .padding(.vertical, 4)
-                                                .background(
-                                                    LinearGradient(
-                                                        colors: [Color(hex: "#8B5CF6"), Color(hex: "#EC4899")],
-                                                        startPoint: .leading,
-                                                        endPoint: .trailing
-                                                    )
-                                                )
-                                                .cornerRadius(Radius.full)
-                                        }
-                                        .buttonStyle(.plain)
-                                    }
-                                }
-                                .padding(.top, 4)
-                            }
-                            
-                            // Barra de Progreso a Siguiente Nivel
-                            let currentXP = GamificationEngine.xpInCurrentLevel(totalXP: currentUser?.totalXp ?? 0)
-                            let xpLimit = GamificationEngine.xpPerLevel
-                            let fraction = CGFloat(GamificationEngine.levelProgressFraction(totalXP: currentUser?.totalXp ?? 0))
-                            
-                            VStack(alignment: .leading, spacing: Spacing.xs) {
-                                HStack {
-                                    Text("Progreso de Nivel")
-                                        .font(.system(size: 11, weight: .bold, design: .rounded))
-                                        .foregroundStyle(Color.secondary)
-                                    Spacer()
-                                    Text("\(currentXP) / \(xpLimit) XP")
-                                        .font(.system(size: 11, design: .rounded))
-                                        .foregroundStyle(Color.secondary)
-                                }
-                                
-                                GeometryReader { geometry in
-                                    ZStack(alignment: .leading) {
-                                        Capsule()
-                                            .fill(Color.primary.opacity(0.04))
-                                            .frame(height: 8)
-                                        
-                                        Capsule()
-                                            .fill(Color.habPrimary)
-                                            .frame(width: geometry.size.width * fraction, height: 8)
-                                    }
-                                }
-                                .frame(height: 8)
-                            }
-                            .padding(.top, Spacing.sm)
+            List {
+                // Cabecera de perfil
+                Section {
+                    VStack(spacing: Spacing.md) {
+                        Button {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            showingAvatarPicker = true
+                        } label: {
+                            AvatarView(avatarString: currentUser?.avatarUrl, size: 80)
                         }
-                        .padding(18)
-                        .background(Color.habCard)
-                        .cornerRadius(Radius.xl2)
-                        .shadow(color: Color.black.opacity(0.01), radius: 6, x: 0, y: 3)
-                        
-                        // 2. Inventario de Escudos
-                        HStack(spacing: Spacing.md) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.habPrimary.opacity(0.1))
-                                    .frame(width: 44, height: 44)
-                                Image(systemName: "shield.fill")
-                                    .font(.system(size: 20))
-                                    .foregroundStyle(Color.habPrimary)
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("Escudos de Protección")
-                                    .font(.system(.headline, design: .rounded))
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(Color.primary)
-                                Text("Tienes \(totalShieldsCount) escudos activos en tus hábitos.")
-                                    .font(.footnote)
-                                    .foregroundStyle(Color.secondary)
-                            }
-                            
-                            Spacer()
-                            
-                            if let user = currentUser {
-                                let canAfford = user.totalXp >= GamificationEngine.shieldXPCost
-                                Button {
-                                    let generator = UIImpactFeedbackGenerator(style: .medium)
-                                    generator.impactOccurred()
-                                    showingShieldShop = true
-                                } label: {
-                                    Text(canAfford ? "Comprar ⚡" : "Comprar")
-                                        .font(.system(size: 11, weight: .bold, design: .rounded))
-                                        .foregroundStyle(canAfford ? Color.white : Color.secondary)
-                                        .padding(.horizontal, 10)
-                                        .padding(.vertical, 6)
-                                        .background(canAfford ? Color.habPrimary : Color.primary.opacity(0.04))
-                                        .cornerRadius(Radius.sm)
-                                }
-                                .buttonStyle(.plain)
-                                .disabled(!canAfford || habits.isEmpty)
-                            }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Cambiar avatar")
+
+                        VStack(spacing: 2) {
+                            Text(currentUser?.name ?? "Desarrollador HabitOS")
+                                .font(.title3.weight(.semibold))
+                            Text(currentUser?.email ?? "usuario@habitos.app")
+                                .font(.footnote)
+                                .foregroundStyle(Color.secondary)
                         }
-                        .padding(14)
-                        .background(Color.habCard)
-                        .cornerRadius(Radius.lg)
-                        .shadow(color: Color.black.opacity(0.01), radius: 4, x: 0, y: 2)
-                        
-                        // 3. Resumen de Insignias y Logros
-                        VStack(alignment: .leading, spacing: Spacing.sm) {
+
+                        let currentXP = GamificationEngine.xpInCurrentLevel(totalXP: currentUser?.totalXp ?? 0)
+                        let xpLimit = GamificationEngine.xpPerLevel
+                        let fraction = GamificationEngine.levelProgressFraction(totalXP: currentUser?.totalXp ?? 0)
+
+                        VStack(alignment: .leading, spacing: Spacing.xs) {
                             HStack {
-                                Image(systemName: "trophy.fill")
-                                    .foregroundStyle(Color.habWarning)
-                                    .font(.subheadline)
-                                Text("Insignias y Logros")
-                                    .font(.system(.subheadline, design: .rounded))
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(Color.primary)
+                                Text("Nivel \(currentUser?.level ?? 1)")
+                                    .font(.subheadline.weight(.medium))
                                 Spacer()
-                                Button {
-                                    let generator = UIImpactFeedbackGenerator(style: .medium)
-                                    generator.impactOccurred()
-                                    showingAllAchievements = true
-                                } label: {
-                                    HStack(spacing: 4) {
-                                        Text("Ver todos (\(unlockedCount))")
-                                            .font(.system(.footnote, design: .rounded).bold())
-                                        Image(systemName: "chevron.right")
-                                            .font(.system(size: 10, weight: .bold))
-                                    }
-                                    .foregroundStyle(Color.habPrimary)
-                                }
+                                Text("\(currentXP) / \(xpLimit) XP")
+                                    .font(.footnote.monospacedDigit())
+                                    .foregroundStyle(Color.secondary)
                             }
-                            .padding(.horizontal, Spacing.xs)
-                            
-                            // Vista previa compacta (3 insignias horizontales)
-                            HStack(spacing: Spacing.sm) {
-                                ForEach(achievements.prefix(3)) { achievement in
-                                    AchievementPreviewCell(achievement: achievement)
-                                }
-                            }
-                            .padding(.top, 4)
-                        }
-                        
-                        // 4. Aspecto y Personalización
-                        VStack(alignment: .leading, spacing: Spacing.sm) {
-                            Text("ASPECTO Y PERSONALIZACIÓN")
-                                .font(.system(size: 10, weight: .bold, design: .rounded))
-                                .foregroundStyle(Color.secondary)
-                                .padding(.horizontal, Spacing.xs)
-                            
-                            VStack(spacing: 0) {
-                                // 1. Tema Claro/Oscuro/Sistema
-                                HStack {
-                                    Label("Tema de la App", systemImage: "paintbrush.fill")
-                                        .font(.body)
-                                        .foregroundStyle(Color.primary)
-                                    Spacer()
-                                    Picker("", selection: $appThemeMode) {
-                                        ForEach(AppThemeMode.allCases) { mode in
-                                            Text(mode.displayName).tag(mode.rawValue)
-                                        }
-                                    }
-                                    .pickerStyle(.menu)
-                                    .tint(Color.habPrimary)
-                                }
-                                .padding(14)
-                                
-                                Divider()
-                                    .opacity(0.5)
-                                
-                                // 2. Temas de color globales
-                                HStack {
-                                    Label("Tema de Color", systemImage: "paintpalette.fill")
-                                        .font(.body)
-                                        .foregroundStyle(Color.primary)
-                                    Spacer()
-                                    Picker("", selection: Binding(
-                                        get: { selectedGlobalTheme },
-                                        set: { newValue in
-                                            let theme = GlobalTheme(rawValue: newValue) ?? .original
-                                            let isPro = currentUser?.isPro ?? false
-                                            if theme.isPremium && !isPro {
-                                                showingPaywall = true
-                                            } else {
-                                                selectedGlobalTheme = newValue
-                                            }
-                                        }
-                                    )) {
-                                        ForEach(GlobalTheme.allCases) { theme in
-                                            Text(theme.rawValue + (theme.isPremium ? " 👑" : "")).tag(theme.rawValue)
-                                        }
-                                    }
-                                    .pickerStyle(.menu)
-                                    .tint(Color.habPrimary)
-                                }
-                                .padding(14)
-                                
-                                Divider()
-                                    .opacity(0.5)
-                                
-                                // 3. Icono alternativo
-                                HStack {
-                                    Label("Icono de la App", systemImage: "app.dashed")
-                                        .font(.body)
-                                        .foregroundStyle(Color.primary)
-                                    Spacer()
-                                    Picker("", selection: Binding(
-                                        get: { currentAppIcon },
-                                        set: { newValue in
-                                            let isPro = currentUser?.isPro ?? false
-                                            if newValue != "default" && !isPro {
-                                                showingPaywall = true
-                                            } else {
-                                                changeAppIcon(to: newValue)
-                                            }
-                                        }
-                                    )) {
-                                        Text("Original").tag("default")
-                                        Text("Cyberpunk 👑").tag("cyberpunk")
-                                        Text("Minimal 👑").tag("minimal")
-                                        Text("Sunset 👑").tag("sunset")
-                                    }
-                                    .pickerStyle(.menu)
-                                    .tint(Color.habPrimary)
-                                }
-                                .padding(14)
-                            }
-                            .background(Color.habCard)
-                            .cornerRadius(Radius.lg)
-                        }
-                        
-                        // 5. Ajustes de la App
-                        VStack(alignment: .leading, spacing: Spacing.sm) {
-                            Text("AJUSTES")
-                                .font(.system(size: 10, weight: .bold, design: .rounded))
-                                .foregroundStyle(Color.secondary)
-                                .padding(.horizontal, Spacing.xs)
-                            
-                            VStack(spacing: 0) {
-                                HStack {
-                                    Label("Zona Horaria", systemImage: "globe")
-                                        .font(.body)
-                                        .foregroundStyle(Color.primary)
-                                    Spacer()
-                                    Text(TimeZone.current.identifier)
-                                        .font(.footnote)
-                                        .foregroundStyle(Color.secondary)
-                                }
-                                .padding(14)
-                                
-                                Divider()
-                                    .opacity(0.5)
-                                
-                                // Cerrar Sesión
-                                Button {
-                                    let generator = UIImpactFeedbackGenerator(style: .medium)
-                                    generator.impactOccurred()
-                                    withAnimation {
-                                        currentUserId = ""
-                                    }
-                                } label: {
-                                    HStack {
-                                        Label("Cerrar Sesión", systemImage: "arrow.right.square")
-                                            .font(.body)
-                                            .foregroundStyle(Color.habDanger)
-                                        Spacer()
-                                    }
-                                    .padding(14)
-                                }
-                                .buttonStyle(.plain)
-                            }
-                            .background(Color.habCard)
-                            .cornerRadius(Radius.lg)
+                            ProgressView(value: fraction)
+                                .tint(Color.habPrimary)
                         }
                     }
                     .frame(maxWidth: .infinity)
-                    .padding(.horizontal, Spacing.lg)
-                    .padding(.bottom, Spacing.xl3)
+                    .padding(.vertical, Spacing.sm)
+
+                    Button("Editar perfil") { showingEditProfile = true }
+                    if let user = currentUser, !user.isPro {
+                        Button {
+                            showingPaywall = true
+                        } label: {
+                            HStack {
+                                Text("Obtener Pro")
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.footnote.weight(.semibold))
+                                    .foregroundStyle(Color(uiColor: .tertiaryLabel))
+                            }
+                        }
+                    }
                 }
-                .scrollBounceBehavior(.basedOnSize, axes: .vertical)
+                .glassListRow()
+
+                // Escudos
+                Section {
+                    HStack {
+                        Label("Escudos activos", systemImage: "shield.fill")
+                        Spacer()
+                        Text("\(totalShieldsCount)")
+                            .foregroundStyle(Color.secondary)
+                            .monospacedDigit()
+                    }
+                    if let user = currentUser {
+                        let canAfford = user.totalXp >= GamificationEngine.shieldXPCost
+                        Button {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            showingShieldShop = true
+                        } label: {
+                            HStack {
+                                Text("Comprar escudo")
+                                Spacer()
+                                Text("\(GamificationEngine.shieldXPCost) XP")
+                                    .foregroundStyle(Color.secondary)
+                            }
+                        }
+                        .disabled(!canAfford || habits.isEmpty)
+                    }
+                } header: {
+                    Text("Protección")
+                } footer: {
+                    Text("Un escudo salva tu racha si olvidas un día.")
+                }
+                .glassListRow()
+
+                // Logros
+                Section("Logros") {
+                    Button {
+                        showingAllAchievements = true
+                    } label: {
+                        HStack {
+                            Label("Insignias", systemImage: "trophy.fill")
+                                .foregroundStyle(Color.primary)
+                            Spacer()
+                            Text("\(unlockedCount) de \(achievements.count)")
+                                .foregroundStyle(Color.secondary)
+                            Image(systemName: "chevron.right")
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(Color(uiColor: .tertiaryLabel))
+                        }
+                    }
+                }
+                .glassListRow()
+
+                // Aspecto
+                Section("Aspecto") {
+                    Picker(selection: $appThemeMode) {
+                        ForEach(AppThemeMode.allCases) { mode in
+                            Text(mode.displayName).tag(mode.rawValue)
+                        }
+                    } label: {
+                        Label("Apariencia", systemImage: "circle.lefthalf.filled")
+                    }
+
+                    Picker(selection: Binding(
+                        get: { selectedGlobalTheme },
+                        set: { newValue in
+                            let theme = GlobalTheme(rawValue: newValue) ?? .original
+                            let isPro = currentUser?.isPro ?? false
+                            if theme.isPremium && !isPro {
+                                showingPaywall = true
+                            } else {
+                                selectedGlobalTheme = newValue
+                            }
+                        }
+                    )) {
+                        ForEach(GlobalTheme.allCases) { theme in
+                            Text(theme.rawValue + (theme.isPremium ? " · Pro" : "")).tag(theme.rawValue)
+                        }
+                    } label: {
+                        Label("Tema de color", systemImage: "paintpalette")
+                    }
+
+                    Picker(selection: Binding(
+                        get: { currentAppIcon },
+                        set: { newValue in
+                            let isPro = currentUser?.isPro ?? false
+                            if newValue != "default" && !isPro {
+                                showingPaywall = true
+                            } else {
+                                changeAppIcon(to: newValue)
+                            }
+                        }
+                    )) {
+                        Text("Original").tag("default")
+                        Text("Cyberpunk · Pro").tag("cyberpunk")
+                        Text("Minimal · Pro").tag("minimal")
+                        Text("Sunset · Pro").tag("sunset")
+                    } label: {
+                        Label("Icono de la app", systemImage: "app")
+                    }
+                }
+                .glassListRow()
+
+                // Ajustes
+                Section("Ajustes") {
+                    HStack {
+                        Label("Zona horaria", systemImage: "globe")
+                        Spacer()
+                        Text(TimeZone.current.identifier)
+                            .foregroundStyle(Color.secondary)
+                    }
+                    Button(role: .destructive) {
+                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                        withAnimation { currentUserId = "" }
+                    } label: {
+                        Text("Cerrar sesión")
+                    }
+                }
+                .glassListRow()
             }
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background { AuroraBackground() }
+            .tint(Color.habPrimary)
             .navigationTitle("Perfil")
             .sheet(isPresented: $showingEditProfile) {
                 if let user = currentUser {
@@ -564,6 +381,7 @@ struct EditProfileSheet: View {
                         .textInputAutocapitalization(.never)
                         .keyboardType(.emailAddress)
                 }
+                .glassListRow()
             }
             .navigationTitle("Editar Perfil")
             .navigationBarTitleDisplayMode(.inline)
@@ -591,110 +409,41 @@ struct EditProfileSheet: View {
     }
 }
 
-// ── Tarjeta de Logro Premium ──
+// ── Tarjeta de Logro ──
 struct AchievementCard: View {
     let achievement: Achievement
     
     var body: some View {
         VStack(spacing: Spacing.sm) {
-            ZStack(alignment: .topTrailing) {
-                // Icono del logro con su color temático
-                ZStack {
-                    Circle()
-                        .fill(achievement.isUnlocked ? achievement.color.opacity(0.1) : Color.primary.opacity(0.04))
-                        .frame(width: 48, height: 48)
-                    
-                    Image(systemName: achievement.icon)
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundStyle(achievement.isUnlocked ? achievement.color : Color.secondary.opacity(0.5))
-                }
-                
-                // Indicador de estado (candado o checkmark)
-                if achievement.isUnlocked {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.caption2)
-                        .foregroundStyle(Color.habSuccess)
-                        .background(Circle().fill(Color.white))
-                        .offset(x: 2, y: -2)
-                } else {
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 8))
-                        .foregroundStyle(Color.secondary.opacity(0.6))
-                        .offset(x: 2, y: -2)
-                }
-            }
-            .padding(.top, Spacing.xs)
+            Image(systemName: achievement.icon)
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundStyle(achievement.isUnlocked ? Color.white : Color(uiColor: .tertiaryLabel))
+                .frame(width: 44, height: 44)
+                .background(
+                    achievement.isUnlocked ? achievement.color : Color.primary.opacity(0.06),
+                    in: RoundedRectangle(cornerRadius: 11, style: .continuous)
+                )
+                .accessibilityHidden(true)
             
             VStack(spacing: 2) {
                 Text(achievement.title)
-                    .font(.system(size: 13, weight: .bold, design: .rounded))
+                    .font(.subheadline.weight(.medium))
                     .foregroundStyle(achievement.isUnlocked ? Color.primary : Color.secondary)
                     .multilineTextAlignment(.center)
                     .lineLimit(1)
                 
                 Text(achievement.description)
-                    .font(.system(size: 10))
+                    .font(.caption)
                     .foregroundStyle(Color.secondary)
                     .multilineTextAlignment(.center)
-                    .lineLimit(2)
-                    .frame(height: 28, alignment: .top)
+                    .lineLimit(2, reservesSpace: true)
             }
         }
-        .padding(12)
+        .padding(Spacing.md)
         .frame(maxWidth: .infinity)
-        .background(Color.habCard)
-        .cornerRadius(Radius.md)
-        .shadow(color: Color.black.opacity(0.01), radius: 3, x: 0, y: 1.5)
-        .overlay(
-            RoundedRectangle(cornerRadius: Radius.md)
-                .stroke(achievement.isUnlocked ? achievement.color.opacity(0.15) : Color.primary.opacity(0.03), lineWidth: 1)
-        )
-        .opacity(achievement.isUnlocked ? 1.0 : 0.65)
-    }
-}
-
-// ── Celda de Vista Previa de Logro ──
-struct AchievementPreviewCell: View {
-    let achievement: Achievement
-    
-    var body: some View {
-        VStack(spacing: 8) {
-            ZStack(alignment: .topTrailing) {
-                ZStack {
-                    Circle()
-                        .fill(achievement.isUnlocked ? achievement.color.opacity(0.12) : Color.primary.opacity(0.04))
-                        .frame(width: 44, height: 44)
-                    
-                    Image(systemName: achievement.icon)
-                        .font(.system(size: 18, weight: .semibold))
-                        .foregroundStyle(achievement.isUnlocked ? achievement.color : Color.secondary.opacity(0.4))
-                }
-                
-                if achievement.isUnlocked {
-                    Image(systemName: "checkmark.circle.fill")
-                        .font(.system(size: 10))
-                        .foregroundStyle(Color.habSuccess)
-                        .background(Circle().fill(Color.white))
-                        .offset(x: 2, y: -2)
-                }
-            }
-            
-            Text(achievement.title)
-                .font(.system(size: 10, weight: .bold, design: .rounded))
-                .foregroundStyle(achievement.isUnlocked ? Color.primary : Color.secondary)
-                .multilineTextAlignment(.center)
-                .lineLimit(1)
-        }
-        .padding(.vertical, 12)
-        .padding(.horizontal, 8)
-        .frame(maxWidth: .infinity)
-        .background(Color.habCard)
-        .cornerRadius(Radius.md)
-        .overlay(
-            RoundedRectangle(cornerRadius: Radius.md)
-                .stroke(achievement.isUnlocked ? achievement.color.opacity(0.15) : Color.primary.opacity(0.03), lineWidth: 1)
-        )
-        .opacity(achievement.isUnlocked ? 1.0 : 0.7)
+        .glassCard(Radius.lg)
+        .accessibilityElement(children: .combine)
+        .accessibilityValue(achievement.isUnlocked ? "Desbloqueado" : "Bloqueado")
     }
 }
 
@@ -714,97 +463,35 @@ struct AchievementsDetailSheet: View {
     
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color.habBackground
-                    .ignoresSafeArea()
-                
-                ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: Spacing.lg) {
-                        // 1. Cabecera e Indicador de Progreso
-                        VStack(alignment: .leading, spacing: Spacing.sm) {
-                            HStack {
-                                Text("Tu Progreso de Logros")
-                                    .font(.system(.subheadline, design: .rounded))
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(Color.primary)
-                                Spacer()
-                                Text("\(unlockedCount) de \(achievements.count) completados")
-                                    .font(.system(.footnote, design: .rounded).bold())
-                                    .foregroundStyle(Color.secondary)
-                            }
-                            
-                            // Barra de Progreso de Logros
-                            let fraction = CGFloat(unlockedCount) / CGFloat(achievements.count)
-                            GeometryReader { geometry in
-                                ZStack(alignment: .leading) {
-                                    Capsule()
-                                        .fill(Color.primary.opacity(0.04))
-                                        .frame(height: 8)
-                                    
-                                    Capsule()
-                                        .fill(Color.habWarning)
-                                        .frame(width: geometry.size.width * fraction, height: 8)
-                                }
-                            }
-                            .frame(height: 8)
+            ScrollView {
+                VStack(spacing: Spacing.lg) {
+                    Picker("Categoría", selection: $selectedCategory.animation(.snappy)) {
+                        ForEach(AchievementCategory.allCases) { category in
+                            Text(category.rawValue).tag(category)
                         }
-                        .padding(.horizontal, Spacing.xs)
-                        
-                        // 2. Selector de Categoría (Chips Horizontales)
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: Spacing.sm) {
-                                ForEach(AchievementCategory.allCases) { category in
-                                    let isSelected = selectedCategory == category
-                                    Button {
-                                        let generator = UIImpactFeedbackGenerator(style: .light)
-                                        generator.impactOccurred()
-                                        withAnimation(.spring(response: 0.25, dampingFraction: 0.75)) {
-                                            selectedCategory = category
-                                        }
-                                    } label: {
-                                        HStack(spacing: 6) {
-                                            Image(systemName: category.iconName)
-                                                .font(.system(size: 11))
-                                            Text(category.rawValue)
-                                                .font(.system(size: 12, weight: .bold, design: .rounded))
-                                        }
-                                        .padding(.horizontal, 12)
-                                        .padding(.vertical, 6)
-                                        .background(isSelected ? Color.habPrimary : Color.habCard)
-                                        .foregroundStyle(isSelected ? Color.white : Color.secondary)
-                                        .cornerRadius(Radius.full)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: Radius.full)
-                                                .stroke(isSelected ? Color.clear : Color.habBorderLight, lineWidth: 1)
-                                        )
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                            }
-                            .padding(.vertical, 2)
-                            .padding(.horizontal, 2)
-                        }
-                        
-                        // 3. Rejilla de Logros Filtrados
-                        LazyVGrid(columns: columns, spacing: 12) {
-                            ForEach(filteredAchievements) { achievement in
-                                AchievementCard(achievement: achievement)
-                            }
-                        }
-                        .padding(.top, Spacing.xs)
                     }
-                    .padding()
+                    .pickerStyle(.segmented)
+                    
+                    Text("\(unlockedCount) de \(achievements.count) desbloqueadas")
+                        .font(.footnote)
+                        .foregroundStyle(Color.secondary)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    
+                    LazyVGrid(columns: columns, spacing: 12) {
+                        ForEach(filteredAchievements) { achievement in
+                            AchievementCard(achievement: achievement)
+                        }
+                    }
                 }
+                .padding(Spacing.lg)
             }
-            .navigationTitle("Insignias y Logros")
+            .background { AuroraBackground() }
+            .navigationTitle("Logros")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Listo") {
-                        dismiss()
-                    }
-                    .font(.system(.body, design: .rounded).bold())
-                    .foregroundStyle(Color.habPrimary)
+                    Button("Listo") { dismiss() }
+                        .fontWeight(.semibold)
                 }
             }
         }

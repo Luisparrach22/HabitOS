@@ -17,108 +17,77 @@ struct HabitCard: View {
     
     var body: some View {
         HStack(spacing: Spacing.md) {
-            
-            // Icono del hábito con su color personalizado
-            ZStack {
-                Circle()
-                    .fill(habit.swiftUIColor.opacity(0.1))
-                    .frame(width: 44, height: 44)
-                
-                Image(systemName: habit.icon ?? "star.fill")
-                    .foregroundStyle(habit.swiftUIColor)
-                    .font(.system(size: 18, weight: .semibold))
-            }
-            
-            // Textos descriptivos (Nombre, disparador y racha)
+
+            Image(systemName: habit.icon ?? "star.fill")
+                .font(.system(size: 19, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 44, height: 44)
+                .background(
+                    LinearGradient(
+                        colors: [habit.swiftUIColor.opacity(0.85), habit.swiftUIColor],
+                        startPoint: .top, endPoint: .bottom
+                    ),
+                    in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+                )
+                .shadow(color: habit.swiftUIColor.opacity(0.35), radius: 8, y: 3)
+                .saturation(habit.isCompletedToday ? 0.6 : 1)
+                .accessibilityHidden(true)
+
             VStack(alignment: .leading, spacing: 3) {
                 Text(habit.name)
-                    .font(.headline)
+                    .font(.system(.body, design: .rounded, weight: .semibold))
                     .foregroundStyle(habit.isCompletedToday ? Color.secondary : Color.primary)
-                    .strikethrough(habit.isCompletedToday, color: Color.secondary.opacity(0.4))
-                    .animation(.default, value: habit.isCompletedToday)
-                
-                // Mostrar disparador o frecuencia
-                Text(habit.trigger ?? habit.frequency.displayName)
-                    .font(.footnote)
-                    .foregroundStyle(Color.secondary)
                     .lineLimit(1)
-                
-                // Racha actual e indicativo de escudos
-                HStack(spacing: 10) {
-                    // Racha de fuego
-                    HStack(spacing: 3) {
-                        Image(systemName: "flame.fill")
-                            .foregroundStyle(habit.isCompletedToday ? Color.habWarning : Color.secondary)
-                            .font(.caption)
-                        Text("\(habit.currentStreak)d racha")
-                            .font(.caption.bold())
-                            .foregroundStyle(Color.secondary)
+
+                HStack(spacing: 6) {
+                    Text(habit.trigger ?? habit.frequency.displayName)
+                        .lineLimit(1)
+                    if habit.currentStreak > 0 {
+                        Label("\(habit.currentStreak)", systemImage: "flame.fill")
+                            .foregroundStyle(Color.habWarning)
                     }
-                    
-                    // Escudos activos (si tiene)
                     if habit.shields > 0 {
-                        HStack(spacing: 3) {
-                            Image(systemName: "shield.fill")
-                                .foregroundStyle(Color.habPrimary)
-                                .font(.caption)
-                            Text("\(habit.shields)")
-                                .font(.caption.bold())
-                                .foregroundStyle(Color.secondary)
-                        }
+                        Label("\(habit.shields)", systemImage: "shield.fill")
+                            .foregroundStyle(Color.habPrimary)
                     }
                 }
-                .padding(.top, 2)
+                .font(.footnote)
+                .foregroundStyle(Color.secondary)
             }
-            
-            Spacer()
-            
-            // Botón de Check-in Interactivo
+
+            Spacer(minLength: Spacing.sm)
+
             Button {
-                let generator = UIImpactFeedbackGenerator(style: .medium)
-                generator.impactOccurred()
-                
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 onCheckin()
             } label: {
                 ZStack {
                     Circle()
-                        .strokeBorder(
-                            habit.isCompletedToday ? Color.habSuccess : habit.swiftUIColor,
-                            lineWidth: 2
-                        )
-                        .background(
-                            Circle()
-                                .fill(habit.isCompletedToday ? Color.habSuccess : Color.clear)
-                        )
-                        .frame(width: 32, height: 32)
-                    
-                    if habit.isCompletedToday {
-                        Image(systemName: "checkmark")
-                            .foregroundStyle(Color.white)
-                            .font(.system(size: 12, weight: .bold))
-                            .transition(.scale.combined(with: .opacity))
-                    }
+                        .strokeBorder(habit.swiftUIColor.opacity(0.55), lineWidth: 2)
+                        .opacity(habit.isCompletedToday ? 0 : 1)
+                    Circle()
+                        .fill(habit.swiftUIColor)
+                        .scaleEffect(habit.isCompletedToday ? 1 : 0.2)
+                        .opacity(habit.isCompletedToday ? 1 : 0)
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundStyle(.white)
+                        .opacity(habit.isCompletedToday ? 1 : 0)
                 }
+                .frame(width: 32, height: 32)
+                .frame(width: 44, height: 44)
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            .animation(.spring(response: 0.25, dampingFraction: 0.65), value: habit.isCompletedToday)
+            .accessibilityLabel(habit.isCompletedToday ? "Marcar \(habit.name) como pendiente" : "Completar \(habit.name)")
+            .animation(.bouncy(duration: 0.35), value: habit.isCompletedToday)
         }
-        .padding(14)
-        .background(Color.habCard)
-        .cornerRadius(Radius.lg)
-        .shadow(
-            color: Color.black.opacity(0.02),
-            radius: 6, x: 0, y: 3
-        )
-        .scaleEffect(isPressing ? 0.98 : 1.0)
-        .animation(.easeInOut(duration: 0.1), value: isPressing)
-        .onTapGesture {
-            onTapGesture()
-        }
-        .onLongPressGesture(minimumDuration: 0.4, pressing: { pressing in
-            self.isPressing = pressing
-        }, perform: {
-            onTapGesture()
-        })
+        .padding(.leading, Spacing.md)
+        .padding(.trailing, Spacing.xs)
+        .padding(.vertical, Spacing.md)
+        .glassCard(Radius.lg, tint: habit.isCompletedToday ? habit.swiftUIColor : nil, interactive: true)
+        .contentShape(RoundedRectangle(cornerRadius: Radius.lg, style: .continuous))
+        .onTapGesture { onTapGesture() }
     }
 }
 

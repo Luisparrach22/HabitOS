@@ -7,11 +7,81 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01664B70DAC128B6F4674957 /* HabitStreakWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6A26C31B340C801F406955A0 /* HabitStreakWidget.swift */; };
+		0460B1D912DA0484D3A76462 /* GamificationWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = ADDAE45E477A6ACE7F25F914 /* GamificationWidget.swift */; };
+		2ED4B68D1040F6E8505FCB8F /* BossSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 284BEFCAB78D95234139EF91 /* BossSystem.swift */; };
+		34869052CA183AA49CB3FEF6 /* WeeklyStreakWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = D02CA3109511999A4147B800 /* WeeklyStreakWidget.swift */; };
+		38CFD8F346D81678DD5D64E3 /* WidgetGlass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6DB02176BFF5EB17AF0D67B6 /* WidgetGlass.swift */; };
+		3A9E5593B6714BDB58C34CCB /* StreakEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 355D93F65FEF390BC89CA055 /* StreakEngine.swift */; };
+		49CAEA0A7BA982A1B4B56E85 /* WidgetTimelineProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48DC25354F5FB3B9F1B99FD /* WidgetTimelineProvider.swift */; };
+		4F58471AD54713D824DECB9A /* SupabaseServiceStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = CF9EBEBF4CE7D63C2BF41DFA /* SupabaseServiceStub.swift */; };
 		50740D10301A6BA100549D88 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 50740D0F301A6BA100549D88 /* Supabase */; };
+		67CD3D356DCDD8A030916749 /* ToggleHabitIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53B8845D32C99AA4AD9B68FB /* ToggleHabitIntent.swift */; };
+		6F111F8F9E258B8F4A2FD849 /* ModelContainer+HabitOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = B51A6A0D7A9D06239519B23B /* ModelContainer+HabitOS.swift */; };
+		6F5FD20692A9061702295334 /* HabitDailyWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 243253E835A7C953AB9F7557 /* HabitDailyWidget.swift */; };
+		8655428B216764D81CEB21CB /* AvatarSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0D1BDEAEF704A5AC13CB129E /* AvatarSystem.swift */; };
+		92AA63D76ED1C33D9C5314BE /* HabitLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A1BA76475241F9A1FD4DAD6 /* HabitLog.swift */; };
+		9CE8564560F516FC8B04DF7A /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = A36B253F6739096750050804 /* User.swift */; };
+		A9C07FDB34BF6D3509241BD1 /* ShieldUsage.swift in Sources */ = {isa = PBXBuildFile; fileRef = ED24F14A826E57C4182877FB /* ShieldUsage.swift */; };
+		B3CBAD8D89F27845E6B85442 /* HabitQuickAddWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5D8788405600CFA15C94CBF /* HabitQuickAddWidget.swift */; };
+		B76B5F3CA9288F37316A2766 /* GamificationEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1CBDC607BEE7A48BD52084C /* GamificationEngine.swift */; };
+		C18C41BD26BDDB7BFF915B9D /* HabitOSWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 76CC34EC5829273940A2AB63 /* HabitOSWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		C275F1C3662BFDE287902C08 /* Color+HabitOS.swift in Sources */ = {isa = PBXBuildFile; fileRef = A02C9DD75B2E604B67BCBAAA /* Color+HabitOS.swift */; };
+		C2E17966A2AAB13E3A6A0835 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 741B07D79C18C33F1F524205 /* Foundation.framework */; };
+		D1D7E82961CBD4AB720ED4AF /* Habit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AA6949215EDE21283C1D91F /* Habit.swift */; };
+		DBBBA07416CC0CA165162AAA /* HabitOSWidgetBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = BC7BBD5390BB8AE9A0E93A79 /* HabitOSWidgetBundle.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		BD4BA5A26A98D56B6DB0B5D6 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 5008D34E300BE1D8007C3488 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D5051C7D1E136528C7C5524E;
+			remoteInfo = HabitOSWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6EBA18C29173C622A7B3921F /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				C18C41BD26BDDB7BFF915B9D /* HabitOSWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		0D1BDEAEF704A5AC13CB129E /* AvatarSystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AvatarSystem.swift; path = Models/AvatarSystem.swift; sourceTree = "<group>"; };
+		243253E835A7C953AB9F7557 /* HabitDailyWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HabitDailyWidget.swift; sourceTree = "<group>"; };
+		284BEFCAB78D95234139EF91 /* BossSystem.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = BossSystem.swift; path = Models/BossSystem.swift; sourceTree = "<group>"; };
+		2A1BA76475241F9A1FD4DAD6 /* HabitLog.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = HabitLog.swift; path = Models/HabitLog.swift; sourceTree = "<group>"; };
+		355D93F65FEF390BC89CA055 /* StreakEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = StreakEngine.swift; path = Services/StreakEngine.swift; sourceTree = "<group>"; };
 		5008D356300BE1D8007C3488 /* HabitOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HabitOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		53B8845D32C99AA4AD9B68FB /* ToggleHabitIntent.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ToggleHabitIntent.swift; sourceTree = "<group>"; };
+		6A26C31B340C801F406955A0 /* HabitStreakWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HabitStreakWidget.swift; sourceTree = "<group>"; };
+		6DB02176BFF5EB17AF0D67B6 /* WidgetGlass.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WidgetGlass.swift; sourceTree = "<group>"; };
+		741B07D79C18C33F1F524205 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS26.0.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
+		76CC34EC5829273940A2AB63 /* HabitOSWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; name = HabitOSWidgetExtension.appex; path = HabitOSWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		9AA6949215EDE21283C1D91F /* Habit.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = Habit.swift; path = Models/Habit.swift; sourceTree = "<group>"; };
+		A02C9DD75B2E604B67BCBAAA /* Color+HabitOS.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "Color+HabitOS.swift"; path = "Extensions/Color+HabitOS.swift"; sourceTree = "<group>"; };
+		A36B253F6739096750050804 /* User.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = User.swift; path = Models/User.swift; sourceTree = "<group>"; };
+		ADDAE45E477A6ACE7F25F914 /* GamificationWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GamificationWidget.swift; sourceTree = "<group>"; };
+		B51A6A0D7A9D06239519B23B /* ModelContainer+HabitOS.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = "ModelContainer+HabitOS.swift"; path = "Extensions/ModelContainer+HabitOS.swift"; sourceTree = "<group>"; };
+		BC7BBD5390BB8AE9A0E93A79 /* HabitOSWidgetBundle.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HabitOSWidgetBundle.swift; sourceTree = "<group>"; };
+		C17B01AB4C42BD8D5066DFBF /* HabitOSWidgetExtension.entitlements */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.entitlements; path = HabitOSWidgetExtension.entitlements; sourceTree = "<group>"; };
+		CF9EBEBF4CE7D63C2BF41DFA /* SupabaseServiceStub.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SupabaseServiceStub.swift; sourceTree = "<group>"; };
+		D02CA3109511999A4147B800 /* WeeklyStreakWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WeeklyStreakWidget.swift; sourceTree = "<group>"; };
+		D12B8E9E2F38D590841050C0 /* Info.plist */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		D5D8788405600CFA15C94CBF /* HabitQuickAddWidget.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = HabitQuickAddWidget.swift; sourceTree = "<group>"; };
+		E1CBDC607BEE7A48BD52084C /* GamificationEngine.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = GamificationEngine.swift; path = Services/GamificationEngine.swift; sourceTree = "<group>"; };
+		ED24F14A826E57C4182877FB /* ShieldUsage.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ShieldUsage.swift; path = Models/ShieldUsage.swift; sourceTree = "<group>"; };
+		F48DC25354F5FB3B9F1B99FD /* WidgetTimelineProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WidgetTimelineProvider.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -44,6 +114,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		77CE821D17BE49D3AB0BEC09 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				C2E17966A2AAB13E3A6A0835 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -53,6 +131,8 @@
 				5008D358300BE1D8007C3488 /* HabitOS */,
 				50740D0E301A6BA100549D88 /* Frameworks */,
 				5008D357300BE1D8007C3488 /* Products */,
+				FD353D8CEB13A0B07BBB3C9F /* HabitOSWidgetExtension */,
+				C8492E3508674F0A9CE4E796 /* WidgetShared */,
 			);
 			sourceTree = "<group>";
 		};
@@ -60,6 +140,7 @@
 			isa = PBXGroup;
 			children = (
 				5008D356300BE1D8007C3488 /* HabitOS.app */,
+				76CC34EC5829273940A2AB63 /* HabitOSWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -67,8 +148,55 @@
 		50740D0E301A6BA100549D88 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				62306B61A4A1B807406E6044 /* iOS */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		62306B61A4A1B807406E6044 /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				741B07D79C18C33F1F524205 /* Foundation.framework */,
+			);
+			name = iOS;
+			sourceTree = "<group>";
+		};
+		C8492E3508674F0A9CE4E796 /* WidgetShared */ = {
+			isa = PBXGroup;
+			children = (
+				A02C9DD75B2E604B67BCBAAA /* Color+HabitOS.swift */,
+				B51A6A0D7A9D06239519B23B /* ModelContainer+HabitOS.swift */,
+				0D1BDEAEF704A5AC13CB129E /* AvatarSystem.swift */,
+				284BEFCAB78D95234139EF91 /* BossSystem.swift */,
+				9AA6949215EDE21283C1D91F /* Habit.swift */,
+				2A1BA76475241F9A1FD4DAD6 /* HabitLog.swift */,
+				ED24F14A826E57C4182877FB /* ShieldUsage.swift */,
+				A36B253F6739096750050804 /* User.swift */,
+				E1CBDC607BEE7A48BD52084C /* GamificationEngine.swift */,
+				355D93F65FEF390BC89CA055 /* StreakEngine.swift */,
+			);
+			name = WidgetShared;
+			path = HabitOS;
+			sourceTree = "<group>";
+		};
+		FD353D8CEB13A0B07BBB3C9F /* HabitOSWidgetExtension */ = {
+			isa = PBXGroup;
+			children = (
+				ADDAE45E477A6ACE7F25F914 /* GamificationWidget.swift */,
+				243253E835A7C953AB9F7557 /* HabitDailyWidget.swift */,
+				BC7BBD5390BB8AE9A0E93A79 /* HabitOSWidgetBundle.swift */,
+				D5D8788405600CFA15C94CBF /* HabitQuickAddWidget.swift */,
+				6A26C31B340C801F406955A0 /* HabitStreakWidget.swift */,
+				CF9EBEBF4CE7D63C2BF41DFA /* SupabaseServiceStub.swift */,
+				53B8845D32C99AA4AD9B68FB /* ToggleHabitIntent.swift */,
+				D02CA3109511999A4147B800 /* WeeklyStreakWidget.swift */,
+				6DB02176BFF5EB17AF0D67B6 /* WidgetGlass.swift */,
+				F48DC25354F5FB3B9F1B99FD /* WidgetTimelineProvider.swift */,
+				D12B8E9E2F38D590841050C0 /* Info.plist */,
+				C17B01AB4C42BD8D5066DFBF /* HabitOSWidgetExtension.entitlements */,
+			);
+			name = HabitOSWidgetExtension;
+			path = HabitOSWidgetExtension;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -81,10 +209,12 @@
 				5008D352300BE1D8007C3488 /* Sources */,
 				5008D353300BE1D8007C3488 /* Frameworks */,
 				5008D354300BE1D8007C3488 /* Resources */,
+				6EBA18C29173C622A7B3921F /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				6E660F6325E8018B3BB93BC1 /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				5008D358300BE1D8007C3488 /* HabitOS */,
@@ -96,6 +226,23 @@
 			productName = HabitOS;
 			productReference = 5008D356300BE1D8007C3488 /* HabitOS.app */;
 			productType = "com.apple.product-type.application";
+		};
+		D5051C7D1E136528C7C5524E /* HabitOSWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 213D544EEEFDECA3ACAD692E /* Build configuration list for PBXNativeTarget "HabitOSWidgetExtension" */;
+			buildPhases = (
+				54D27FEE2C96E403C84ABB42 /* Sources */,
+				77CE821D17BE49D3AB0BEC09 /* Frameworks */,
+				5A594012543BB1FA86A5E7AF /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = HabitOSWidgetExtension;
+			productName = HabitOSWidgetExtension;
+			productReference = 76CC34EC5829273940A2AB63 /* HabitOSWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -130,12 +277,20 @@
 			projectRoot = "";
 			targets = (
 				5008D355300BE1D8007C3488 /* HabitOS */,
+				D5051C7D1E136528C7C5524E /* HabitOSWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		5008D354300BE1D8007C3488 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		5A594012543BB1FA86A5E7AF /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -152,9 +307,74 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		54D27FEE2C96E403C84ABB42 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0460B1D912DA0484D3A76462 /* GamificationWidget.swift in Sources */,
+				6F5FD20692A9061702295334 /* HabitDailyWidget.swift in Sources */,
+				DBBBA07416CC0CA165162AAA /* HabitOSWidgetBundle.swift in Sources */,
+				B3CBAD8D89F27845E6B85442 /* HabitQuickAddWidget.swift in Sources */,
+				01664B70DAC128B6F4674957 /* HabitStreakWidget.swift in Sources */,
+				4F58471AD54713D824DECB9A /* SupabaseServiceStub.swift in Sources */,
+				67CD3D356DCDD8A030916749 /* ToggleHabitIntent.swift in Sources */,
+				34869052CA183AA49CB3FEF6 /* WeeklyStreakWidget.swift in Sources */,
+				38CFD8F346D81678DD5D64E3 /* WidgetGlass.swift in Sources */,
+				49CAEA0A7BA982A1B4B56E85 /* WidgetTimelineProvider.swift in Sources */,
+				C275F1C3662BFDE287902C08 /* Color+HabitOS.swift in Sources */,
+				6F111F8F9E258B8F4A2FD849 /* ModelContainer+HabitOS.swift in Sources */,
+				8655428B216764D81CEB21CB /* AvatarSystem.swift in Sources */,
+				2ED4B68D1040F6E8505FCB8F /* BossSystem.swift in Sources */,
+				D1D7E82961CBD4AB720ED4AF /* Habit.swift in Sources */,
+				92AA63D76ED1C33D9C5314BE /* HabitLog.swift in Sources */,
+				A9C07FDB34BF6D3509241BD1 /* ShieldUsage.swift in Sources */,
+				9CE8564560F516FC8B04DF7A /* User.swift in Sources */,
+				B76B5F3CA9288F37316A2766 /* GamificationEngine.swift in Sources */,
+				3A9E5593B6714BDB58C34CCB /* StreakEngine.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		6E660F6325E8018B3BB93BC1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = HabitOSWidgetExtension;
+			target = D5051C7D1E136528C7C5524E /* HabitOSWidgetExtension */;
+			targetProxy = BD4BA5A26A98D56B6DB0B5D6 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		2343F2B7845CB89C8A3E2FAD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = HabitOSWidgetExtension/HabitOSWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4BDYFW3FHF;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HabitOSWidgetExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = con.habitos.HabitOS.Widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) WIDGET_EXTENSION";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
 		5008D361300BE1D9007C3488 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -279,6 +499,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HabitOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4BDYFW3FHF;
@@ -312,6 +533,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HabitOS.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 4BDYFW3FHF;
@@ -340,9 +562,46 @@
 			};
 			name = Release;
 		};
+		DF821348A015EBD646DB7DDF /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_OBJC_WEAK = NO;
+				CODE_SIGN_ENTITLEMENTS = HabitOSWidgetExtension/HabitOSWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 4BDYFW3FHF;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = HabitOSWidgetExtension/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = con.habitos.HabitOS.Widgets;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "$(inherited) WIDGET_EXTENSION";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		213D544EEEFDECA3ACAD692E /* Build configuration list for PBXNativeTarget "HabitOSWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2343F2B7845CB89C8A3E2FAD /* Release */,
+				DF821348A015EBD646DB7DDF /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		5008D351300BE1D8007C3488 /* Build configuration list for PBXProject "HabitOS" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

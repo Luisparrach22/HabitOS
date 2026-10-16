@@ -23,217 +23,112 @@ struct HabitDetailView: View {
         users.first
     }
     
+    @State private var showingDeleteConfirmation = false
+
     var body: some View {
         NavigationStack {
-            ZStack {
-                Color.habBackground
-                    .ignoresSafeArea()
-                
-                VStack(spacing: Spacing.xl) {
-                    
-                    // 1. Cabecera Visual (Icono y nombre del Hábito)
+            List {
+                // Cabecera
+                Section {
                     VStack(spacing: Spacing.md) {
-                        ZStack {
-                            Circle()
-                                .fill(habit.swiftUIColor.opacity(0.12))
-                                .frame(width: 84, height: 84)
-                            
-                            Image(systemName: habit.icon ?? "star.fill")
-                                .foregroundStyle(habit.swiftUIColor)
-                                .font(.system(size: 36, weight: .semibold))
-                        }
-                        .padding(.top, Spacing.lg)
-                        
+                        Image(systemName: habit.icon ?? "star.fill")
+                            .font(.system(size: 32, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .frame(width: 72, height: 72)
+                            .background(habit.swiftUIColor, in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                            .accessibilityHidden(true)
+
                         Text(habit.name)
-                            .font(.system(.title, design: .rounded))
-                            .fontWeight(.bold)
-                            .foregroundStyle(Color.primary)
+                            .font(.title2.weight(.semibold))
                             .multilineTextAlignment(.center)
-                            .padding(.horizontal, Spacing.lg)
-                        
-                        if let desc = habit.habitDescription {
+
+                        if let desc = habit.habitDescription, !desc.isEmpty {
                             Text(desc)
                                 .font(.subheadline)
                                 .foregroundStyle(Color.secondary)
                                 .multilineTextAlignment(.center)
-                                .padding(.horizontal, Spacing.xl)
                         }
                     }
-                    
-                    // 2. Módulos de Estadísticas (Rachas y Escudos)
-                    VStack(spacing: Spacing.md) {
-                        
-                        // Fila de Rachas
-                        HStack(spacing: Spacing.md) {
-                            // Tarjeta: Racha Actual
-                            VStack(spacing: Spacing.xs) {
-                                Image(systemName: "flame.fill")
-                                    .font(.title2)
-                                    .foregroundStyle(Color.habWarning)
-                                
-                                Text("\(habit.currentStreak)")
-                                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                                    .foregroundStyle(Color.primary)
-                                
-                                Text("Racha Actual")
-                                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                                    .foregroundStyle(Color.secondary)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, Spacing.lg)
-                            .background(Color.habCard)
-                            .cornerRadius(Radius.lg)
-                            .shadow(color: Color.black.opacity(0.01), radius: 4, x: 0, y: 2)
-                            
-                            // Tarjeta: Racha Máxima
-                            VStack(spacing: Spacing.xs) {
-                                Image(systemName: "trophy.fill")
-                                    .font(.title2)
-                                    .foregroundStyle(Color.habWarning)
-                                
-                                Text("\(habit.maxStreak)")
-                                    .font(.system(size: 28, weight: .bold, design: .rounded))
-                                    .foregroundStyle(Color.primary)
-                                
-                                Text("Racha Máxima")
-                                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                                    .foregroundStyle(Color.secondary)
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, Spacing.lg)
-                            .background(Color.habCard)
-                            .cornerRadius(Radius.lg)
-                            .shadow(color: Color.black.opacity(0.01), radius: 4, x: 0, y: 2)
-                        }
-                        
-                        // Tarjeta: Escudos Protectores
-                        HStack(spacing: Spacing.md) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.habPrimary.opacity(0.12))
-                                    .frame(width: 44, height: 44)
-                                Image(systemName: "shield.fill")
-                                    .font(.title3)
-                                    .foregroundStyle(Color.habPrimary)
-                            }
-                            
-                            VStack(alignment: .leading, spacing: 2) {
-                                Text("\(habit.shields) Escudos disponibles")
-                                    .font(.headline)
-                                    .foregroundStyle(Color.primary)
-                                
-                                Text("Protegen tu racha si fallas un día")
-                                    .font(.caption)
-                                    .foregroundStyle(Color.secondary)
-                            }
-                            
-                            Spacer()
-                            
-                            // Botón para comprar escudo
-                            if let user = currentUser {
-                                let canAfford = user.totalXp >= GamificationEngine.shieldXPCost
-                                Button {
-                                    let generator = UIImpactFeedbackGenerator(style: .medium)
-                                    generator.impactOccurred()
-                                    showingPurchaseConfirmation = true
-                                } label: {
-                                    HStack(spacing: 4) {
-                                        Image(systemName: "plus.circle.fill")
-                                            .font(.title2)
-                                        Text("\(GamificationEngine.shieldXPCost) XP")
-                                            .font(.system(size: 11, weight: .bold, design: .rounded))
-                                    }
-                                    .foregroundStyle(canAfford ? Color.habPrimary : Color.secondary)
-                                    .padding(.horizontal, 10)
-                                    .padding(.vertical, 6)
-                                    .background(canAfford ? Color.habPrimary.opacity(0.1) : Color.primary.opacity(0.04))
-                                    .cornerRadius(Radius.sm)
-                                }
-                                .buttonStyle(.plain)
-                                .disabled(!canAfford)
-                            }
-                        }
-                        .padding(14)
-                        .background(Color.habCard)
-                        .cornerRadius(Radius.lg)
-                        .shadow(color: Color.black.opacity(0.01), radius: 4, x: 0, y: 2)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, Spacing.sm)
+                    .listRowBackground(Color.clear)
+                }
+
+                // Rachas
+                Section("Rachas") {
+                    LabeledContent {
+                        Text("\(habit.currentStreak) días").monospacedDigit()
+                    } label: {
+                        Label("Actual", systemImage: "flame.fill")
+                            .foregroundStyle(Color.primary)
                     }
-                    .padding(.horizontal, Spacing.lg)
-                    
-                    // 3. Información del Disparador (Habit Stack)
-                    if let trig = habit.trigger {
-                        VStack(alignment: .leading, spacing: Spacing.xs) {
-                            Text("DISPARADOR ASOCIADO")
-                                .font(.system(size: 10, weight: .bold, design: .rounded))
-                                .foregroundStyle(Color.secondary)
-                                .padding(.horizontal, Spacing.xs)
-                            
-                            HStack {
-                                Image(systemName: "link")
-                                    .foregroundStyle(habit.swiftUIColor)
-                                    .font(.subheadline)
-                                Text(trig)
-                                    .font(.body)
-                                    .foregroundStyle(Color.primary)
-                                Spacer()
-                            }
-                            .padding(Spacing.md)
-                            .background(Color.habCard)
-                            .cornerRadius(Radius.md)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: Radius.md)
-                                    .stroke(Color.primary.opacity(0.04), lineWidth: 1)
-                            )
-                        }
-                        .padding(.horizontal, Spacing.lg)
+                    LabeledContent {
+                        Text("\(habit.maxStreak) días").monospacedDigit()
+                    } label: {
+                        Label("Máxima", systemImage: "trophy.fill")
+                            .foregroundStyle(Color.primary)
                     }
-                    
-                    // 4. Botón Iniciar Modo Enfoque
+                }
+                .glassListRow()
+
+                // Escudos
+                Section {
+                    LabeledContent {
+                        Text("\(habit.shields)").monospacedDigit()
+                    } label: {
+                        Label("Escudos", systemImage: "shield.fill")
+                            .foregroundStyle(Color.primary)
+                    }
+                    if let user = currentUser {
+                        let canAfford = user.totalXp >= GamificationEngine.shieldXPCost
+                        Button {
+                            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                            showingPurchaseConfirmation = true
+                        } label: {
+                            LabeledContent("Comprar escudo", value: "\(GamificationEngine.shieldXPCost) XP")
+                        }
+                        .disabled(!canAfford)
+                    }
+                } footer: {
+                    Text("Protegen tu racha si fallas un día.")
+                }
+                .glassListRow()
+
+                if let trig = habit.trigger, !trig.isEmpty {
+                    Section("Disparador") {
+                        Label(trig, systemImage: "link")
+                            .foregroundStyle(Color.primary)
+                    }
+                }
+
+                Section {
                     Button {
                         showingFocusTimer = true
                     } label: {
-                        HStack {
-                            Image(systemName: "timer")
-                            Text("Iniciar Modo Enfoque")
-                                .fontWeight(.bold)
-                        }
-                        .font(.system(.body, design: .rounded))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .frame(height: 50)
-                        .background(
-                            LinearGradient(
-                                colors: [habit.swiftUIColor, Color(hex: "#00F5D4")],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .cornerRadius(Radius.xl)
-                        .shadow(color: habit.swiftUIColor.opacity(0.3), radius: 8, y: 4)
+                        Label("Modo enfoque", systemImage: "timer")
                     }
-                    .buttonStyle(.plain)
-                    .padding(.horizontal, Spacing.lg)
-                    
-                    // 5. Botón de Eliminar Hábito
-                    Button {
-                        deleteHabit()
-                    } label: {
-                        HStack {
-                            Image(systemName: "trash.fill")
-                            Text("Eliminar Hábito")
-                                .fontWeight(.bold)
-                        }
-                        .font(.system(.body, design: .rounded))
-                        .foregroundStyle(Color.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.habDanger)
-                        .cornerRadius(Radius.xl)
-                        .shadow(color: Color.habDanger.opacity(0.15), radius: 8, x: 0, y: 4)
-                    }
-                    .padding(.horizontal, Spacing.lg)
-                    .padding(.bottom, Spacing.xl)
                 }
+                .glassListRow()
+
+                Section {
+                    Button(role: .destructive) {
+                        showingDeleteConfirmation = true
+                    } label: {
+                        Text("Eliminar hábito")
+                            .frame(maxWidth: .infinity)
+                    }
+                }
+                .glassListRow()
+            }
+            .listStyle(.insetGrouped)
+            .scrollContentBackground(.hidden)
+            .background { AuroraBackground() }
+            .tint(Color.habPrimary)
+            .confirmationDialog("¿Eliminar este hábito?", isPresented: $showingDeleteConfirmation, titleVisibility: .visible) {
+                Button("Eliminar hábito", role: .destructive) { deleteHabit() }
+                Button("Cancelar", role: .cancel) {}
+            } message: {
+                Text("Se perderá su historial y su racha.")
             }
             .sheet(isPresented: $showingFocusTimer) {
                 FocusTimerSheet(habit: habit, isPro: currentUser?.isPro ?? false)
@@ -247,19 +142,15 @@ struct HabitDetailView: View {
                     Button("Editar") {
                         showingEditSheet = true
                     }
-                    .font(.system(.body, design: .rounded))
-                    .foregroundStyle(Color.habPrimary)
                 }
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button("Cerrar") {
+                    Button("Listo") {
                         dismiss()
                     }
-                    .font(.system(.body, design: .rounded))
-                    .fontWeight(.bold)
-                    .foregroundStyle(Color.habPrimary)
+                    .fontWeight(.semibold)
                 }
             }
-            .alert("Comprar Escudo 🛡️", isPresented: $showingPurchaseConfirmation) {
+            .alert("Comprar escudo", isPresented: $showingPurchaseConfirmation) {
                 Button("Cancelar", role: .cancel) {}
                 Button("Comprar", role: .none) {
                     if let user = currentUser {

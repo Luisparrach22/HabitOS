@@ -65,7 +65,7 @@ extension Color {
     static var habPrimary: Color {
         switch currentGlobalTheme {
         case .original:
-            return Color.dynamic(lightHex: "#018ABE", darkHex: "#30A2FF")
+            return Color.dynamic(lightHex: "#1A86F0", darkHex: "#4DB2FF") // Azul brillante
         case .cyberpunk:
             return Color.dynamic(lightHex: "#FF007F", darkHex: "#FF007F") // Rosa Neon
         case .minimalDark:
@@ -81,7 +81,7 @@ extension Color {
         case .minimalDark:
             return Color.dynamic(lightHex: "#000000", darkHex: "#FFFFFF")
         default:
-            return Color.dynamic(lightHex: "#001B48", darkHex: "#1C1C1E")
+            return Color(uiColor: .label)
         }
     }
     
@@ -89,7 +89,7 @@ extension Color {
     static var habAccentDeep: Color {
         switch currentGlobalTheme {
         case .original:
-            return Color.dynamic(lightHex: "#02457A", darkHex: "#0A84FF")
+            return Color(uiColor: .label)
         case .cyberpunk:
             return Color.dynamic(lightHex: "#9D4EDD", darkHex: "#7B2CBF") // Morado Neon
         case .minimalDark:
@@ -103,7 +103,7 @@ extension Color {
     static var habBlueLight: Color {
         switch currentGlobalTheme {
         case .original:
-            return Color.dynamic(lightHex: "#97CADB", darkHex: "#5AC8F5")
+            return Color.dynamic(lightHex: "#007AFF", darkHex: "#0A84FF").opacity(0.12)
         case .cyberpunk:
             return Color.dynamic(lightHex: "#00F5D4", darkHex: "#00F5D4") // Cian Neon
         case .minimalDark:
@@ -146,7 +146,7 @@ extension Color {
     static var habCardDeep: Color {
         switch currentGlobalTheme {
         case .original:
-            return Color.dynamic(lightHex: "#018ABE", darkHex: "#1E293B")
+            return Color(uiColor: .secondarySystemGroupedBackground)
         case .cyberpunk:
             return Color.dynamic(lightHex: "#FF007F", darkHex: "#1A153E")
         case .minimalDark:
@@ -168,17 +168,17 @@ extension Color {
         case .minimalDark:
             return Color.dynamic(lightHex: "#8E8E93", darkHex: "#8E8E93")
         default:
-            return Color.dynamic(lightHex: "#5A8A9E", darkHex: "#8E8E93")
+            return Color(uiColor: .secondaryLabel)
         }
     }
     
     // ── Estados ───────────────────────────────────
     /// Éxito / hábito completado
-    static let habSuccess       = Color.dynamic(lightHex: "#21AF4B", darkHex: "#34C759")
+    static let habSuccess       = Color.dynamic(lightHex: "#34C759", darkHex: "#30D158")
     /// Advertencia
-    static let habWarning       = Color.dynamic(lightHex: "#F5A623", darkHex: "#FF9F0A")
+    static let habWarning       = Color.dynamic(lightHex: "#FF9500", darkHex: "#FF9F0A")
     /// Error / eliminar
-    static let habDanger        = Color.dynamic(lightHex: "#EF4444", darkHex: "#FF453A")
+    static let habDanger        = Color.dynamic(lightHex: "#FF3B30", darkHex: "#FF453A")
     
     // ── Bordes ────────────────────────────────────
     /// Borde estándar
@@ -208,9 +208,9 @@ enum Spacing {
 /// Uso: `.cornerRadius(Radius.xl)`
 enum Radius {
     static let sm:   CGFloat = 8
-    static let md:   CGFloat = 12
-    static let lg:   CGFloat = 16
-    static let xl:   CGFloat = 20
-    static let xl2:  CGFloat = 24
+    static let md:   CGFloat = 16
+    static let lg:   CGFloat = 24   // Liquid Glass: esquinas concéntricas y amplias
+    static let xl:   CGFloat = 28
+    static let xl2:  CGFloat = 32
     static let full: CGFloat = 9999
 }

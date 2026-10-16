@@ -38,8 +38,7 @@ struct AvatarPickerSheet: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.habBackground
-                    .ignoresSafeArea()
+                AuroraBackground()
                 
                 ScrollView(.vertical, showsIndicators: false) {
                     VStack(spacing: Spacing.xl) {
@@ -55,7 +54,7 @@ struct AvatarPickerSheet: View {
                             
                             let (selectedOption, _) = AvatarSystem.parseAvatar(currentAvatarString)
                             Text(selectedOption.name)
-                                .font(.system(.headline, design: .rounded))
+                                .font(.headline)
                                 .fontWeight(.bold)
                                 .foregroundStyle(Color.primary)
                         }
@@ -64,8 +63,8 @@ struct AvatarPickerSheet: View {
                         
                         // 2. Selector de Personajes (Mascotas)
                         VStack(alignment: .leading, spacing: Spacing.md) {
-                            Text("SELECCIONA TU MASCOTA")
-                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                            Text("Selecciona tu mascota")
+                                .font(.footnote)
                                 .foregroundStyle(Color.secondary)
                                 .padding(.horizontal, Spacing.xs)
                             
@@ -98,8 +97,8 @@ struct AvatarPickerSheet: View {
                         
                         // 3. Selector de Gradiente de Fondo
                         VStack(alignment: .leading, spacing: Spacing.md) {
-                            Text("COLOR DE FONDO")
-                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                            Text("Color de fondo")
+                                .font(.footnote)
                                 .foregroundStyle(Color.secondary)
                                 .padding(.horizontal, Spacing.xs)
                             

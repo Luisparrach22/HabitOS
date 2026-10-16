@@ -44,95 +44,53 @@ struct BossBattleCard: View {
     
     var body: some View {
         VStack(spacing: Spacing.md) {
-            // Header del Boss (Tocar para ver 360°)
             Button {
-                let generator = UIImpactFeedbackGenerator(style: .medium)
-                generator.impactOccurred()
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
                 showingBossViewer = true
             } label: {
                 HStack(spacing: Spacing.md) {
-                    // Avatar Renderizado 3D del Monstruo con Aspect Ratio Perfecto
-                    ZStack {
-                        Circle()
-                            .fill(
-                                LinearGradient(
-                                    colors: [currentEnemy.swiftUIColor, currentEnemy.swiftUIAccentColor],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .frame(width: 56, height: 56)
-                            .shadow(color: currentEnemy.swiftUIColor.opacity(0.5), radius: 8)
-                        
-                        Image(currentEnemy.imageName)
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                            .frame(width: 44, height: 44)
-                            .padding(2)
-                    }
-                    
+                    Image(currentEnemy.imageName)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 48, height: 48)
+                        .accessibilityHidden(true)
+
                     VStack(alignment: .leading, spacing: 2) {
-                        HStack {
-                            Text("Enemigo \(currentBossLevel)/6 • \(currentEnemy.phaseTitle)")
-                                .font(.system(size: 11, weight: .bold, design: .rounded))
-                                .foregroundStyle(currentEnemy.swiftUIColor)
-                                .lineLimit(1)
-                            
-                            Spacer()
-                            
-                            HStack(spacing: 4) {
-                                Text("\(currentBossHp) / \(totalBossHp) HP")
-                                    .font(.system(size: 11, weight: .bold, design: .rounded))
-                                    .foregroundStyle(.white.opacity(0.9))
-                                Image(systemName: "cube.transparent")
-                                    .font(.caption2)
-                                    .foregroundStyle(Color(hex: "#30A2FF"))
-                            }
-                        }
-                        
                         Text(currentEnemy.name)
-                            .font(.system(.subheadline, design: .rounded, weight: .bold))
-                            .foregroundStyle(.white)
+                            .font(.headline)
+                            .foregroundStyle(Color.primary)
+                        Text("Enemigo \(currentBossLevel) de 6 · \(currentEnemy.phaseTitle)")
+                            .font(.footnote)
+                            .foregroundStyle(Color.secondary)
+                            .lineLimit(1)
                     }
+
+                    Spacer(minLength: Spacing.sm)
+
+                    Text("\(currentBossHp) HP")
+                        .font(.subheadline.monospacedDigit())
+                        .foregroundStyle(Color.secondary)
+
+                    Image(systemName: "chevron.right")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(Color(uiColor: .tertiaryLabel))
                 }
+                .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            
-            // Barra de Vida Animada (También abre la vista 360° al tocarla)
-            Button {
-                showingBossViewer = true
-            } label: {
-                GeometryReader { geometry in
-                    ZStack(alignment: .leading) {
-                        RoundedRectangle(cornerRadius: Radius.sm)
-                            .fill(Color.white.opacity(0.1))
-                            .frame(height: 12)
-                        
-                        RoundedRectangle(cornerRadius: Radius.sm)
-                            .fill(
-                                LinearGradient(
-                                    colors: isBossDefeated ? [Color(hex: "#00F5D4"), Color(hex: "#2DD4A8")] : [currentEnemy.swiftUIColor, currentEnemy.swiftUIAccentColor],
-                                    startPoint: .leading,
-                                    endPoint: .trailing
-                                )
-                            )
-                            .frame(width: geometry.size.width * CGFloat(currentBossHp) / CGFloat(totalBossHp), height: 12)
-                            .animation(.spring(response: 0.6, dampingFraction: 0.7), value: currentBossHp)
-                    }
-                }
-                .frame(height: 12)
-            }
-            .buttonStyle(.plain)
-            
-            // Pie de tarjeta y Estado
+
+            ProgressView(value: Double(currentBossHp), total: Double(max(totalBossHp, 1)))
+                .tint(isBossDefeated ? Color.habSuccess : currentEnemy.swiftUIColor)
+                .animation(.smooth(duration: 0.5), value: currentBossHp)
+
             HStack {
-                Text(isBossDefeated ? "🎉 ¡\(currentEnemy.name) Derrotado!" : "Toca para ver en 360° • Completa hábitos para infligir daño")
-                    .font(.system(size: 11, weight: .medium, design: .rounded))
-                    .foregroundStyle(.white.opacity(0.6))
+                Text(isBossDefeated ? "\(currentEnemy.name) derrotado" : "Completa hábitos para infligir daño")
+                    .font(.footnote)
+                    .foregroundStyle(Color.secondary)
                     .lineLimit(1)
-                
+
                 Spacer()
-                
+
                 if isBossDefeated {
                     Button {
                         if !isPro {
@@ -141,45 +99,17 @@ struct BossBattleCard: View {
                             advanceToNextBoss()
                         }
                     } label: {
-                        HStack(spacing: 4) {
-                            Text(currentBossLevel < 6 ? "¡Reclamar y Siguiente ⚔️!" : "¡Reclamar Victoria Final 🏆!")
-                                .font(.system(size: 11, weight: .bold, design: .rounded))
-                            Image(systemName: isPro ? "gift.fill" : "crown.fill")
-                                .font(.caption2)
-                        }
-                        .foregroundStyle(.white)
-                        .padding(.horizontal, 12)
-                        .padding(.vertical, 6)
-                        .background(
-                            LinearGradient(
-                                colors: [Color(hex: "#F5A623"), Color(hex: "#EC4899")],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .cornerRadius(Radius.md)
-                        .shadow(color: Color(hex: "#F5A623").opacity(0.4), radius: 6)
+                        Text(currentBossLevel < 6 ? "Reclamar" : "Reclamar victoria")
+                            .font(.subheadline.weight(.semibold))
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.glassProminent)
+                    .controlSize(.small)
+                    .tint(Color.habPrimary)
                 }
             }
         }
-        .padding(16)
-        .background(
-            RoundedRectangle(cornerRadius: Radius.xl)
-                .fill(Color(hex: "#12141C"))
-                .overlay(
-                    RoundedRectangle(cornerRadius: Radius.xl)
-                        .stroke(
-                            LinearGradient(
-                                colors: isBossDefeated ? [Color(hex: "#00F5D4").opacity(0.6), Color(hex: "#8B5CF6").opacity(0.6)] : [Color(hex: "#8B5CF6").opacity(0.4), Color.white.opacity(0.08)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            lineWidth: 1.5
-                        )
-                )
-        )
+        .padding(Spacing.lg)
+        .glassCard(Radius.lg)
         .sheet(isPresented: $showingPaywall) {
             PaywallView()
         }
@@ -187,7 +117,7 @@ struct BossBattleCard: View {
             BossViewerSheet(habits: habits, user: user, onClaimReward: onClaimReward)
         }
     }
-    
+
     private func advanceToNextBoss() {
         let generator = UINotificationFeedbackGenerator()
         generator.notificationOccurred(.success)

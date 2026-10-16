@@ -28,7 +28,7 @@ struct FocusTimerSheet: View {
     @State private var selectedSound: String = "Ninguno"
     @State private var showingPaywall: Bool = false
     
-    private let ambientSounds = ["Ninguno", "🌧️ Lofi Lluvia", "🌲 Bosque Profundo", "🌊 Olas de Mar"]
+    private let ambientSounds = ["Ninguno", "Lofi lluvia", "Bosque profundo", "Olas de mar"]
     
     // Timer de SwiftUI
     private let timer = Timer.publish(every: 1, on: .main, in: .common).autoconnect()
@@ -40,203 +40,131 @@ struct FocusTimerSheet: View {
     }
     
     var body: some View {
-        ZStack {
-            Color(hex: "#0B0E14")
-                .ignoresSafeArea()
-            
-            // Glows de fondo
-            VStack {
-                Circle()
-                    .fill(habit.swiftUIColor.opacity(0.18))
-                    .frame(width: 300, height: 300)
-                    .blur(radius: 70)
+        VStack(spacing: Spacing.xl) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Modo enfoque")
+                        .font(.subheadline)
+                        .foregroundStyle(Color.secondary)
+                    Text(habit.name)
+                        .font(.title2.weight(.semibold))
+                }
                 Spacer()
-            }
-            .ignoresSafeArea()
-            
-            VStack(spacing: Spacing.xl) {
-                // Header
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Modo Enfoque")
-                            .font(.system(.headline, design: .rounded))
-                            .foregroundStyle(.white.opacity(0.6))
-                        Text(habit.name)
-                            .font(.system(.title2, design: .rounded, weight: .bold))
-                            .foregroundStyle(.white)
-                    }
-                    Spacer()
-                    Button {
-                        dismiss()
-                    } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.title2)
-                            .foregroundStyle(.white.opacity(0.4))
-                    }
-                    .buttonStyle(.plain)
-                }
-                .padding(.horizontal, 24)
-                .padding(.top, 20)
-                
-                Spacer()
-                
-                // Anillo de Enfoque Principal
-                ZStack {
-                    // Pista de fondo
-                    Circle()
-                        .stroke(.white.opacity(0.08), lineWidth: 18)
-                        .frame(width: 240, height: 240)
-                    
-                    // Anillo de progreso animado
-                    Circle()
-                        .trim(from: 0, to: progress)
-                        .stroke(
-                            LinearGradient(
-                                colors: [habit.swiftUIColor, Color(hex: "#00F5D4")],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            style: StrokeStyle(lineWidth: 18, lineCap: .round)
-                        )
-                        .frame(width: 240, height: 240)
-                        .rotationEffect(.degrees(-90))
-                        .animation(.linear(duration: 1.0), value: progress)
-                        .shadow(color: habit.swiftUIColor.opacity(0.4), radius: 12)
-                    
-                    // Tiempo formateado
-                    VStack(spacing: 6) {
-                        if isCompleted {
-                            Image(systemName: "checkmark.seal.fill")
-                                .font(.system(size: 54))
-                                .foregroundStyle(Color(hex: "#00F5D4"))
-                                .transition(.scale)
-                            Text("¡Completado!")
-                                .font(.system(.title3, design: .rounded, weight: .bold))
-                                .foregroundStyle(.white)
-                            Text("+50 XP Bonificación")
-                                .font(.caption)
-                                .fontWeight(.bold)
-                                .foregroundStyle(Color(hex: "#F5A623"))
-                        } else {
-                            Text(formatTime(timeRemaining))
-                                .font(.system(size: 48, weight: .black, design: .rounded))
-                                .monospacedDigit()
-                                .foregroundStyle(.white)
-                            
-                            Text(timerRunning ? "En proceso..." : "Listo para enfocar")
-                                .font(.system(.subheadline, design: .rounded))
-                                .foregroundStyle(.white.opacity(0.5))
-                        }
-                    }
-                }
-                
-                Spacer()
-                
-                // Selección de Duración (sólo disponible si no está en marcha)
-                if !timerRunning && !isCompleted {
-                    VStack(alignment: .leading, spacing: Spacing.sm) {
-                        Text("Duración de la sesión")
-                            .font(.caption)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.white.opacity(0.5))
-                            .padding(.horizontal, 24)
-                        
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: Spacing.sm) {
-                                ForEach(proDurations, id: \.self) { mins in
-                                    let isProOnly = !freeDurations.contains(mins)
-                                    Button {
-                                        if isProOnly && !isPro {
-                                            showingPaywall = true
-                                        } else {
-                                            selectedMinutes = mins
-                                            timeRemaining = mins * 60
-                                        }
-                                    } label: {
-                                        HStack(spacing: 4) {
-                                            Text("\(mins) min")
-                                                .font(.system(.subheadline, design: .rounded, weight: .semibold))
-                                            if isProOnly {
-                                                Image(systemName: "crown.fill")
-                                                    .font(.caption2)
-                                                    .foregroundStyle(Color(hex: "#F5A623"))
-                                            }
-                                        }
-                                        .foregroundStyle(selectedMinutes == mins ? .white : .white.opacity(0.6))
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 10)
-                                        .background(
-                                            RoundedRectangle(cornerRadius: Radius.lg)
-                                                .fill(selectedMinutes == mins ? habit.swiftUIColor : Color.white.opacity(0.06))
-                                        )
-                                    }
-                                    .buttonStyle(.plain)
-                                }
-                            }
-                            .padding(.horizontal, 24)
-                        }
-                    }
-                }
-                
-                // Selector de Sonidos Ambientales (Pro Feature)
-                if !isCompleted {
-                    HStack {
-                        Image(systemName: "headphones")
-                            .foregroundStyle(Color(hex: "#00F5D4"))
-                        Text("Ambiente:")
-                            .font(.subheadline)
-                            .foregroundStyle(.white.opacity(0.7))
-                        Spacer()
-                        Picker("Ambiente", selection: $selectedSound) {
-                            ForEach(ambientSounds, id: \.self) { sound in
-                                Text(sound).tag(sound)
-                            }
-                        }
-                        .pickerStyle(.menu)
-                        .tint(Color(hex: "#00F5D4"))
-                        .onChange(of: selectedSound) { _, newValue in
-                            if newValue != "Ninguno" && !isPro {
-                                showingPaywall = true
-                                selectedSound = "Ninguno"
-                            }
-                        }
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 10)
-                    .background(RoundedRectangle(cornerRadius: Radius.lg).fill(Color.white.opacity(0.05)))
-                    .padding(.horizontal, 24)
-                }
-                
-                // Botón Principal de Acción
                 Button {
-                    if isCompleted {
-                        dismiss()
-                    } else {
-                        toggleTimer()
-                    }
+                    dismiss()
                 } label: {
-                    HStack {
-                        Image(systemName: isCompleted ? "checkmark" : (timerRunning ? "pause.fill" : "play.fill"))
-                        Text(isCompleted ? "Finalizar" : (timerRunning ? "Pausar Enfoque" : "Iniciar Enfoque"))
-                            .font(.system(.body, design: .rounded, weight: .bold))
-                    }
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 52)
-                    .background(
-                        LinearGradient(
-                            colors: isCompleted ? [Color(hex: "#2DD4A8"), Color(hex: "#00F5D4")] : [habit.swiftUIColor, habit.swiftUIColor.opacity(0.8)],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        )
-                    )
-                    .cornerRadius(Radius.xl)
-                    .shadow(color: habit.swiftUIColor.opacity(0.4), radius: 10, y: 4)
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.title2)
+                        .symbolRenderingMode(.hierarchical)
+                        .foregroundStyle(Color.secondary)
+                        .frame(width: 44, height: 44)
                 }
-                .padding(.horizontal, 24)
-                .padding(.bottom, 24)
+                .accessibilityLabel("Cerrar")
             }
+            .padding(.horizontal, Spacing.xl2)
+            .padding(.top, Spacing.sm)
+
+            Spacer()
+
+            ZStack {
+                Circle()
+                    .stroke(Color.primary.opacity(0.08), lineWidth: 12)
+
+                Circle()
+                    .trim(from: 0, to: progress)
+                    .stroke(habit.swiftUIColor, style: StrokeStyle(lineWidth: 12, lineCap: .round))
+                    .rotationEffect(.degrees(-90))
+                    .animation(.linear(duration: 1.0), value: progress)
+
+                VStack(spacing: 6) {
+                    if isCompleted {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 48))
+                            .foregroundStyle(Color.habSuccess)
+                            .transition(.scale)
+                        Text("Completado")
+                            .font(.title3.weight(.semibold))
+                        Text("+50 XP")
+                            .font(.footnote)
+                            .foregroundStyle(Color.secondary)
+                    } else {
+                        Text(formatTime(timeRemaining))
+                            .font(.system(size: 52, weight: .light))
+                            .monospacedDigit()
+                        Text(timerRunning ? "En curso" : "Listo")
+                            .font(.subheadline)
+                            .foregroundStyle(Color.secondary)
+                    }
+                }
+            }
+            .frame(width: 250, height: 250)
+
+            Spacer()
+
+            if !timerRunning && !isCompleted {
+                Picker("Duración", selection: Binding(
+                    get: { selectedMinutes },
+                    set: { mins in
+                        if !freeDurations.contains(mins) && !isPro {
+                            showingPaywall = true
+                        } else {
+                            selectedMinutes = mins
+                            timeRemaining = mins * 60
+                        }
+                    }
+                )) {
+                    ForEach(proDurations, id: \.self) { mins in
+                        Text("\(mins) min").tag(mins)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal, Spacing.xl2)
+            }
+
+            if !isCompleted {
+                HStack {
+                    Label("Ambiente", systemImage: "headphones")
+                    Spacer()
+                    Picker("Ambiente", selection: $selectedSound) {
+                        ForEach(ambientSounds, id: \.self) { sound in
+                            Text(sound).tag(sound)
+                        }
+                    }
+                    .pickerStyle(.menu)
+                    .onChange(of: selectedSound) { _, newValue in
+                        if newValue != "Ninguno" && !isPro {
+                            showingPaywall = true
+                            selectedSound = "Ninguno"
+                        }
+                    }
+                }
+                .padding(.horizontal, Spacing.lg)
+                .padding(.vertical, Spacing.sm)
+                .glassCard(Radius.lg)
+                .padding(.horizontal, Spacing.xl2)
+            }
+
+            Button {
+                if isCompleted {
+                    dismiss()
+                } else {
+                    toggleTimer()
+                }
+            } label: {
+                Label(
+                    isCompleted ? "Finalizar" : (timerRunning ? "Pausar" : "Iniciar"),
+                    systemImage: isCompleted ? "checkmark" : (timerRunning ? "pause.fill" : "play.fill")
+                )
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .frame(height: 50)
+            }
+            .buttonStyle(.glassProminent)
+            .tint(habit.swiftUIColor)
+            .padding(.horizontal, Spacing.xl2)
+            .padding(.bottom, Spacing.xl2)
         }
+        .background { AuroraBackground() }
         .onReceive(timer) { _ in
             guard timerRunning && timeRemaining > 0 else { return }
             timeRemaining -= 1

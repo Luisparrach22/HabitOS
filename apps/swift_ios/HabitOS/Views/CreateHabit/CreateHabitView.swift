@@ -84,25 +84,22 @@ struct CreateHabitView: View {
                 
                 // ── SECCIÓN 1: NOMBRE Y DESCRIPCIÓN ──
                 Section {
-                    TextField("Nombre: Ej. Beber agua", text: $name)
+                    TextField("Nombre", text: $name)
                         .font(.body)
                     
-                    TextField("Descripción: ¿Por qué es importante?", text: $habitDescription, axis: .vertical)
+                    TextField("Descripción (opcional)", text: $habitDescription, axis: .vertical)
                         .font(.body)
                         .lineLimit(2...4)
                 } header: {
-                    Text("DETALLES DEL HÁBITO")
-                        .font(.system(size: 10, weight: .bold, design: .rounded))
-                        .foregroundStyle(Color.secondary)
+                    Text("Detalles")
                 }
-                .listRowBackground(Color.habCard)
-                
+                                
                 // ── SECCIÓN 2: ICONO Y COLOR ──
                 Section {
                     // Selector rápido de Iconos
                     VStack(alignment: .leading, spacing: Spacing.md) {
-                        Text("ICONO")
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                        Text("Icono")
+                            .font(.subheadline)
                             .foregroundStyle(Color.secondary)
                         
                         HStack(spacing: Spacing.md) {
@@ -114,8 +111,8 @@ struct CreateHabitView: View {
                                     selectedIcon = iconName
                                 } label: {
                                     ZStack {
-                                        RoundedRectangle(cornerRadius: Radius.md)
-                                            .fill(isActive ? themeColor : Color.habBackground)
+                                        RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
+                                            .fill(isActive ? themeColor : Color.primary.opacity(0.06))
                                             .frame(width: 44, height: 44)
                                         
                                         Image(systemName: iconName)
@@ -133,13 +130,12 @@ struct CreateHabitView: View {
                                 showingIconPicker = true
                             } label: {
                                 ZStack {
-                                    RoundedRectangle(cornerRadius: Radius.md)
-                                        .strokeBorder(Color.habBorder, lineWidth: 1.5)
-                                        .background(Color.habBackground.cornerRadius(Radius.md))
+                                    RoundedRectangle(cornerRadius: Radius.md, style: .continuous)
+                                        .fill(Color.primary.opacity(0.06))
                                         .frame(width: 44, height: 44)
                                     
                                     Image(systemName: "plus")
-                                        .font(.system(size: 16, weight: .bold))
+                                        .font(.system(size: 16, weight: .semibold))
                                         .foregroundStyle(Color.secondary)
                                 }
                             }
@@ -150,8 +146,8 @@ struct CreateHabitView: View {
                     
                     // Selector de Colores
                     VStack(alignment: .leading, spacing: Spacing.md) {
-                        Text("COLOR")
-                            .font(.system(size: 11, weight: .bold, design: .rounded))
+                        Text("Color")
+                            .font(.subheadline)
                             .foregroundStyle(Color.secondary)
                         
                         ScrollView(.horizontal, showsIndicators: false) {
@@ -177,17 +173,16 @@ struct CreateHabitView: View {
                                             
                                             if isActive {
                                                 Image(systemName: "checkmark")
-                                                    .font(.system(size: 11, weight: .bold))
+                                                    .font(.system(size: 12, weight: .bold))
                                                     .foregroundStyle(Color.white)
                                             }
                                             
                                             if showLock {
-                                                Image(systemName: "crown.fill")
-                                                    .font(.system(size: 8))
-                                                    .foregroundStyle(Color.yellow)
-                                                    .padding(2)
-                                                    .background(Color.black.opacity(0.6))
-                                                    .clipShape(Circle())
+                                                Image(systemName: "lock.fill")
+                                                    .font(.system(size: 8, weight: .bold))
+                                                    .foregroundStyle(Color.white)
+                                                    .padding(3)
+                                                    .background(Color.secondary, in: Circle())
                                                     .offset(x: 4, y: -4)
                                             }
                                         }
@@ -200,12 +195,9 @@ struct CreateHabitView: View {
                     }
                     .padding(.vertical, Spacing.xs)
                 } header: {
-                    Text("PERSONALIZACIÓN VISUAL")
-                        .font(.system(size: 10, weight: .bold, design: .rounded))
-                        .foregroundStyle(Color.secondary)
+                    Text("Apariencia")
                 }
-                .listRowBackground(Color.habCard)
-                
+                                
                 // ── SECCIÓN 3: FRECUENCIA Y RECORDATORIO ──
                 Section {
                     // Selector de frecuencia
@@ -220,7 +212,7 @@ struct CreateHabitView: View {
                     // Frecuencia personalizada (días de la semana)
                     if selectedFrequency == .custom {
                         VStack(alignment: .leading, spacing: Spacing.sm) {
-                            Text("Días de la semana:")
+                            Text("Días de la semana")
                                 .font(.subheadline)
                                 .foregroundStyle(Color.secondary)
                             
@@ -238,13 +230,12 @@ struct CreateHabitView: View {
                                         }
                                     } label: {
                                         Text(day)
-                                            .font(.caption)
-                                            .fontWeight(.bold)
+                                            .font(.subheadline.weight(.medium))
                                             .foregroundStyle(isSelected ? Color.white : Color.primary)
-                                            .frame(width: 36, height: 36)
+                                            .frame(width: 40, height: 40)
                                             .background(
                                                 Circle()
-                                                    .fill(isSelected ? themeColor : Color.habBackground)
+                                                    .fill(isSelected ? themeColor : Color.primary.opacity(0.06))
                                             )
                                     }
                                     .buttonStyle(.plain)
@@ -257,7 +248,7 @@ struct CreateHabitView: View {
                     
                     // Toggle de Recordatorio Diario
                     Toggle(isOn: $enableReminder) {
-                        Label("Recordatorio Diario", systemImage: "bell.fill")
+                        Label("Recordatorio diario", systemImage: "bell")
                             .font(.body)
                     }
                     .tint(themeColor)
@@ -268,26 +259,21 @@ struct CreateHabitView: View {
                     }
                     
                     // Disparador
-                    TextField("Disparador: Ej. Al terminar el café", text: $trigger)
+                    TextField("Disparador, p. ej. al terminar el café", text: $trigger)
                         .font(.body)
                 } header: {
-                    Text("PLANIFICACIÓN Y RECORDATORIOS")
-                        .font(.system(size: 10, weight: .bold, design: .rounded))
-                        .foregroundStyle(Color.secondary)
+                    Text("Planificación")
                 }
-                .listRowBackground(Color.habCard)
-            }
+                            }
             .scrollContentBackground(.hidden)
-            .background(Color.habBackground)
-            .navigationTitle(habitToEdit != nil ? "Editar Hábito" : "Nuevo Hábito")
+            .background { AuroraBackground() }
+            .navigationTitle(habitToEdit != nil ? "Editar hábito" : "Nuevo hábito")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Cancelar") {
                         dismiss()
                     }
-                    .font(.body)
-                    .foregroundStyle(Color.habDanger)
                 }
                 
                 ToolbarItem(placement: .topBarTrailing) {
@@ -296,9 +282,7 @@ struct CreateHabitView: View {
                         generator.impactOccurred()
                         saveHabit()
                     }
-                    .font(.system(.body, design: .rounded))
-                    .fontWeight(.bold)
-                    .foregroundStyle(name.trimmingCharacters(in: .whitespaces).isEmpty ? Color.secondary.opacity(0.4) : Color.habPrimary)
+                    .fontWeight(.semibold)
                     .disabled(name.trimmingCharacters(in: .whitespaces).isEmpty)
                 }
             }

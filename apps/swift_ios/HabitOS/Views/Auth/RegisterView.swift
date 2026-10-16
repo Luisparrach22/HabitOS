@@ -72,8 +72,7 @@ struct RegisterView: View {
     
     var body: some View {
         ZStack {
-            Color.habBackground
-                .ignoresSafeArea()
+            AuroraBackground()
             
             ScrollView {
                 VStack(spacing: Spacing.xl) {
@@ -85,7 +84,7 @@ struct RegisterView: View {
                             .foregroundStyle(Color.primary)
                         
                         Text("Completa tus datos para empezar en HabitOS")
-                            .font(.system(.subheadline, design: .rounded))
+                            .font(.subheadline)
                             .foregroundStyle(Color.secondary)
                     }
                     .padding(.top, Spacing.lg)
@@ -95,26 +94,21 @@ struct RegisterView: View {
                         
                         // Nombre
                         VStack(alignment: .leading, spacing: Spacing.xs) {
-                            Text("NOMBRE DE PILA")
-                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                            Text("Nombre de pila")
+                                .font(.footnote)
                                 .foregroundStyle(Color.secondary)
                                 .padding(.horizontal, Spacing.xs)
                             
                             TextField("Tu nombre", text: $name)
                                 .font(.body)
                                 .padding()
-                                .background(Color.habCard)
-                                .cornerRadius(Radius.md)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: Radius.md)
-                                        .stroke(Color.primary.opacity(0.04), lineWidth: 1)
-                                )
+                                .glassCard(Radius.md)
                         }
                         
                         // Email
                         VStack(alignment: .leading, spacing: Spacing.xs) {
-                            Text("CORREO ELECTRÓNICO")
-                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                            Text("Correo electrónico")
+                                .font(.footnote)
                                 .foregroundStyle(Color.secondary)
                                 .padding(.horizontal, Spacing.xs)
                             
@@ -124,18 +118,13 @@ struct RegisterView: View {
                                 .textInputAutocapitalization(.never)
                                 .font(.body)
                                 .padding()
-                                .background(Color.habCard)
-                                .cornerRadius(Radius.md)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: Radius.md)
-                                        .stroke(Color.primary.opacity(0.04), lineWidth: 1)
-                                )
+                                .glassCard(Radius.md)
                         }
                         
                         // Contraseña
                         VStack(alignment: .leading, spacing: Spacing.xs) {
-                            Text("CONTRASEÑA")
-                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                            Text("Contraseña")
+                                .font(.footnote)
                                 .foregroundStyle(Color.secondary)
                                 .padding(.horizontal, Spacing.xs)
                             
@@ -153,44 +142,37 @@ struct RegisterView: View {
                                 Button {
                                     isPasswordVisible.toggle()
                                 } label: {
-                                    Image(systemName: isPasswordVisible ? "eye.slash.fill" : "eye.fill")
-                                        .foregroundStyle(Color.secondary.opacity(0.8))
+                                    Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
+                                        .foregroundStyle(Color.secondary)
+                                        .frame(width: 44, height: 44)
                                 }
                             }
                             .font(.body)
                             .padding()
-                            .background(Color.habCard)
-                            .cornerRadius(Radius.md)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: Radius.md)
-                                    .stroke(Color.primary.opacity(0.04), lineWidth: 1)
-                            )
+                            .glassCard(Radius.md)
                             
                             // Medidor de fuerza
                             if passwordStrength != .empty {
                                 HStack(spacing: 6) {
                                     Text(passwordStrength.label)
-                                        .font(.system(size: 10, weight: .bold, design: .rounded))
+                                        .font(.caption)
                                         .foregroundStyle(passwordStrength.color)
                                     
                                     Spacer()
                                     
                                     // Barras indicadoras
                                     HStack(spacing: 3) {
-                                        Rectangle()
+                                        RoundedRectangle(cornerRadius: 2)
                                             .fill(passwordStrength == .weak || passwordStrength == .medium || passwordStrength == .strong ? passwordStrength.color : Color.secondary.opacity(0.2))
                                             .frame(width: 25, height: 4)
-                                            .cornerRadius(2)
                                         
-                                        Rectangle()
+                                        RoundedRectangle(cornerRadius: 2)
                                             .fill(passwordStrength == .medium || passwordStrength == .strong ? passwordStrength.color : Color.secondary.opacity(0.2))
                                             .frame(width: 25, height: 4)
-                                            .cornerRadius(2)
                                         
-                                        Rectangle()
+                                        RoundedRectangle(cornerRadius: 2)
                                             .fill(passwordStrength == .strong ? passwordStrength.color : Color.secondary.opacity(0.2))
                                             .frame(width: 25, height: 4)
-                                            .cornerRadius(2)
                                     }
                                 }
                                 .padding(.top, 2)
@@ -200,8 +182,8 @@ struct RegisterView: View {
                         
                         // Confirmar Contraseña
                         VStack(alignment: .leading, spacing: Spacing.xs) {
-                            Text("CONFIRMAR CONTRASEÑA")
-                                .font(.system(size: 10, weight: .bold, design: .rounded))
+                            Text("Confirmar contraseña")
+                                .font(.footnote)
                                 .foregroundStyle(Color.secondary)
                                 .padding(.horizontal, Spacing.xs)
                             
@@ -210,16 +192,11 @@ struct RegisterView: View {
                                 .textInputAutocapitalization(.never)
                                 .font(.body)
                                 .padding()
-                                .background(Color.habCard)
-                                .cornerRadius(Radius.md)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: Radius.md)
-                                        .stroke(Color.primary.opacity(0.04), lineWidth: 1)
-                                )
+                                .glassCard(Radius.md)
                             
                             if !confirmPassword.isEmpty && password != confirmPassword {
                                 Text("Las contraseñas no coinciden")
-                                    .font(.system(size: 10, weight: .semibold, design: .rounded))
+                                    .font(.caption)
                                     .foregroundStyle(Color.habDanger)
                                     .padding(.horizontal, Spacing.xs)
                                     .padding(.top, 2)
@@ -233,24 +210,19 @@ struct RegisterView: View {
                         Button {
                             handleRegister()
                         } label: {
-                            HStack {
+                            Group {
                                 if isLoading {
-                                    ProgressView()
-                                        .tint(.white)
+                                    ProgressView().tint(.white)
                                 } else {
-                                    Text("Crear Cuenta")
-                                        .font(.system(.body, design: .rounded).bold())
+                                    Text("Crear cuenta").font(.headline)
                                 }
                             }
                             .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(isFormValid ? Color.habPrimary : Color.habPrimary.opacity(0.5))
-                            .foregroundStyle(Color.white)
-                            .cornerRadius(Radius.md)
-                            .shadow(color: Color.habPrimary.opacity(isFormValid ? 0.15 : 0.0), radius: 6, x: 0, y: 3)
+                            .frame(height: 50)
                         }
+                        .buttonStyle(.glassProminent)
+                        .tint(Color.habPrimary)
                         .disabled(!isFormValid || isLoading)
-                        .buttonStyle(.plain)
                     }
                     .padding(.horizontal, Spacing.lg)
                     .padding(.bottom, Spacing.xl)

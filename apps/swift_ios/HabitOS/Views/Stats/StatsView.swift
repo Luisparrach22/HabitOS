@@ -82,60 +82,27 @@ struct StatsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.habBackground
-                    .ignoresSafeArea()
+                AuroraBackground()
                 
                 ScrollView(.vertical, showsIndicators: false) {
-                    VStack(spacing: Spacing.xl) {
+                    VStack(spacing: Spacing.xl2) {
                         
-                        // 1. Tarjetas KPI de Métricas Clave
-                        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: Spacing.md) {
-                            KpiCard(
-                                title: "Completados",
-                                value: "\(totalCompletedLogs)",
-                                unit: "hábitos en total",
-                                icon: "checkmark.seal.fill",
-                                iconColor: .habSuccess
-                            )
-                            
-                            KpiCard(
-                                title: "Mejor Racha",
-                                value: "\(maxStreak)",
-                                unit: "días consecutivos",
-                                icon: "flame.fill",
-                                iconColor: .habWarning
-                            )
-                            
-                            KpiCard(
-                                title: "Consistencia",
-                                value: "\(globalCompletionRate)%",
-                                unit: "tasa de éxito",
-                                icon: "chart.line.uptrend.xyaxis",
-                                iconColor: .habPrimary
-                            )
-                            
-                            KpiCard(
-                                title: "XP Total",
-                                value: "\(currentUser?.totalXp ?? 0)",
-                                unit: "puntos acumulados",
-                                icon: "star.fill",
-                                iconColor: .habWarning
-                            )
+                        // 1. Métricas clave: una lista agrupada
+                        VStack(spacing: 0) {
+                            KpiRow(title: "Completados", value: "\(totalCompletedLogs)", icon: "checkmark.circle.fill", iconColor: .habSuccess)
+                            Divider().padding(.leading, 56)
+                            KpiRow(title: "Mejor racha", value: "\(maxStreak) días", icon: "flame.fill", iconColor: .habWarning)
+                            Divider().padding(.leading, 56)
+                            KpiRow(title: "Consistencia", value: "\(globalCompletionRate)%", icon: "chart.line.uptrend.xyaxis", iconColor: .habPrimary)
+                            Divider().padding(.leading, 56)
+                            KpiRow(title: "XP total", value: "\(currentUser?.totalXp ?? 0)", icon: "star.fill", iconColor: .habWarning)
                         }
-                        .padding(.top, Spacing.sm)
+                        .glassCard(Radius.lg)
                         
-                        // 2. Gráfico de Actividad Semanal (Swift Charts)
+                        // 2. Gráfico semanal
                         VStack(alignment: .leading, spacing: Spacing.md) {
-                            HStack {
-                                Image(systemName: "chart.bar.fill")
-                                    .foregroundStyle(Color.habPrimary)
-                                    .font(.subheadline)
-                                Text("Rendimiento Semanal")
-                                    .font(.system(.subheadline, design: .rounded))
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(Color.primary)
-                                Spacer()
-                            }
+                            Text("Esta semana")
+                                .font(.title3.weight(.semibold))
                             
                             Chart(weeklyStats) { stat in
                                 BarMark(
@@ -143,25 +110,18 @@ struct StatsView: View {
                                     y: .value("Hábitos", stat.count)
                                 )
                                 .cornerRadius(4)
-                                .foregroundStyle(
-                                    LinearGradient(
-                                        colors: [Color(hex: "#7B2CBF"), Color(hex: "#00F5D4")],
-                                        startPoint: .top,
-                                        endPoint: .bottom
-                                    )
-                                )
+                                .foregroundStyle(Color.habPrimary)
                             }
                             .frame(height: 180)
                             .chartYAxis {
                                 AxisMarks(position: .leading)
                             }
                         }
-                        .padding(18)
-                        .background(Color.habCard)
-                        .cornerRadius(Radius.xl2)
-                        .shadow(color: Color.black.opacity(0.01), radius: 6, x: 0, y: 3)
+                        .padding(Spacing.lg)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .glassCard(Radius.lg)
                         
-                        // 2b. Diagnóstico Inteligente de Consistencia
+                        // 2b. Diagnóstico
                         SmartInsightsCard(
                             habits: userHabits,
                             isPro: isUserPro,
@@ -170,66 +130,42 @@ struct StatsView: View {
                             }
                         )
                         
-                        // 3. Mapa de Calor (Heatmap / Calendario de Consistencia)
+                        // 3. Calendario del mes
                         VStack(alignment: .leading, spacing: Spacing.md) {
-                            HStack {
-                                Image(systemName: "calendar")
-                                    .foregroundStyle(Color.habPrimary)
-                                    .font(.subheadline)
-                                Text("Consistencia del Mes")
-                                    .font(.system(.subheadline, design: .rounded))
-                                    .fontWeight(.bold)
-                                    .foregroundStyle(Color.primary)
-                                Spacer()
-                            }
+                            Text("Este mes")
+                                .font(.title3.weight(.semibold))
                             
                             ZStack {
                                 MonthHeatmapGrid(logs: userHabitsLogs, habitsCount: userHabits.count)
                                     .blur(radius: isUserPro ? 0 : 5)
                                     .disabled(!isUserPro)
+                                    .accessibilityHidden(!isUserPro)
                                 
                                 if !isUserPro {
-                                    VStack(spacing: Spacing.xs) {
+                                    VStack(spacing: Spacing.sm) {
                                         Image(systemName: "lock.fill")
-                                            .font(.system(size: 18))
-                                            .foregroundStyle(Color.habPrimary)
-                                        Text("Rejilla de Consistencia")
-                                            .font(.system(.caption, design: .rounded))
-                                            .fontWeight(.bold)
-                                            .foregroundStyle(Color.primary)
-                                        Button {
+                                            .foregroundStyle(Color.secondary)
+                                        Text("Disponible con Pro")
+                                            .font(.subheadline)
+                                        Button("Desbloquear") {
                                             showingPaywall = true
-                                        } label: {
-                                            Text("Desbloquear con Pro")
-                                                .font(.system(size: 11, weight: .bold, design: .rounded))
-                                                .foregroundStyle(Color.white)
-                                                .padding(.horizontal, 12)
-                                                .padding(.vertical, 6)
-                                                .background(
-                                                    LinearGradient(
-                                                        colors: [Color(hex: "#8B5CF6"), Color(hex: "#EC4899")],
-                                                        startPoint: .leading,
-                                                        endPoint: .trailing
-                                                    )
-                                                )
-                                                .cornerRadius(12)
                                         }
-                                        .buttonStyle(.plain)
+                                        .buttonStyle(.glassProminent)
+                                        .controlSize(.small)
+                                        .tint(Color.habPrimary)
                                     }
-                                    .padding(12)
-                                    .background(Color.habCard.opacity(0.85))
-                                    .cornerRadius(Radius.md)
-                                    .shadow(color: Color.black.opacity(0.1), radius: 5)
+                                    .padding(Spacing.lg)
+                                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: Radius.md, style: .continuous))
                                 }
                             }
                         }
-                        .padding(18)
-                        .background(Color.habCard)
-                        .cornerRadius(Radius.xl2)
-                        .shadow(color: Color.black.opacity(0.01), radius: 6, x: 0, y: 3)
+                        .padding(Spacing.lg)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .glassCard(Radius.lg)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.horizontal, Spacing.lg)
+                    .padding(.top, Spacing.sm)
                     .padding(.bottom, Spacing.xl3)
                 }
                 .scrollBounceBehavior(.basedOnSize, axes: .vertical)
@@ -242,50 +178,31 @@ struct StatsView: View {
     }
 }
 
-// MARK: - Tarjeta KPI Premium
-struct KpiCard: View {
+// MARK: - Fila de métrica
+struct KpiRow: View {
     let title: String
     let value: String
-    let unit: String
     let icon: String
     let iconColor: Color
     
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.xs) {
-            HStack {
-                ZStack {
-                    Circle()
-                        .fill(iconColor.opacity(0.1))
-                        .frame(width: 32, height: 32)
-                    Image(systemName: icon)
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundStyle(iconColor)
-                }
-                Spacer()
-            }
-            
-            Text(value)
-                .font(.system(size: 28, weight: .bold, design: .rounded))
-                .foregroundStyle(Color.primary)
-                .padding(.top, 4)
-            
+        HStack(spacing: Spacing.md) {
+            Image(systemName: icon)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 30, height: 30)
+                .background(iconColor, in: RoundedRectangle(cornerRadius: 7, style: .continuous))
+                .accessibilityHidden(true)
             Text(title)
-                .font(.system(.footnote, design: .rounded))
-                .fontWeight(.bold)
+                .font(.body)
+            Spacer()
+            Text(value)
+                .font(.body.monospacedDigit())
                 .foregroundStyle(Color.secondary)
-            
-            Text(unit)
-                .font(.system(size: 10))
-                .foregroundStyle(Color.secondary.opacity(0.8))
         }
-        .padding(14)
-        .background(Color.habCard)
-        .cornerRadius(Radius.lg)
-        .shadow(color: Color.black.opacity(0.01), radius: 4, x: 0, y: 2)
-        .overlay(
-            RoundedRectangle(cornerRadius: Radius.lg)
-                .stroke(Color.primary.opacity(0.04), lineWidth: 1)
-        )
+        .padding(.horizontal, Spacing.lg)
+        .padding(.vertical, Spacing.md)
+        .accessibilityElement(children: .combine)
     }
 }
 
@@ -335,7 +252,7 @@ struct MonthHeatmapGrid: View {
         VStack(spacing: Spacing.sm) {
             // Nombre del mes y año dinámico
             Text(currentMonthName)
-                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .font(.subheadline)
                 .foregroundStyle(Color.secondary)
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.bottom, 2)
@@ -344,8 +261,8 @@ struct MonthHeatmapGrid: View {
             HStack(spacing: 0) {
                 ForEach(weekdayHeaders, id: \.self) { header in
                     Text(header)
-                        .font(.system(size: 10, weight: .bold, design: .rounded))
-                        .foregroundStyle(Color.secondary.opacity(0.6))
+                        .font(.caption2.weight(.medium))
+                        .foregroundStyle(Color.secondary)
                         .frame(maxWidth: .infinity)
                 }
             }
@@ -364,12 +281,12 @@ struct MonthHeatmapGrid: View {
                     let intensity = habitsCount > 0 ? Double(completedCount) / Double(habitsCount) : 0.0
                     let hasLog = completedCount > 0
                     
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(hasLog ? Color.habPrimary.opacity(0.2 + intensity * 0.8) : Color.primary.opacity(0.04))
+                    RoundedRectangle(cornerRadius: 8, style: .continuous)
+                        .fill(hasLog ? Color.habPrimary.opacity(0.25 + intensity * 0.75) : Color.primary.opacity(0.05))
                         .frame(height: 32)
                         .overlay(
                             Text("\(dayNumber)")
-                                .font(.system(size: 11, weight: .bold, design: .rounded))
+                                .font(.caption2.monospacedDigit())
                                 .foregroundStyle(hasLog ? Color.white : Color.secondary)
                         )
                 }

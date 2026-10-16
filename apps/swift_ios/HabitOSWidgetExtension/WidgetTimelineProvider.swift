@@ -53,18 +53,20 @@ struct HabitWidgetTimelineProvider: TimelineProvider {
 
     // Datos rápidos para la galería de widgets
     func getSnapshot(in context: Context, completion: @escaping (HabitWidgetEntry) -> Void) {
-        let entry = fetchCurrentEntry(date: Date())
-        completion(entry)
+        Task { @MainActor in
+            completion(fetchCurrentEntry(date: Date()))
+        }
     }
 
     // Generador principal de la línea de tiempo
     func getTimeline(in context: Context, completion: @escaping (Timeline<HabitWidgetEntry>) -> Void) {
-        let entry = fetchCurrentEntry(date: Date())
-        
-        // Actualizamos el widget a la medianoche y cada 15 minutos
-        let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date()) ?? Date().addingTimeInterval(900)
-        let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
-        completion(timeline)
+        Task { @MainActor in
+            let entry = fetchCurrentEntry(date: Date())
+            
+            // Actualizamos el widget cada 15 minutos
+            let nextUpdate = Calendar.current.date(byAdding: .minute, value: 15, to: Date()) ?? Date().addingTimeInterval(900)
+            completion(Timeline(entries: [entry], policy: .after(nextUpdate)))
+        }
     }
     
     // Método auxiliar para consultar SwiftData local

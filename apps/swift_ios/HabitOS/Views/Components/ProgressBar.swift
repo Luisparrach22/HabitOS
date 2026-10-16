@@ -18,98 +18,54 @@ struct ProgressBar: View {
     }
     
     var body: some View {
-        VStack(alignment: .leading, spacing: Spacing.md) {
-            
-            // Fila de Cabecera: Progreso de Hábitos e Icono de Racha
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text("PROGRESO HOY")
-                        .font(.system(size: 11, weight: .bold, design: .rounded))
-                        .foregroundStyle(Color.habTextSecondary)
-                    
-                    if totalCount > 0 {
-                        Text("\(completedCount) de \(totalCount) completados")
-                            .font(.system(.title2, design: .rounded))
-                            .fontWeight(.bold)
-                            .foregroundStyle(Color.habTextPrimary)
-                    } else {
-                        Text("Comienza tu rutina")
-                            .font(.system(.title2, design: .rounded))
-                            .fontWeight(.bold)
-                            .foregroundStyle(Color.habTextPrimary)
-                    }
-                }
-                
-                Spacer()
-                
-                // Medallón de racha actual con estilo HIG premium
-                HStack(spacing: 4) {
-                    Image(systemName: "flame.fill")
-                        .foregroundStyle(
-                            LinearGradient(
-                                colors: [Color(hex: "#FF9F0A"), Color(hex: "#FF3B30")],
-                                startPoint: .top,
-                                endPoint: .bottom
-                            )
-                        )
-                        .font(.system(size: 16, weight: .semibold))
-                    
-                    Text("\(maxCurrentStreak)")
-                        .font(.system(.subheadline, design: .rounded))
-                        .fontWeight(.bold)
-                        .foregroundStyle(Color.habTextPrimary)
-                }
-                .padding(.horizontal, 12)
-                .padding(.vertical, 6)
-                .background(Color.habCardMuted)
-                .cornerRadius(Radius.md)
-            }
-            
-            // Barra de progreso delgada de 8pt con gradiente premium
-            GeometryReader { geometry in
-                ZStack(alignment: .leading) {
-                    // Fondo de la barra
-                    Capsule()
-                        .fill(Color.primary.opacity(0.06))
-                        .frame(height: 8)
-                    
-                    // Barra de progreso con gradiente
-                    Capsule()
-                        .fill(
-                            LinearGradient(
-                                colors: [Color(hex: "#7B2CBF"), Color(hex: "#00F5D4")],
-                                startPoint: .leading,
-                                endPoint: .trailing
-                            )
-                        )
-                        .frame(width: geometry.size.width * CGFloat(progress), height: 8)
-                        .animation(.spring(response: 0.5, dampingFraction: 0.75), value: progress)
+        HStack(spacing: Spacing.xl2) {
+            ZStack {
+                ProgressRing(progress: progress, lineWidth: 13)
+                VStack(spacing: 0) {
+                    Text("\(Int(progress * 100))")
+                        .font(.system(size: 34, weight: .bold, design: .rounded))
+                        .contentTransition(.numericText())
+                    Text("%")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(Color.secondary)
                 }
             }
-            .frame(height: 8)
-            
-            // Mensaje motivacional según progreso
-            Text(motivationalMessage)
-                .font(.footnote)
-                .foregroundStyle(Color.habTextMuted)
+            .frame(width: 110, height: 110)
+            .accessibilityElement(children: .ignore)
+            .accessibilityLabel("Progreso de hoy")
+            .accessibilityValue("\(Int(progress * 100)) por ciento")
+
+            VStack(alignment: .leading, spacing: Spacing.sm) {
+                Text(totalCount > 0 ? "\(completedCount) de \(totalCount) hoy" : "Sin hábitos aún")
+                    .font(.system(.title3, design: .rounded, weight: .semibold))
+
+                Text(motivationalMessage)
+                    .font(.subheadline)
+                    .foregroundStyle(Color.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+
+                Label("\(maxCurrentStreak) días", systemImage: "flame.fill")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(maxCurrentStreak > 0 ? Color.habWarning : Color.secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .glassEffect(.regular, in: Capsule())
+                    .accessibilityLabel("Racha de \(maxCurrentStreak) días")
+            }
+            Spacer(minLength: 0)
         }
-        .padding(18)
-        .background(Color.habCard)
-        .cornerRadius(Radius.xl2)
-        .shadow(
-            color: Color.black.opacity(0.02),
-            radius: 8, x: 0, y: 4
-        )
+        .padding(Spacing.xl2)
+        .glassCard(Radius.xl)
     }
-    
+
     // Genera un mensaje motivacional dinámico
     private var motivationalMessage: String {
-        guard totalCount > 0 else { return "¡Añade un hábito para empezar tu rutina!" }
+        guard totalCount > 0 else { return "Añade un hábito para empezar." }
         let pct = progress
-        if pct == 0 { return "Comienza con un pequeño paso hoy. ¡Tú puedes!" }
-        if pct < 0.5 { return "¡Buen comienzo! Sigue adelante." }
-        if pct < 1.0 { return "¡Estás muy cerca de completar tu día!" }
-        return "¡Día perfecto! Has completado todos tus hábitos 🎉"
+        if pct == 0 { return "Empieza con un pequeño paso." }
+        if pct < 0.5 { return "Buen comienzo." }
+        if pct < 1.0 { return "Casi lo tienes." }
+        return "Día completo."
     }
 }
 

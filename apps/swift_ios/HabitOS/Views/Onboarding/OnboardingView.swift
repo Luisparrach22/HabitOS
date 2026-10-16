@@ -33,17 +33,16 @@ struct OnboardingView: View {
     
     var body: some View {
         ZStack {
-            Color.habBackground
-                .ignoresSafeArea()
+            AuroraBackground()
             
             VStack(spacing: 0) {
                 // Barra de Progreso Superior
                 HStack(spacing: 8) {
                     ForEach(0..<4) { index in
                         Capsule()
-                            .fill(index <= currentStep ? Color.habPrimary : Color.habPrimary.opacity(0.15))
-                            .frame(height: 5)
-                            .animation(.spring(response: 0.3, dampingFraction: 0.7), value: currentStep)
+                            .fill(index <= currentStep ? Color.habPrimary : Color.primary.opacity(0.1))
+                            .frame(height: 4)
+                            .animation(.smooth(duration: 0.3), value: currentStep)
                     }
                 }
                 .padding(.horizontal, Spacing.xl2)
@@ -56,8 +55,8 @@ struct OnboardingView: View {
                     // PASO 0: Rachas
                     OnboardingSlide(
                         icon: "flame.fill",
-                        iconColors: [Color(hex: "#FF9F0A"), Color(hex: "#FF3B30")],
-                        title: "Construye Rachas Indestructibles",
+                        color: .habWarning,
+                        title: "Construye rachas",
                         subtitle: "Completa tus objetivos diarios y observa cómo tu disciplina crece día tras día."
                     )
                     .tag(0)
@@ -65,8 +64,8 @@ struct OnboardingView: View {
                     // PASO 1: Escudos
                     OnboardingSlide(
                         icon: "shield.fill",
-                        iconColors: [Color(hex: "#00F5D4"), Color(hex: "#018ABE")],
-                        title: "Protege tu Progreso con Escudos",
+                        color: .habPrimary,
+                        title: "Protege tu progreso",
                         subtitle: "¿Un día difícil? Los escudos evitan que pierdas tu racha al fallar una jornada."
                     )
                     .tag(1)
@@ -74,8 +73,8 @@ struct OnboardingView: View {
                     // PASO 2: Gamificación & XP
                     OnboardingSlide(
                         icon: "star.fill",
-                        iconColors: [Color(hex: "#FFCC00"), Color(hex: "#FF9500")],
-                        title: "Sube de Nivel y Gana XP",
+                        color: .habWarning,
+                        title: "Sube de nivel",
                         subtitle: "Cada hábito completado otorga puntos de experiencia para subir de nivel y desbloquear insignias."
                     )
                     .tag(2)
@@ -94,25 +93,20 @@ struct OnboardingView: View {
                     generator.impactOccurred()
                     
                     if currentStep < 3 {
-                        withAnimation(.spring(response: 0.4, dampingFraction: 0.8)) {
+                        withAnimation(.smooth(duration: 0.35)) {
                             currentStep += 1
                         }
                     } else {
                         finishOnboarding()
                     }
                 } label: {
-                    Text(currentStep == 3 ? "Comenzar mi Sistema ⚡" : "Siguiente")
-                        .font(.system(.headline, design: .rounded))
-                        .fontWeight(.bold)
-                        .foregroundStyle(.white)
+                    Text(currentStep == 3 ? "Comenzar" : "Siguiente")
+                        .font(.headline)
                         .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(
-                            RoundedRectangle(cornerRadius: Radius.xl)
-                                .fill(nameIsValid || currentStep < 3 ? Color.habPrimary : Color.habPrimary.opacity(0.4))
-                        )
-                        .shadow(color: Color.habPrimary.opacity(0.15), radius: 8, x: 0, y: 4)
+                        .frame(height: 50)
                 }
+                .buttonStyle(.glassProminent)
+                .tint(Color.habPrimary)
                 .disabled(currentStep == 3 && !nameIsValid)
                 .padding(.horizontal, Spacing.xl2)
                 .padding(.bottom, Spacing.xl)
@@ -129,12 +123,10 @@ struct OnboardingView: View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(spacing: Spacing.xl) {
                 VStack(spacing: Spacing.xs) {
-                    Text("¡Personaliza tu Sistema!")
-                        .font(.system(.title2, design: .rounded))
-                        .fontWeight(.bold)
-                        .foregroundStyle(Color.habTextPrimary)
+                    Text("Personaliza tu sistema")
+                        .font(.title2.weight(.bold))
                     
-                    Text("Ingresa tu nombre y elige tus primeros hábitos")
+                    Text("Escribe tu nombre y elige tus primeros hábitos.")
                         .font(.subheadline)
                         .foregroundStyle(Color.habTextMuted)
                         .multilineTextAlignment(.center)
@@ -143,72 +135,66 @@ struct OnboardingView: View {
                 
                 // Campo de Texto de Nombre
                 VStack(alignment: .leading, spacing: Spacing.xs) {
-                    Text("¿CÓMO TE LLAMAMOS?")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(Color.habTextSecondary)
+                    Text("Tu nombre")
+                        .font(.footnote)
+                        .foregroundStyle(Color.secondary)
                         .padding(.leading, Spacing.xs)
                     
-                    TextField("Tu nombre (ej. Alex)", text: $userName)
+                    TextField("Nombre", text: $userName)
                         .font(.body)
-                        .padding(16)
-                        .background(Color.habCard)
-                        .cornerRadius(Radius.lg)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: Radius.lg)
-                                .stroke(Color.habBorder, lineWidth: 1)
-                        )
+                        .textContentType(.givenName)
+                        .padding(Spacing.lg)
+                        .glassCard(Radius.lg)
                 }
                 
                 // Selección de Hábitos Semilla
                 VStack(alignment: .leading, spacing: Spacing.md) {
-                    Text("HÁBITOS INICIALES RECOMENDADOS")
-                        .font(.system(size: 11, weight: .bold))
-                        .foregroundStyle(Color.habTextSecondary)
+                    Text("Hábitos iniciales")
+                        .font(.footnote)
+                        .foregroundStyle(Color.secondary)
                         .padding(.leading, Spacing.xs)
                     
-                    VStack(spacing: Spacing.sm) {
+                    VStack(spacing: 0) {
                         ForEach($seedHabits) { $habit in
-                            HStack(spacing: 12) {
-                                ZStack {
-                                    Circle()
-                                        .fill(Color(hex: habit.color).opacity(0.12))
-                                        .frame(width: 40, height: 40)
+                            Button {
+                                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                                habit.isSelected.toggle()
+                            } label: {
+                                HStack(spacing: Spacing.md) {
                                     Image(systemName: habit.icon)
-                                        .font(.system(size: 18))
-                                        .foregroundStyle(Color(hex: habit.color))
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .foregroundStyle(.white)
+                                        .frame(width: 32, height: 32)
+                                        .background(Color(hex: habit.color), in: RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+                                    VStack(alignment: .leading, spacing: 2) {
+                                        Text(habit.name)
+                                            .font(.body)
+                                            .foregroundStyle(Color.primary)
+                                        Text(habit.description)
+                                            .font(.footnote)
+                                            .foregroundStyle(Color.secondary)
+                                    }
+
+                                    Spacer()
+
+                                    Image(systemName: habit.isSelected ? "checkmark.circle.fill" : "circle")
+                                        .font(.title3)
+                                        .foregroundStyle(habit.isSelected ? Color.habPrimary : Color(uiColor: .tertiaryLabel))
                                 }
-                                
-                                VStack(alignment: .leading, spacing: 2) {
-                                    Text(habit.name)
-                                        .font(.subheadline)
-                                        .fontWeight(.semibold)
-                                        .foregroundStyle(Color.habTextPrimary)
-                                    Text(habit.description)
-                                        .font(.caption)
-                                        .foregroundStyle(Color.habTextMuted)
-                                }
-                                
-                                Spacer()
-                                
-                                Image(systemName: habit.isSelected ? "checkmark.circle.fill" : "circle")
-                                    .font(.title3)
-                                    .foregroundStyle(habit.isSelected ? Color.habSuccess : Color.habTextMuted)
-                                    .scaleEffect(habit.isSelected ? 1.1 : 1.0)
-                                    .animation(.spring(response: 0.2, dampingFraction: 0.6), value: habit.isSelected)
+                                .padding(.horizontal, Spacing.lg)
+                                .padding(.vertical, Spacing.md)
+                                .contentShape(Rectangle())
                             }
-                            .padding(14)
-                            .background(Color.habCard)
-                            .cornerRadius(Radius.lg)
-                            .shadow(color: Color.black.opacity(0.01), radius: 4, x: 0, y: 2)
-                            .onTapGesture {
-                                let generator = UIImpactFeedbackGenerator(style: .light)
-                                generator.impactOccurred()
-                                withAnimation {
-                                    habit.isSelected.toggle()
-                                }
+                            .buttonStyle(.plain)
+                            .accessibilityAddTraits(habit.isSelected ? .isSelected : [])
+
+                            if habit.id != seedHabits.last?.id {
+                                Divider().padding(.leading, 60)
                             }
                         }
                     }
+                    .glassCard(Radius.lg)
                 }
             }
             .padding(.horizontal, Spacing.xl2)
@@ -274,50 +260,31 @@ struct OnboardingView: View {
     }
 }
 
-// MARK: - Slide Reutilizable Premium
+// MARK: - Slide
 struct OnboardingSlide: View {
     let icon: String
-    let iconColors: [Color]
+    let color: Color
     let title: String
     let subtitle: String
     
     var body: some View {
         VStack(spacing: Spacing.xl2) {
-            ZStack {
-                Circle()
-                    .fill(iconColors[0].opacity(0.12))
-                    .frame(width: 140, height: 140)
-                
-                Circle()
-                    .fill(
-                        LinearGradient(
-                            colors: iconColors,
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
-                    .frame(width: 100, height: 100)
-                    .shadow(color: iconColors[0].opacity(0.3), radius: 15, x: 0, y: 8)
-                
-                Image(systemName: icon)
-                    .font(.system(size: 44, weight: .semibold))
-                    .foregroundStyle(.white)
-            }
+            Image(systemName: icon)
+                .font(.system(size: 44, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 96, height: 96)
+                .glassEffect(.regular.tint(color.opacity(0.75)), in: RoundedRectangle(cornerRadius: 24, style: .continuous))
+                .accessibilityHidden(true)
             
-            VStack(spacing: Spacing.md) {
+            VStack(spacing: Spacing.sm) {
                 Text(title)
-                    .font(.system(.title2, design: .rounded))
-                    .fontWeight(.bold)
-                    .foregroundStyle(Color.habTextPrimary)
+                    .font(.title.weight(.bold))
                     .multilineTextAlignment(.center)
-                    .padding(.horizontal, Spacing.md)
                 
                 Text(subtitle)
                     .font(.body)
-                    .foregroundStyle(Color.habTextMuted)
+                    .foregroundStyle(Color.secondary)
                     .multilineTextAlignment(.center)
-                    .lineSpacing(4)
-                    .padding(.horizontal, Spacing.xl)
             }
         }
         .padding(.horizontal, Spacing.xl2)

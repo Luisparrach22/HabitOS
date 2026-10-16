@@ -52,6 +52,7 @@ struct MainTabView: View {
         }
         // Aplicamos el tinte de color de tu design system
         .tint(Color.habPrimary)
+        .tabBarMinimizeBehavior(.onScrollDown)
         .sheet(isPresented: $showingCreateHabitSheet) {
             CreateHabitView()
         }

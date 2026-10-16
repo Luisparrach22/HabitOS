@@ -31,7 +31,7 @@ struct IconPickerSheet: View {
                     .padding()
                 }
             }
-            .background(Color.habBackground)
+            .background { AuroraBackground() }
             .navigationTitle("Elige un Icono")
             .navigationBarTitleDisplayMode(.inline)
             .searchable(text: $searchText, prompt: "Buscar iconos...")
@@ -40,7 +40,7 @@ struct IconPickerSheet: View {
                     Button("Cancelar") {
                         dismiss()
                     }
-                    .font(.system(.body, design: .rounded))
+                    .font(.body)
                     .fontWeight(.bold)
                     .foregroundStyle(Color.habPrimary)
                 }
@@ -63,7 +63,7 @@ struct IconPickerSheet: View {
     private func categorySection(_ category: IconCategory) -> some View {
         VStack(alignment: .leading, spacing: Spacing.sm) {
             Text(category.label)
-                .font(.system(.subheadline, design: .rounded))
+                .font(.subheadline)
                 .fontWeight(.bold)
                 .foregroundStyle(Color.secondary)
                 .padding(.horizontal, Spacing.xs)

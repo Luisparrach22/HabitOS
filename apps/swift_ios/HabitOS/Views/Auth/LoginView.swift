@@ -29,34 +29,27 @@ struct LoginView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Color.habBackground
-                    .ignoresSafeArea()
+                AuroraBackground()
                 
                 ScrollView {
                     VStack(spacing: Spacing.xl2) {
                         
-                        // Cabecera / Logo
-                        VStack(spacing: Spacing.xs) {
-                            ZStack {
-                                Circle()
-                                    .fill(Color.habPrimary.opacity(0.12))
-                                    .frame(width: 80, height: 80)
-                                
-                                Image(systemName: "checkmark.seal.fill")
-                                    .font(.system(size: 40))
-                                    .foregroundStyle(Color.habPrimary)
-                            }
-                            .padding(.top, Spacing.xl2)
+                        // Cabecera
+                        VStack(spacing: Spacing.sm) {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 34, weight: .bold))
+                                .foregroundStyle(.white)
+                                .frame(width: 72, height: 72)
+                                .glassEffect(.regular.tint(Color.habPrimary.opacity(0.75)), in: RoundedRectangle(cornerRadius: 18, style: .continuous))
+                                .padding(.top, Spacing.xl3)
+                                .accessibilityHidden(true)
                             
                             Text("HabitOS")
-                                .font(.system(size: 32, weight: .black, design: .rounded))
-                                .foregroundStyle(Color.primary)
+                                .font(.largeTitle.weight(.bold))
                             
-                            Text("Inicia sesión para continuar tu progreso")
-                                .font(.system(.subheadline, design: .rounded))
+                            Text("Inicia sesión para continuar")
+                                .font(.subheadline)
                                 .foregroundStyle(Color.secondary)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, Spacing.lg)
                         }
                         
                         // Formulario de login
@@ -64,8 +57,8 @@ struct LoginView: View {
                             
                             // Campo Email
                             VStack(alignment: .leading, spacing: Spacing.xs) {
-                                Text("CORREO ELECTRÓNICO")
-                                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                                Text("Correo electrónico")
+                                    .font(.footnote)
                                     .foregroundStyle(Color.secondary)
                                     .padding(.horizontal, Spacing.xs)
                                 
@@ -75,18 +68,13 @@ struct LoginView: View {
                                     .textInputAutocapitalization(.never)
                                     .font(.body)
                                     .padding()
-                                    .background(Color.habCard)
-                                    .cornerRadius(Radius.md)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: Radius.md)
-                                            .stroke(Color.primary.opacity(0.04), lineWidth: 1)
-                                    )
+                                    .glassCard(Radius.md)
                             }
                             
                             // Campo Contraseña
                             VStack(alignment: .leading, spacing: Spacing.xs) {
-                                Text("CONTRASEÑA")
-                                    .font(.system(size: 10, weight: .bold, design: .rounded))
+                                Text("Contraseña")
+                                    .font(.footnote)
                                     .foregroundStyle(Color.secondary)
                                     .padding(.horizontal, Spacing.xs)
                                 
@@ -104,18 +92,14 @@ struct LoginView: View {
                                     Button {
                                         isPasswordVisible.toggle()
                                     } label: {
-                                        Image(systemName: isPasswordVisible ? "eye.slash.fill" : "eye.fill")
-                                            .foregroundStyle(Color.secondary.opacity(0.8))
+                                        Image(systemName: isPasswordVisible ? "eye.slash" : "eye")
+                                            .foregroundStyle(Color.secondary)
+                                            .frame(width: 44, height: 44)
                                     }
                                 }
                                 .font(.body)
                                 .padding()
-                                .background(Color.habCard)
-                                .cornerRadius(Radius.md)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: Radius.md)
-                                        .stroke(Color.primary.opacity(0.04), lineWidth: 1)
-                                )
+                                .glassCard(Radius.md)
                             }
                             
                             // Botón Contraseña Olvidada
@@ -123,7 +107,7 @@ struct LoginView: View {
                                 ForgotPasswordView()
                             } label: {
                                 Text("¿Olvidaste tu contraseña?")
-                                    .font(.system(.footnote, design: .rounded).bold())
+                                    .font(.footnote.weight(.semibold))
                                     .foregroundStyle(Color.habPrimary)
                             }
                             .frame(maxWidth: .infinity, alignment: .trailing)
@@ -136,35 +120,30 @@ struct LoginView: View {
                             Button {
                                 handleLogin()
                             } label: {
-                                HStack {
+                                Group {
                                     if isLoading {
-                                        ProgressView()
-                                            .tint(.white)
+                                        ProgressView().tint(.white)
                                     } else {
-                                        Text("Iniciar Sesión")
-                                            .font(.system(.body, design: .rounded).bold())
+                                        Text("Iniciar sesión").font(.headline)
                                     }
                                 }
                                 .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(isFormValid ? Color.habPrimary : Color.habPrimary.opacity(0.5))
-                                .foregroundStyle(Color.white)
-                                .cornerRadius(Radius.md)
-                                .shadow(color: Color.habPrimary.opacity(isFormValid ? 0.15 : 0.0), radius: 6, x: 0, y: 3)
+                                .frame(height: 50)
                             }
+                            .buttonStyle(.glassProminent)
+                            .tint(Color.habPrimary)
                             .disabled(!isFormValid || isLoading)
-                            .buttonStyle(.plain)
                             
                             HStack(spacing: 4) {
                                 Text("¿No tienes una cuenta?")
-                                    .font(.system(.subheadline, design: .rounded))
+                                    .font(.subheadline)
                                     .foregroundStyle(Color.secondary)
                                 
                                 NavigationLink {
                                     RegisterView()
                                 } label: {
                                     Text("Regístrate")
-                                        .font(.system(.subheadline, design: .rounded).bold())
+                                        .font(.subheadline.weight(.semibold))
                                         .foregroundStyle(Color.habPrimary)
                                 }
                             }

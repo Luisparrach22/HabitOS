@@ -1,77 +1,18 @@
-// ──────────────────────────────────────────────
-// Typography.swift — Fuentes custom Outfit
-// ──────────────────────────────────────────────
-// Mapeo directo de tu typography en tema.ts.
-// En SwiftUI, las fuentes custom se cargan con Font.custom().
-//
-// IMPORTANTE para Xcode:
-// 1. Arrastra los .ttf de Resources/Fonts/ al proyecto de Xcode.
-// 2. Marca "Copy items if needed" y "Add to target: HabitOS".
-// 3. En Info.plist, añade la clave "Fonts provided by application"
-//    con estos valores:
-//    - Outfit-Regular.ttf
-//    - Outfit-Medium.ttf
-//    - Outfit-SemiBold.ttf
-//    - Outfit-Bold.ttf
+// Typography.swift — Tipografía del sistema (SF Pro + Dynamic Type)
+// Todos los estilos mapean a text styles de Apple para respetar
+// el tamaño de texto del usuario.
 
 import SwiftUI
 
-// MARK: - Nombres internos de las fuentes
-
-/// Los nombres exactos de los archivos .ttf que registramos.
-/// Si una fuente no se encuentra, SwiftUI usará la del sistema como fallback.
-private enum OutfitFont {
-    static let regular  = "Outfit-Regular"
-    static let medium   = "Outfit-Medium"
-    static let semiBold = "Outfit-SemiBold"
-    static let bold     = "Outfit-Bold"
-}
-
-// MARK: - Escala tipográfica
-
-/// Sistema tipográfico de HabitOS basado en la fuente Outfit.
-/// Cada estilo mapea directamente a un nivel de tu tema.ts.
-///
-/// Uso:
-/// ```swift
-/// Text("Mis Hábitos")
-///     .font(.habLargeTitle)
-/// ```
 extension Font {
-    
-    // ── Títulos ───────────────────────────────────
-    
-    /// 32pt Bold — Títulos principales de pantalla
-    static let habLargeTitle = Font.custom(OutfitFont.bold, size: 32)
-    
-    /// 26pt Bold — Títulos de sección
-    static let habTitle1 = Font.custom(OutfitFont.bold, size: 26)
-    
-    /// 22pt SemiBold — Subtítulos
-    static let habTitle2 = Font.custom(OutfitFont.semiBold, size: 22)
-    
-    /// 18pt SemiBold — Títulos de tarjeta
-    static let habTitle3 = Font.custom(OutfitFont.semiBold, size: 18)
-    
-    // ── Cuerpo ────────────────────────────────────
-    
-    /// 16pt SemiBold — Encabezados inline
-    static let habHeadline = Font.custom(OutfitFont.semiBold, size: 16)
-    
-    /// 15pt Regular — Texto principal del cuerpo
-    static let habBody = Font.custom(OutfitFont.regular, size: 15)
-    
-    /// 14pt Regular — Texto de llamada a la acción o secundario
-    static let habCallout = Font.custom(OutfitFont.regular, size: 14)
-    
-    // ── Pequeños ──────────────────────────────────
-    
-    /// 13pt Medium — Subtexto / labels
-    static let habSubhead = Font.custom(OutfitFont.medium, size: 13)
-    
-    /// 12pt Regular — Notas al pie
-    static let habFootnote = Font.custom(OutfitFont.regular, size: 12)
-    
-    /// 11pt Medium — Captions en mayúsculas
-    static let habCaption = Font.custom(OutfitFont.medium, size: 11)
+    static let habLargeTitle = Font.largeTitle.weight(.bold)
+    static let habTitle1     = Font.title.weight(.bold)
+    static let habTitle2     = Font.title2.weight(.semibold)
+    static let habTitle3     = Font.title3.weight(.semibold)
+    static let habHeadline   = Font.headline
+    static let habBody       = Font.body
+    static let habCallout    = Font.callout
+    static let habSubhead    = Font.subheadline
+    static let habFootnote   = Font.footnote
+    static let habCaption    = Font.caption
 }

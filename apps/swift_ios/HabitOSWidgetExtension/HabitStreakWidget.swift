@@ -58,13 +58,13 @@ struct HabitStreakWidgetEntryView: View {
             HStack(spacing: 4) {
                 Image(systemName: "checklist")
                     .font(.caption2)
-                Text("PENDIENTES")
-                    .font(.system(size: 8, weight: .black))
+                Text("Pendientes")
+                    .font(.system(size: 10, weight: .semibold))
                     .foregroundColor(.secondary)
             }
             
             if pending.isEmpty {
-                Text("🎉 ¡Al día!")
+                Text("Todo al día")
                     .font(.system(size: 13, weight: .bold, design: .rounded))
                     .foregroundColor(.primary)
                     .padding(.top, 1)
@@ -88,50 +88,36 @@ struct HabitStreakWidgetEntryView: View {
     // MARK: - Pantalla de Bloqueo: En línea (Inline)
     private var inlineLockScreenView: some View {
         let pendingCount = entry.habits.filter { !$0.isCompletedToday }.count
-        return Label("🔥 Racha: \(entry.totalStreak) • Pendientes: \(pendingCount)", systemImage: "flame.fill")
+        return Label("Racha \(entry.totalStreak) · Pendientes \(pendingCount)", systemImage: "flame.fill")
     }
 
     // MARK: - Vista Pequeña para Inicio
     private var streakSmallHomeWidgetView: some View {
-        VStack(spacing: 8) {
+        let progress = Double(entry.currentXP) / Double(max(1, entry.nextLevelXP))
+        return VStack(spacing: 8) {
             ZStack {
-                Circle()
-                    .stroke(Color.white.opacity(0.1), lineWidth: 8)
-                Circle()
-                    .trim(from: 0, to: CGFloat(min(1.0, Double(entry.currentXP) / Double(max(1, entry.nextLevelXP)))))
-                    .stroke(
-                        AngularGradient(colors: [Color(hex: "#FF6B00"), Color(hex: "#00F5D4")], center: .center),
-                        style: StrokeStyle(lineWidth: 8, lineCap: .round)
-                    )
-                    .rotationEffect(.degrees(-90))
-
+                WidgetRing(progress: progress, lineWidth: 8)
                 VStack(spacing: 0) {
                     Image(systemName: "flame.fill")
-                        .font(.title2)
-                        .foregroundColor(Color(hex: "#FF6B00"))
+                        .font(.body)
+                        .foregroundStyle(Color(hex: "#FF9F0A"))
                     Text("\(entry.totalStreak)")
-                        .font(.system(size: 22, weight: .black))
-                        .foregroundColor(.white)
-                    Text("DÍAS")
-                        .font(.system(size: 9, weight: .bold))
-                        .foregroundColor(.gray)
+                        .font(.system(size: 26, weight: .bold, design: .rounded))
+                    Text("días")
+                        .font(.caption2)
+                        .foregroundStyle(.secondary)
                 }
             }
-            .frame(width: 90, height: 90)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             HStack(spacing: 6) {
-                Text("Niv. \(entry.userLevel)")
-                    .font(.caption2.bold())
-                    .foregroundColor(Color(hex: "#7B2CBF"))
-                Text("•")
-                    .foregroundColor(.gray)
+                Text("Nivel \(entry.userLevel)").widgetChip()
                 Label("\(entry.activeShields)", systemImage: "shield.fill")
-                    .font(.caption2.bold())
-                    .foregroundColor(Color(hex: "#00F5D4"))
+                    .foregroundStyle(Color(hex: "#31D0F5"))
+                    .widgetChip()
             }
+            .font(.caption2.weight(.semibold))
         }
-        .padding(12)
-        .background(Color(hex: "#0D0F14"))
     }
 }
 
@@ -141,6 +127,7 @@ struct HabitStreakWidget: Widget {
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: HabitWidgetTimelineProvider()) { entry in
             HabitStreakWidgetEntryView(entry: entry)
+                .containerBackground(for: .widget) { WidgetAurora() }
         }
         .configurationDisplayName("HabitOS — Racha y Nivel")
         .description("Sigue tu racha diaria y tus escudos activos desde tu pantalla de bloqueo o inicio.")
